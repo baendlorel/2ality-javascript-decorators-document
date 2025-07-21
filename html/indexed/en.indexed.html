@@ -875,6 +875,31 @@
       color: #7f7f7f
     }
   </style>
+  <style id="toggle">
+    [zh]:hover,
+    [en]:hover {
+      border-radius: 5px;
+      background-color: #b0cbeb55;
+    }
+
+    [zh]:hover::before,
+    [en]:hover::before {
+      position: absolute;
+      margin-top: -20px;
+      font-size: 0.8rem;
+      border-radius: 5px;
+      color: #22863a;
+      background-color: #3ebc5b30;
+    }
+
+    [zh]:hover::before {
+      content: "> 点击切换到英文/Click to switch to English";
+    }
+
+    [en]:hover::before {
+      content: "> 点击切换到中文/Click to switch to Chinese";
+    }
+  </style>
 </head>
 
 <body>
@@ -2614,5 +2639,26 @@ assert.<span class="hljs-title function_">equal</span>(orange.<span class="hljs-
     </div>
   </div>
 </body>
+<script purpose="标记中文元素index">
+  {
+    const tagsCanBeSingle = ['UL', 'OL', 'A', 'P'];
+    const list = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'TABLE']; //  'A', 'P', 
+    const is = (el, tag) => el.tagName === tag;
+
+    const indexes = [];
+    let index = 0;
+    document.querySelectorAll('*').forEach((el) => {
+      // a、p等元素不在别的列表里
+      const noParentList = (el.parentElement === null ? true : el.parentElement.closest('UL,OL,P') === null) && tagsCanBeSingle.includes(el.tagName);
+
+      if ((list.some((tag) => is(el, tag)) || noParentList) && /[\u4e00-\u9fa5]/.test(el.textContent)) {
+        el.setAttribute('zh', index);
+        indexes.push(index);
+      }
+      index++;
+    });
+    console.log(indexes.join());
+  }
+</script>
 
 </html>
