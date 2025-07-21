@@ -875,15 +875,40 @@
       color: #7f7f7f
     }
   </style>
+  <style id="toggle">
+    [zh]:hover,
+    [en]:hover {
+      border-radius: 5px;
+      background-color: #b0cbeb55;
+    }
+
+    [zh]:hover::before,
+    [en]:hover::before {
+      position: absolute;
+      margin-top: -20px;
+      font-size: 0.8rem;
+      border-radius: 5px;
+      color: #22863a;
+      background-color: #3ebc5b30;
+    }
+
+    [zh]:hover::before {
+      content: "> 点击切换到英文/Click to switch to English";
+    }
+
+    [en]:hover::before {
+      content: "> 点击切换到中文/Click to switch to Chinese";
+    }
+  </style>
 </head>
 
 <body>
   <div id="page-core-content" class="number-headings">
-    <h1 zh="9">使用 2022-03 装饰器 API 进行 JavaScript 元编程</h1>
+    <h1>使用 2022-03 装饰器 API 进行 JavaScript 元编程</h1>
     <div>
-      <p zh="11">JavaScript 装饰器终于进入了 <a href="https://exploringjs.com/js/book/ch_history.html#tc39-process" zh="12">第 3 阶段</a>！最新版本已经被 Babel 支持，<a href="#decorator-implementations" zh="13">很快也会被 TypeScript 支持</a>。</p>
-      <p zh="14">本文介绍了 ECMAScript 提案 <a href="https://github.com/tc39/proposal-decorators">“Decorators”</a>（2022-03 版本，第 3 阶段），作者为 Daniel Ehrenberg 和 Chris Garrett。</p>
-      <p zh="16">装饰器是以 <code>@</code> 符号开头的关键字，可以用于类和类成员（如方法）前。例如，<code>@trace</code> 就是一个装饰器：</p>
+      <p>JavaScript 装饰器终于进入了 <a href="https://exploringjs.com/js/book/ch_history.html#tc39-process">第 3 阶段</a>！最新版本已经被 Babel 支持，<a href="#decorator-implementations">很快也会被 TypeScript 支持</a>。</p>
+      <p>本文介绍了 ECMAScript 提案 <a href="https://github.com/tc39/proposal-decorators">“Decorators”</a>（2022-03 版本，第 3 阶段），作者为 Daniel Ehrenberg 和 Chris Garrett。</p>
+      <p>装饰器是以 <code>@</code> 符号开头的关键字，可以用于类和类成员（如方法）前。例如，<code>@trace</code> 就是一个装饰器：</p>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
   @trace
   <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
@@ -892,259 +917,259 @@
 }
 </code>
 </pre>
-      <p zh="27">装饰器会改变被装饰结构的行为。在这个例子中，每次调用 <code>.toString()</code> 都会被“追踪”（参数和结果会被输出到控制台）。<a href="#example-tracing-method-invocations" zh="29">稍后我们会看到 <code>@trace</code> 的实现。</a></p>
+      <p>装饰器会改变被装饰结构的行为。在这个例子中，每次调用 <code>.toString()</code> 都会被“追踪”（参数和结果会被输出到控制台）。<a href="#example-tracing-method-invocations">稍后我们会看到 <code>@trace</code> 的实现。</a></p>
       <!--more-->
-      <p zh="31">装饰器主要是面向对象的特性，在 Ember、Angular、Vue、Web 组件框架和 MobX 等 OOP 框架和库中非常流行。</p>
-      <p zh="32">关于装饰器，有两个相关角色：</p>
-      <ul zh="33">
-        <li zh="34">库作者需要了解装饰器 API，以便实现它们。</li>
-        <li zh="35">库使用者只需知道如何应用装饰器。</li>
+      <p>装饰器主要是面向对象的特性，在 Ember、Angular、Vue、Web 组件框架和 MobX 等 OOP 框架和库中非常流行。</p>
+      <p>关于装饰器，有两个相关角色：</p>
+      <ul>
+        <li>库作者需要了解装饰器 API，以便实现它们。</li>
+        <li>库使用者只需知道如何应用装饰器。</li>
       </ul>
-      <p zh="36">本文主要面向库作者：我们将学习装饰器的工作原理，并用这些知识实现几个装饰器。</p>
+      <p>本文主要面向库作者：我们将学习装饰器的工作原理，并用这些知识实现几个装饰器。</p>
       <nav class="table-of-contents">
-        <ul zh="38">
-          <li zh="39">
-            <a href="#history-of-decorators" zh="40">装饰器的历史（可选章节）</a>
-            <ul zh="41">
-              <li zh="42">
-                <a href="#the-history-of-decorators" zh="43">装饰器的历史</a>
+        <ul>
+          <li>
+            <a href="#history-of-decorators">装饰器的历史（可选章节）</a>
+            <ul>
+              <li>
+                <a href="#the-history-of-decorators">装饰器的历史</a>
               </li>
-              <li zh="44">
-                <a href="#the-history-of-babel%E2%80%99s-decorator-implementation" zh="45">Babel 装饰器实现的历史</a>
-              </li>
-            </ul>
-          </li>
-          <li zh="46">
-            <a href="#what-are-decorators%3F" zh="47">什么是装饰器？</a>
-            <ul zh="48">
-              <li zh="49">
-                <a href="#the-shape-of-decorator-functions" zh="50">装饰器函数的结构</a>
-              </li>
-              <li zh="51">
-                <a href="#what-can-decorators-do%3F" zh="52">装饰器能做什么？</a>
-              </li>
-              <li zh="53">
-                <a href="#summary-tables" zh="54">总结表格</a>
+              <li>
+                <a href="#the-history-of-babel%E2%80%99s-decorator-implementation">Babel 装饰器实现的历史</a>
               </li>
             </ul>
           </li>
-          <li zh="55">
-            <a href="#more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" zh="56">装饰器语法与语义的更多信息（可选章节）</a>
-            <ul zh="57">
-              <li zh="58">
-                <a href="#the-syntax-of-decorator-expressions" zh="59">装饰器表达式的语法</a>
+          <li>
+            <a href="#what-are-decorators%3F">什么是装饰器？</a>
+            <ul>
+              <li>
+                <a href="#the-shape-of-decorator-functions">装饰器函数的结构</a>
               </li>
-              <li zh="60">
-                <a href="#how-are-decorators-executed%3F" zh="61">装饰器如何执行？</a>
+              <li>
+                <a href="#what-can-decorators-do%3F">装饰器能做什么？</a>
               </li>
-              <li zh="62">
-                <a href="#decorator-initializer-execution" zh="63">装饰器初始化器何时运行？</a>
-              </li>
-            </ul>
-          </li>
-          <li zh="64">
-            <a href="#techniques-for-exposing-data-from-decorators" zh="65">装饰器暴露数据的技巧</a>
-            <ul zh="66">
-              <li zh="67">
-                <a href="#storing-exposed-data-in-a-surrounding-scope" zh="68">在外部作用域存储暴露的数据</a>
-              </li>
-              <li zh="69">
-                <a href="#managing-exposed-data-via-a-factory-function" zh="70">通过工厂函数管理暴露的数据</a>
-              </li>
-              <li zh="71">
-                <a href="#managing-exposed-data-via-a-class" zh="72">通过类管理暴露的数据</a>
+              <li>
+                <a href="#summary-tables">总结表格</a>
               </li>
             </ul>
           </li>
-          <li zh="73">
-            <a href="#class-decorators" zh="74">类装饰器</a>
-            <ul zh="75">
-              <li zh="76">
-                <a href="#example%3A-collecting-instances" zh="77">示例：收集实例</a>
+          <li>
+            <a href="#more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)">装饰器语法与语义的更多信息（可选章节）</a>
+            <ul>
+              <li>
+                <a href="#the-syntax-of-decorator-expressions">装饰器表达式的语法</a>
               </li>
-              <li zh="78">
-                <a href="#making-sure-that-instanceof-works" zh="79">确保 <code>instanceof</code> 正常工作</a>
+              <li>
+                <a href="#how-are-decorators-executed%3F">装饰器如何执行？</a>
               </li>
-              <li zh="81">
-                <a href="#example-freezing-instances" zh="82">示例：冻结实例</a>
-              </li>
-              <li zh="83">
-                <a href="#example%3A-making-classes-function-callable" zh="84">示例：让类可函数调用</a>
+              <li>
+                <a href="#decorator-initializer-execution">装饰器初始化器何时运行？</a>
               </li>
             </ul>
           </li>
-          <li zh="85">
-            <a href="#class-method-decorators" zh="86">类方法装饰器</a>
-            <ul zh="87">
-              <li zh="88">
-                <a href="#example-tracing-method-invocations" zh="89">示例：追踪方法调用</a>
+          <li>
+            <a href="#techniques-for-exposing-data-from-decorators">装饰器暴露数据的技巧</a>
+            <ul>
+              <li>
+                <a href="#storing-exposed-data-in-a-surrounding-scope">在外部作用域存储暴露的数据</a>
               </li>
-              <li zh="90">
-                <a href="#example%3A-binding-methods-to-instances" zh="91">示例：将方法绑定到实例</a>
+              <li>
+                <a href="#managing-exposed-data-via-a-factory-function">通过工厂函数管理暴露的数据</a>
               </li>
-              <li zh="92">
-                <a href="#example%3A-applying-functions-to-methods" zh="93">示例：对方法应用函数</a>
-              </li>
-            </ul>
-          </li>
-          <li zh="94">
-            <a href="#class-getter-decorators%2C-class-setter-decorators" zh="95">类 getter 装饰器、setter 装饰器</a>
-            <ul zh="96">
-              <li zh="97">
-                <a href="#example%3A-computing-values-lazily" zh="98">示例：惰性计算值</a>
+              <li>
+                <a href="#managing-exposed-data-via-a-class">通过类管理暴露的数据</a>
               </li>
             </ul>
           </li>
-          <li zh="99">
-            <a href="#class-field-decorators" zh="100">类字段装饰器</a>
-            <ul zh="101">
-              <li zh="102">
-                <a href="#example%3A-changing-initialization-values-of-fields" zh="103">示例：改变字段初始化值</a>
+          <li>
+            <a href="#class-decorators">类装饰器</a>
+            <ul>
+              <li>
+                <a href="#example%3A-collecting-instances">示例：收集实例</a>
               </li>
-              <li zh="104">
-                <a href="#read-only-fields" zh="105">示例：只读字段（实例公有字段）</a>
+              <li>
+                <a href="#making-sure-that-instanceof-works">确保 <code>instanceof</code> 正常工作</a>
               </li>
-              <li zh="106">
-                <a href="#example%3A-dependency-injection-(instance-public-fields)" zh="107">示例：依赖注入（实例公有字段）</a>
+              <li>
+                <a href="#example-freezing-instances">示例：冻结实例</a>
               </li>
-              <li zh="108">
-                <a href="#example-friend-visibility" zh="109">示例：“友元”可见性（实例私有字段）</a>
-              </li>
-              <li zh="110">
-                <a href="#example%3A-enums-(static-public-fields)" zh="111">示例：枚举（静态公有字段）</a>
+              <li>
+                <a href="#example%3A-making-classes-function-callable">示例：让类可函数调用</a>
               </li>
             </ul>
           </li>
-          <li zh="112">
-            <a href="#auto-accessors" zh="113">自动访问器：类定义的新成员</a>
-            <ul zh="114">
-              <li zh="115">
-                <a href="#why-are-auto-accessors-needed%3F" zh="116">为什么需要自动访问器？</a>
+          <li>
+            <a href="#class-method-decorators">类方法装饰器</a>
+            <ul>
+              <li>
+                <a href="#example-tracing-method-invocations">示例：追踪方法调用</a>
+              </li>
+              <li>
+                <a href="#example%3A-binding-methods-to-instances">示例：将方法绑定到实例</a>
+              </li>
+              <li>
+                <a href="#example%3A-applying-functions-to-methods">示例：对方法应用函数</a>
               </li>
             </ul>
           </li>
-          <li zh="117">
-            <a href="#class-auto-accessor-decorators" zh="118">类自动访问器装饰器</a>
-            <ul zh="119">
-              <li zh="120">
-                <a href="#read-only-auto-accessors" zh="121">示例：只读自动访问器</a>
+          <li>
+            <a href="#class-getter-decorators%2C-class-setter-decorators">类 getter 装饰器、setter 装饰器</a>
+            <ul>
+              <li>
+                <a href="#example%3A-computing-values-lazily">示例：惰性计算值</a>
               </li>
             </ul>
           </li>
-          <li zh="122">
-            <a href="#faq" zh="123">常见问题</a>
-            <ul zh="124">
-              <li zh="125">
-                <a href="#function-decorators" zh="126">为什么函数不能被装饰？</a>
+          <li>
+            <a href="#class-field-decorators">类字段装饰器</a>
+            <ul>
+              <li>
+                <a href="#example%3A-changing-initialization-values-of-fields">示例：改变字段初始化值</a>
+              </li>
+              <li>
+                <a href="#read-only-fields">示例：只读字段（实例公有字段）</a>
+              </li>
+              <li>
+                <a href="#example%3A-dependency-injection-(instance-public-fields)">示例：依赖注入（实例公有字段）</a>
+              </li>
+              <li>
+                <a href="#example-friend-visibility">示例：“友元”可见性（实例私有字段）</a>
+              </li>
+              <li>
+                <a href="#example%3A-enums-(static-public-fields)">示例：枚举（静态公有字段）</a>
               </li>
             </ul>
           </li>
-          <li zh="127">
-            <a href="#more-decorator-related-proposals" zh="128">更多与装饰器相关的提案</a>
-          </li>
-          <li zh="129">
-            <a href="#resources" zh="130">资源</a>
-            <ul zh="131">
-              <li zh="132">
-                <a href="#decorator-implementations" zh="133">实现</a>
-              </li>
-              <li zh="134">
-                <a href="#libraries-with-decorators" zh="135">带装饰器的库</a>
+          <li>
+            <a href="#auto-accessors">自动访问器：类定义的新成员</a>
+            <ul>
+              <li>
+                <a href="#why-are-auto-accessors-needed%3F">为什么需要自动访问器？</a>
               </li>
             </ul>
           </li>
-          <li zh="136">
-            <a href="#acknowledgements" zh="137">致谢</a>
+          <li>
+            <a href="#class-auto-accessor-decorators">类自动访问器装饰器</a>
+            <ul>
+              <li>
+                <a href="#read-only-auto-accessors">示例：只读自动访问器</a>
+              </li>
+            </ul>
           </li>
-          <li zh="138">
-            <a href="#further-reading" zh="139">延伸阅读</a>
+          <li>
+            <a href="#faq">常见问题</a>
+            <ul>
+              <li>
+                <a href="#function-decorators">为什么函数不能被装饰？</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="#more-decorator-related-proposals">更多与装饰器相关的提案</a>
+          </li>
+          <li>
+            <a href="#resources">资源</a>
+            <ul>
+              <li>
+                <a href="#decorator-implementations">实现</a>
+              </li>
+              <li>
+                <a href="#libraries-with-decorators">带装饰器的库</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="#acknowledgements">致谢</a>
+          </li>
+          <li>
+            <a href="#further-reading">延伸阅读</a>
           </li>
         </ul>
       </nav>
-      <h2 id="history-of-decorators" tabindex="-1" zh="140">装饰器的历史（可选章节）&nbsp;&nbsp;<a class="heading-anchor" href="#history-of-decorators" aria-hidden="true">#</a></h2>
-      <p zh="142">(本章节为可选内容。如果您跳过此章节，仍然可以理解后续内容。)</p>
-      <p zh="143">让我们从装饰器的历史开始。主要回答以下两个问题：</p>
-      <ul zh="144">
-        <li zh="145">为什么这个提案花了这么长时间？</li>
-        <li zh="146">为什么感觉 JavaScript 似乎已经有装饰器很多年了？</li>
+      <h2 id="history-of-decorators" tabindex="-1">装饰器的历史（可选章节）&nbsp;&nbsp;<a class="heading-anchor" href="#history-of-decorators" aria-hidden="true">#</a></h2>
+      <p>(本章节为可选内容。如果您跳过此章节，仍然可以理解后续内容。)</p>
+      <p>让我们从装饰器的历史开始。主要回答以下两个问题：</p>
+      <ul>
+        <li>为什么这个提案花了这么长时间？</li>
+        <li>为什么感觉 JavaScript 似乎已经有装饰器很多年了？</li>
       </ul>
-      <h3 id="the-history-of-decorators" tabindex="-1" zh="147">装饰器的历史&nbsp;&nbsp;<a class="heading-anchor" href="#the-history-of-decorators" aria-hidden="true">#</a></h3>
-      <p zh="149">以下历史描述了：</p>
-      <ul zh="150">
-        <li zh="151">各个团体如何在各自的项目中工作，并在 TC39 提案上进行协作。</li>
-        <li zh="152">TC39 提案如何通过 <a href="https://exploringjs.com/js/book/ch_history.html#tc39-process" zh="153">TC39 过程</a> 的各个阶段（从 0 开始，到 4 结束，提案准备添加到 ECMAScript 中）。在此过程中，提案经历了多次变更。</li>
+      <h3 id="the-history-of-decorators" tabindex="-1">装饰器的历史&nbsp;&nbsp;<a class="heading-anchor" href="#the-history-of-decorators" aria-hidden="true">#</a></h3>
+      <p>以下历史描述了：</p>
+      <ul>
+        <li>各个团体如何在各自的项目中工作，并在 TC39 提案上进行协作。</li>
+        <li>TC39 提案如何通过 <a href="https://exploringjs.com/js/book/ch_history.html#tc39-process">TC39 过程</a> 的各个阶段（从 0 开始，到 4 结束，提案准备添加到 ECMAScript 中）。在此过程中，提案经历了多次变更。</li>
       </ul>
-      <p zh="154">以下是相关事件的时间顺序：</p>
-      <ul zh="155">
-        <li zh="156">
-          <p zh="157"><a href="https://github.com/tc39/notes/blob/main/meetings/2014-04/apr-10.md">2014-04-10</a>：Yehuda Katz 向 TC39 提出了装饰器提案。该提案晋升为第 0 阶段。</p>
-          <ul zh="159">
-            <li zh="160">Katz 的提案是与 Ron Buckton 合作创建的。关于该提案的讨论可以追溯到 <a href="https://twitter.com/rbuckton/status/1581292852532813825" zh="161">2013 年 7 月</a>。</li>
+      <p>以下是相关事件的时间顺序：</p>
+      <ul>
+        <li>
+          <p><a href="https://github.com/tc39/notes/blob/main/meetings/2014-04/apr-10.md">2014-04-10</a>：Yehuda Katz 向 TC39 提出了装饰器提案。该提案晋升为第 0 阶段。</p>
+          <ul>
+            <li>Katz 的提案是与 Ron Buckton 合作创建的。关于该提案的讨论可以追溯到 <a href="https://twitter.com/rbuckton/status/1581292852532813825">2013 年 7 月</a>。</li>
           </ul>
         </li>
-        <li zh="162">
-          <p zh="163">2014-10-22（ngEurope 大会，巴黎）：Angular 团队宣布 Angular 2.0 正在使用 AtScript 编写，并编译为 JavaScript（通过 Traceur）和 Dart。计划包括基于 TypeScript 的 AtScript，同时添加：</p>
-          <ul zh="164">
-            <li zh="165">三种类型的 <em>注解</em>：
-              <ul zh="167">
-                <li zh="168"><em>类型注解</em></li>
-                <li zh="170"><em>字段注解</em> 显式声明字段。</li>
-                <li zh="172"><em>元数据注解</em> 语法与装饰器相同，但仅添加元数据，不改变被注解结构的工作方式。</li>
+        <li>
+          <p>2014-10-22（ngEurope 大会，巴黎）：Angular 团队宣布 Angular 2.0 正在使用 AtScript 编写，并编译为 JavaScript（通过 Traceur）和 Dart。计划包括基于 TypeScript 的 AtScript，同时添加：</p>
+          <ul>
+            <li>三种类型的 <em>注解</em>：
+              <ul>
+                <li><em>类型注解</em></li>
+                <li><em>字段注解</em> 显式声明字段。</li>
+                <li><em>元数据注解</em> 语法与装饰器相同，但仅添加元数据，不改变被注解结构的工作方式。</li>
               </ul>
             </li>
-            <li zh="174">运行时类型检查</li>
-            <li zh="175">类型反射</li>
+            <li>运行时类型检查</li>
+            <li>类型反射</li>
           </ul>
         </li>
-        <li zh="176">
-          <p zh="177"><a href="https://github.com/tc39/notes/blob/main/meetings/2015-01/jan-28.md">2015-01-28</a>：Yehuda Katz 和 Jonathan Turner 报告说 Katz 和 TypeScript 团队正在交流想法。</p>
+        <li>
+          <p><a href="https://github.com/tc39/notes/blob/main/meetings/2015-01/jan-28.md">2015-01-28</a>：Yehuda Katz 和 Jonathan Turner 报告说 Katz 和 TypeScript 团队正在交流想法。</p>
         </li>
-        <li zh="179">
-          <p zh="180">2015-03-05（ng-conf，盐湖城）：Angular 团队和 TypeScript 团队宣布 Angular 将从 AtScript 切换到 TypeScript，并且 TypeScript 将采用 AtScript 的一些特性（特别是装饰器）。</p>
+        <li>
+          <p>2015-03-05（ng-conf，盐湖城）：Angular 团队和 TypeScript 团队宣布 Angular 将从 AtScript 切换到 TypeScript，并且 TypeScript 将采用 AtScript 的一些特性（特别是装饰器）。</p>
         </li>
-        <li zh="181">
-          <p zh="182"><a href="https://github.com/tc39/notes/blob/main/meetings/2015-03/mar-24.md">2015-03-24</a>：装饰器提案进入第 1 阶段。彼时，他们在 GitHub 上有 <a href="https://github.com/wycats/javascript-decorators" zh="184">一个仓库</a>（由 Yehuda Katz 创建），后来迁移到 <a href="https://github.com/tc39/proposal-decorators" zh="185">当前所在位置</a>。</p>
+        <li>
+          <p><a href="https://github.com/tc39/notes/blob/main/meetings/2015-03/mar-24.md">2015-03-24</a>：装饰器提案进入第 1 阶段。彼时，他们在 GitHub 上有 <a href="https://github.com/wycats/javascript-decorators">一个仓库</a>（由 Yehuda Katz 创建），后来迁移到 <a href="https://github.com/tc39/proposal-decorators">当前所在位置</a>。</p>
         </li>
-        <li zh="186">
-          <p zh="187">2015-07-20：<a href="https://devblogs.microsoft.com/typescript/announcing-typescript-1-5/">TypeScript 1.5</a> 发布，支持通过 <a href="https://www.typescriptlang.org/docs/handbook/decorators.html" zh="189">第 1 阶段装饰器</a>，需开启标志 <code>--experimentalDecorators</code>。</p>
-          <p zh="191">多个 JavaScript 项目（如 Angular 和 MobX）使用了这个 TypeScript 特性，这使得 JavaScript 看起来已经有装饰器。</p>
-          <p zh="192">到目前为止，TypeScript 尚未支持更新版本的装饰器 API。<a href="https://github.com/microsoft/TypeScript/pull/50820" zh="193">Ron Buckton 的一个拉取请求提供了对第 3 阶段装饰器的支持</a>，可能会在 v4.9 之后的版本中发布。</p>
+        <li>
+          <p>2015-07-20：<a href="https://devblogs.microsoft.com/typescript/announcing-typescript-1-5/">TypeScript 1.5</a> 发布，支持通过 <a href="https://www.typescriptlang.org/docs/handbook/decorators.html">第 1 阶段装饰器</a>，需开启标志 <code>--experimentalDecorators</code>。</p>
+          <p>多个 JavaScript 项目（如 Angular 和 MobX）使用了这个 TypeScript 特性，这使得 JavaScript 看起来已经有装饰器。</p>
+          <p>到目前为止，TypeScript 尚未支持更新版本的装饰器 API。<a href="https://github.com/microsoft/TypeScript/pull/50820">Ron Buckton 的一个拉取请求提供了对第 3 阶段装饰器的支持</a>，可能会在 v4.9 之后的版本中发布。</p>
         </li>
-        <li zh="194">
-          <p zh="195"><a href="https://github.com/tc39/notes/blob/main/meetings/2016-07/jul-28.md">2016-07-28</a>：在 Yehuda Katz 和 Brian Terlson 的介绍后，提案进入第 2 阶段。</p>
+        <li>
+          <p><a href="https://github.com/tc39/notes/blob/main/meetings/2016-07/jul-28.md">2016-07-28</a>：在 Yehuda Katz 和 Brian Terlson 的介绍后，提案进入第 2 阶段。</p>
         </li>
-        <li zh="197">
-          <p zh="198"><a href="https://github.com/tc39/notes/blob/main/meetings/2017-07/jul-27.md">2017-07-27</a>：Daniel Ehrenberg 在几个月前加入提案后首次进行了装饰器的介绍。他推动了提案的演变，持续了好几年。</p>
+        <li>
+          <p><a href="https://github.com/tc39/notes/blob/main/meetings/2017-07/jul-27.md">2017-07-27</a>：Daniel Ehrenberg 在几个月前加入提案后首次进行了装饰器的介绍。他推动了提案的演变，持续了好几年。</p>
         </li>
-        <li zh="200">
-          <p zh="201">随后，Chris Garrett 加入了提案，并帮助其进入第 3 阶段，该阶段发生在 <a href="https://github.com/tc39/notes/blob/main/meetings/2022-03/mar-28.md">2022-03-28</a>。装饰器元数据被移至 <a href="https://github.com/tc39/proposal-decorator-metadata" zh="203">一个单独的提案</a>，该提案从第 2 阶段开始。</p>
+        <li>
+          <p>随后，Chris Garrett 加入了提案，并帮助其进入第 3 阶段，该阶段发生在 <a href="https://github.com/tc39/notes/blob/main/meetings/2022-03/mar-28.md">2022-03-28</a>。装饰器元数据被移至 <a href="https://github.com/tc39/proposal-decorator-metadata">一个单独的提案</a>，该提案从第 2 阶段开始。</p>
         </li>
       </ul>
-      <p zh="204">之所以花了很长时间才进入第 3 阶段，是因为很难让所有利益相关者就 API 达成一致。人们关心的包括与其他特性（如类成员和私有状态）的相互作用以及性能等问题。</p>
-      <h3 id="the-history-of-babel%E2%80%99s-decorator-implementation" tabindex="-1" zh="205">Babel 装饰器实现的历史&nbsp;&nbsp;<a class="heading-anchor" href="#the-history-of-babel%E2%80%99s-decorator-implementation" aria-hidden="true">#</a></h3>
-      <p zh="207">Babel 紧密跟踪了装饰器提案的演变，这要感谢 Logan Smyth、Nicolò Ribaudo 和其他人的努力：</p>
-      <ul zh="208">
-        <li zh="209">
-          <p zh="210"><a href="https://babeljs.io/blog/2015/03/31/5.0.0">2015-03-31</a>：Babel 5.0.0 支持第 1 阶段装饰器。</p>
+      <p>之所以花了很长时间才进入第 3 阶段，是因为很难让所有利益相关者就 API 达成一致。人们关心的包括与其他特性（如类成员和私有状态）的相互作用以及性能等问题。</p>
+      <h3 id="the-history-of-babel%E2%80%99s-decorator-implementation" tabindex="-1">Babel 装饰器实现的历史&nbsp;&nbsp;<a class="heading-anchor" href="#the-history-of-babel%E2%80%99s-decorator-implementation" aria-hidden="true">#</a></h3>
+      <p>Babel 紧密跟踪了装饰器提案的演变，这要感谢 Logan Smyth、Nicolò Ribaudo 和其他人的努力：</p>
+      <ul>
+        <li>
+          <p><a href="https://babeljs.io/blog/2015/03/31/5.0.0">2015-03-31</a>：Babel 5.0.0 支持第 1 阶段装饰器。</p>
         </li>
-        <li zh="212">
-          <p zh="213"><a href="https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy">2015-11-29</a> Logan Smyth 的一个外部插件将第 1 阶段装饰器带到了 Babel 6。</p>
+        <li>
+          <p><a href="https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy">2015-11-29</a> Logan Smyth 的一个外部插件将第 1 阶段装饰器带到了 Babel 6。</p>
         </li>
-        <li zh="215">
-          <p zh="216"><a href="https://babeljs.io/blog/2018/08/27/7.0.0">2018-08-27</a> Babel 7.0.0 通过官方的 <code>@babel/plugin-proposal-decorators</code> 支持第 2 阶段装饰器。</p>
+        <li>
+          <p><a href="https://babeljs.io/blog/2018/08/27/7.0.0">2018-08-27</a> Babel 7.0.0 通过官方的 <code>@babel/plugin-proposal-decorators</code> 支持第 2 阶段装饰器。</p>
         </li>
-        <li zh="219">
-          <p zh="220">官方插件目前支持 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version" zh="221">以下版本</a>：</p>
-          <ul zh="222">
-            <li zh="223"><code>"legacy"</code>: <a href="https://github.com/wycats/javascript-decorators/blob/e1bf8d41bfa2591d949dd3bbf013514c8904b913/README.md" zh="225">第 1 阶段装饰器</a></li>
-            <li zh="226"><code>"2018-09"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/7fa580b40f2c19c561511ea2c978e307ae689a1b" zh="228">第 2 阶段装饰器</a></li>
-            <li zh="229"><code>"2021-12"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/d6c056fa061646178c34f361bad33d583316dc85" zh="231">第 2 阶段装饰器的更新版本</a></li>
-            <li zh="232"><code>"2022-03"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/8ca65c046dd5e9aa3846a1fe5df343a6f7efd9f8" zh="234">第 3 阶段装饰器</a></li>
+        <li>
+          <p>官方插件目前支持 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version">以下版本</a>：</p>
+          <ul>
+            <li><code>"legacy"</code>: <a href="https://github.com/wycats/javascript-decorators/blob/e1bf8d41bfa2591d949dd3bbf013514c8904b913/README.md">第 1 阶段装饰器</a></li>
+            <li><code>"2018-09"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/7fa580b40f2c19c561511ea2c978e307ae689a1b">第 2 阶段装饰器</a></li>
+            <li><code>"2021-12"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/d6c056fa061646178c34f361bad33d583316dc85">第 2 阶段装饰器的更新版本</a></li>
+            <li><code>"2022-03"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/8ca65c046dd5e9aa3846a1fe5df343a6f7efd9f8">第 3 阶段装饰器</a></li>
           </ul>
         </li>
       </ul>
-      <h2 id="what-are-decorators%3F" tabindex="-1" zh="235">什么是装饰器？&nbsp;&nbsp;<a class="heading-anchor" href="#what-are-decorators%3F" aria-hidden="true">#</a></h2>
-      <p zh="237">装饰器让我们可以改变 JavaScript 结构（如类和方法）的工作方式。让我们回顾一下使用装饰器 <code>@trace</code> 的示例：</p>
+      <h2 id="what-are-decorators%3F" tabindex="-1">什么是装饰器？&nbsp;&nbsp;<a class="heading-anchor" href="#what-are-decorators%3F" aria-hidden="true">#</a></h2>
+      <p>装饰器让我们可以改变 JavaScript 结构（如类和方法）的工作方式。让我们回顾一下使用装饰器 <code>@trace</code> 的示例：</p>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
   @trace
   <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
@@ -1152,12 +1177,12 @@
   }
 }
 </code></pre>
-      <p zh="247">要实现 <code>@trace</code>，我们只需编写一个函数（<a href="#example-tracing-method-invocations" zh="249">确切的实现稍后会展示</a>）：</p>
+      <p>要实现 <code>@trace</code>，我们只需编写一个函数（<a href="#example-tracing-method-invocations">确切的实现稍后会展示</a>）：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">trace</span>(<span class="hljs-params">decoratedMethod</span>) {
   <span class="hljs-comment">// 返回一个替换 `decoratedMethod` 的函数。</span>
 }
 </code></pre>
-      <p zh="256">带有装饰器方法的类大致等同于以下代码：</p>
+      <p>带有装饰器方法的类大致等同于以下代码：</p>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
   <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-string">'C'</span>;
@@ -1165,15 +1190,15 @@
 }
 C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-property">toString</span> = <span class="hljs-title function_">trace</span>(C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-property">toString</span>);
 </code></pre>
-      <p zh="272">换句话说：装饰器是一个可以应用于语言结构的函数。我们通过在它们前面加上 <code>@</code> 和它的名字来实现这一点。</p>
-      <p zh="274">编写和使用装饰器是 <em>元编程</em>：</p>
-      <ul zh="276">
-        <li zh="277">我们不是编写处理用户数据的代码（<em>编程</em>）。</li>
-        <li zh="279">我们编写处理处理用户数据的代码（<em>元编程</em>）。</li>
+      <p>换句话说：装饰器是一个可以应用于语言结构的函数。我们通过在它们前面加上 <code>@</code> 和它的名字来实现这一点。</p>
+      <p>编写和使用装饰器是 <em>元编程</em>：</p>
+      <ul>
+        <li>我们不是编写处理用户数据的代码（<em>编程</em>）。</li>
+        <li>我们编写处理处理用户数据的代码（<em>元编程</em>）。</li>
       </ul>
-      <p zh="281">有关元编程的更多信息，请参见“深度 JavaScript”中的<a href="https://exploringjs.com/deep-js/ch_proxies.html#programming-vs-metaprogramming" zh="282">“编程与元编程”部分</a>。</p>
-      <h3 id="the-shape-of-decorator-functions" tabindex="-1" zh="283">装饰器函数的结构&nbsp;&nbsp;<a class="heading-anchor" href="#the-shape-of-decorator-functions" aria-hidden="true">#</a></h3>
-      <p zh="285">在我们探索装饰器函数的示例之前，我想先看看它们的 TypeScript 类型签名：</p>
+      <p>有关元编程的更多信息，请参见“深度 JavaScript”中的<a href="https://exploringjs.com/deep-js/ch_proxies.html#programming-vs-metaprogramming">“编程与元编程”部分</a>。</p>
+      <h3 id="the-shape-of-decorator-functions" tabindex="-1">装饰器函数的结构&nbsp;&nbsp;<a class="heading-anchor" href="#the-shape-of-decorator-functions" aria-hidden="true">#</a></h3>
+      <p>在我们探索装饰器函数的示例之前，我想先看看它们的 TypeScript 类型签名：</p>
       <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">Decorator</span> = <span class="hljs-function">(<span class="hljs-params">
   <span class="hljs-attr">value</span>: <span class="hljs-title class_">DecoratedValue</span>, <span class="hljs-comment">// 仅字段不同</span>
   <span class="hljs-attr">context</span>: {
@@ -1188,18 +1213,18 @@ C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>
   }
 </span>) =&gt;</span> <span class="hljs-built_in">void</span> | <span class="hljs-title class_">ReplacementValue</span>; <span class="hljs-comment">// 仅字段不同</span>
 </code></pre>
-      <p zh="311">也就是说，装饰器就是一个函数。它的参数是：</p>
-      <ul zh="312">
-        <li zh="313">装饰器应用于的 <code>value</code>。</li>
-        <li zh="315">包含 <code>value</code> 附加信息的对象 <code>context</code>，具有：
-          <ul zh="318">
-            <li zh="319">关于 <code>value</code> 的附加信息（<code>.static</code>、<code>.private</code>）</li>
-            <li zh="323">一个小型 API（<code>.access</code>、<code>.addInitializer</code>），具有元编程功能</li>
+      <p>也就是说，装饰器就是一个函数。它的参数是：</p>
+      <ul>
+        <li>装饰器应用于的 <code>value</code>。</li>
+        <li>包含 <code>value</code> 附加信息的对象 <code>context</code>，具有：
+          <ul>
+            <li>关于 <code>value</code> 的附加信息（<code>.static</code>、<code>.private</code>）</li>
+            <li>一个小型 API（<code>.access</code>、<code>.addInitializer</code>），具有元编程功能</li>
           </ul>
         </li>
       </ul>
-      <p zh="326">属性 <code>.kind</code> 告诉装饰器它被应用于哪种类型的 JavaScript 结构。我们可以对多种结构使用相同的函数。</p>
-      <p zh="328">目前，装饰器可以应用于类、方法、getter、setter、字段和 <em>自动访问器</em>（稍后将解释的一种新类成员）。<code>.kind</code> 的值反映了这一点：</p>
+      <p>属性 <code>.kind</code> 告诉装饰器它被应用于哪种类型的 JavaScript 结构。我们可以对多种结构使用相同的函数。</p>
+      <p>目前，装饰器可以应用于类、方法、getter、setter、字段和 <em>自动访问器</em>（稍后将解释的一种新类成员）。<code>.kind</code> 的值反映了这一点：</p>
       <ul>
         <li><code>'class'</code></li>
         <li><code>'method'</code></li>
@@ -1208,7 +1233,7 @@ C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>
         <li><code>'accessor'</code></li>
         <li><code>'field'</code></li>
       </ul>
-      <p zh="344">以下是 <code>Decorator</code> 的确切类型：</p>
+      <p>以下是 <code>Decorator</code> 的确切类型：</p>
       <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">Decorator</span> =
   | <span class="hljs-title class_">ClassDecorator</span>
   | <span class="hljs-title class_">ClassMethodDecorator</span>
@@ -1218,37 +1243,36 @@ C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>
   | <span class="hljs-title class_">ClassFieldDecorator</span>
 ;
 </code></pre>
-      <p zh="356">我们很快会遇到这些装饰器及其类型签名 – 只有这些部分会有所不同：</p>
-      <ul zh="357">
-        <li zh="358"><code>value</code> 的类型</li>
-        <li zh="360"><code>context</code> 的某些属性</li>
-        <li zh="362">返回类型</li>
+      <p>我们很快会遇到这些装饰器及其类型签名 – 只有这些部分会有所不同：</p>
+      <ul>
+        <li><code>value</code> 的类型</li>
+        <li><code>context</code> 的某些属性</li>
+        <li>返回类型</li>
       </ul>
-      <h3 id="what-can-decorators-do%3F" tabindex="-1" zh="363">装饰器能做什么？&nbsp;&nbsp;<a class="heading-anchor" href="#what-can-decorators-do%3F" aria-hidden="true">#</a></h3>
-      <p zh="365">每个装饰器最多有四种能力：</p>
-      <ul zh="366">
-        <li zh="367">
-          <p zh="368">通过改变参数 <code>value</code> 来改变被装饰的实体。</p>
+      <h3 id="what-can-decorators-do%3F" tabindex="-1">装饰器能做什么？&nbsp;&nbsp;<a class="heading-anchor" href="#what-can-decorators-do%3F" aria-hidden="true">#</a></h3>
+      <p>每个装饰器最多有四种能力：</p>
+      <ul>
+        <li>
+          <p>通过改变参数 <code>value</code> 来改变被装饰的实体。</p>
         </li>
-        <li zh="370">
-          <p zh="371">通过返回兼容的值来替换被装饰的实体：
-          </p>
-          <ul zh="372">
-            <li zh="373">“兼容”&nbsp;意味着返回的值必须与被装饰值具有相同的类型 – 例如，类装饰器必须返回可调用的值。</li>
-            <li zh="374">如果装饰器不想替换被装饰的值，它可以返回 <code>undefined</code> – 可以是显式返回，也可以是通过不返回任何内容隐式返回。</li>
+        <li>
+          <p>通过返回兼容的值来替换被装饰的实体：
+          <ul>
+            <li>“兼容”&nbsp;意味着返回的值必须与被装饰值具有相同的类型 – 例如，类装饰器必须返回可调用的值。</li>
+            <li>如果装饰器不想替换被装饰的值，它可以返回 <code>undefined</code> – 可以是显式返回，也可以是通过不返回任何内容隐式返回。</li>
           </ul>
-          <p></p>
+          </p>
         </li>
-        <li zh="377">
-          <p zh="378">向其他人暴露对被装饰实体的访问。<code>context.access</code> 使其能够通过其方法 <code>.get()</code> 和 <code>.set()</code> 来实现。</p>
+        <li>
+          <p>向其他人暴露对被装饰实体的访问。<code>context.access</code> 使其能够通过其方法 <code>.get()</code> 和 <code>.set()</code> 来实现。</p>
         </li>
-        <li zh="382">
-          <p zh="383">在被装饰实体及其容器（如果有的话）存在后处理它们：该功能由 <code>context.addInitializer</code> 提供。它允许装饰器注册一个 <em>初始化器</em> – 在一切准备就绪时调用的回调（更多细节在<a href="#decorator-initializer-execution" zh="386">稍后解释</a>）。</p>
+        <li>
+          <p>在被装饰实体及其容器（如果有的话）存在后处理它们：该功能由 <code>context.addInitializer</code> 提供。它允许装饰器注册一个 <em>初始化器</em> – 在一切准备就绪时调用的回调（更多细节在<a href="#decorator-initializer-execution">稍后解释</a>）。</p>
         </li>
       </ul>
-      <p zh="387">接下来的小节将演示这些能力。起初我们不会使用 <code>context.kind</code> 来检查装饰器应用于哪种类型的构造。稍后我们会这样做。</p>
-      <h4 id="ability%3A-replacing-the-decorated-entity" tabindex="-1" zh="389">能力：替换被装饰实体&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-replacing-the-decorated-entity" aria-hidden="true">#</a></h4>
-      <p zh="391">在下面的示例中，装饰器 <code>@replaceMethod</code> 用它返回的函数替换了方法 <code>.hello()</code>（B 行）。</p>
+      <p>接下来的小节将演示这些能力。起初我们不会使用 <code>context.kind</code> 来检查装饰器应用于哪种类型的构造。稍后我们会这样做。</p>
+      <h4 id="ability%3A-replacing-the-decorated-entity" tabindex="-1">能力：替换被装饰实体&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-replacing-the-decorated-entity" aria-hidden="true">#</a></h4>
+      <p>在下面的示例中，装饰器 <code>@replaceMethod</code> 用它返回的函数替换了方法 <code>.hello()</code>（B 行）。</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">replaceMethod</span>(<span class="hljs-params"></span>) {
   <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) { <span class="hljs-comment">// (A)</span>
     <span class="hljs-keyword">return</span> <span class="hljs-string">`How are you, <span class="hljs-subst">${<span class="hljs-variable language_">this</span>.name}</span>?`</span>;
@@ -1261,7 +1285,7 @@ C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>
   }
   @replaceMethod
   <span class="hljs-title function_">hello</span>(<span class="hljs-params"></span>) { <span class="hljs-comment">// (B)</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-string">`Hi <span class="hljs-subst>${<span class=" hljs-variable="" language_"="">this</span>.name}</span>!`;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Hi <span class="hljs-subst>${<span class="hljs-variable language_">this</span>.name}</span>!`</span>;
   }
 }
 
@@ -1270,8 +1294,8 @@ assert.<span class="hljs-title function_">equal</span>(
   robin.<span class="hljs-title function_">hello</span>(), <span class="hljs-string">'How are you, Robin?'</span>
 );
 </code></pre>
-      <h4 id="ability%3A-exposing-access-to-the-decorated-entity-to-others" tabindex="-1" zh="426">能力：向其他人暴露对被装饰实体的访问&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-exposing-access-to-the-decorated-entity-to-others" aria-hidden="true">#</a></h4>
-      <p zh="428">在下一个示例中，装饰器 <code>@exposeAccess</code> 将一个对象存储在变量 <code>acc</code> 中，使我们能够访问 <code>Color</code> 实例的 <code>.green</code> 属性。</p>
+      <h4 id="ability%3A-exposing-access-to-the-decorated-entity-to-others" tabindex="-1">能力：向其他人暴露对被装饰实体的访问&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-exposing-access-to-the-decorated-entity-to-others" aria-hidden="true">#</a></h4>
+      <p>在下一个示例中，装饰器 <code>@exposeAccess</code> 将一个对象存储在变量 <code>acc</code> 中，使我们能够访问 <code>Color</code> 实例的 <code>.green</code> 属性。</p>
       <pre><code class="language-js"><span class="hljs-keyword">let</span> acc;
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">exposeAccess</span>(<span class="hljs-params">_value, {access}</span>) {
   acc = access;
@@ -1295,8 +1319,8 @@ assert.<span class="hljs-title function_">equal</span>(
   green.<span class="hljs-property">name</span>, <span class="hljs-string">'red'</span>
 );
 </code></pre>
-      <h4 id="ability%3A-processing-the-decorated-entity-and-its-container" tabindex="-1" zh="459">能力：处理被装饰实体及其容器&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-processing-the-decorated-entity-and-its-container" aria-hidden="true">#</a></h4>
-      <p zh="461">在以下代码中，我们使用装饰器 <code>@collect</code> 将被装饰方法的键存储在实例属性 <code>.collectedMethodKeys</code> 中：</p>
+      <h4 id="ability%3A-processing-the-decorated-entity-and-its-container" tabindex="-1">能力：处理被装饰实体及其容器&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-processing-the-decorated-entity-and-its-container" aria-hidden="true">#</a></h4>
+      <p>在以下代码中，我们使用装饰器 <code>@collect</code> 将被装饰方法的键存储在实例属性 <code>.collectedMethodKeys</code> 中：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">collect</span>(<span class="hljs-params">_value, {name, addInitializer}</span>) {
   <span class="hljs-title function_">addInitializer</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) { <span class="hljs-comment">// (A)</span>
     <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">collectedMethodKeys</span>) {
@@ -1318,10 +1342,10 @@ assert.<span class="hljs-title function_">deepEqual</span>(
   <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'toString'</span>, <span class="hljs-title class_">Symbol</span>.<span class="hljs-property">iterator</span>])
 );
 </code></pre>
-      <p zh="499">在 A 行添加的初始化函数必须是普通函数，因为需要访问隐式参数 <code>this</code>。箭头函数无法提供此访问权限 – 它们的 <code>this</code> 是静态作用域的（像任何普通变量一样）。</p>
-      <h3 id="summary-tables" tabindex="-1" zh="502">总结表格&nbsp;&nbsp;<a class="heading-anchor" href="#summary-tables" aria-hidden="true">#</a></h3>
-      <p zh="504">类型签名：</p>
-      <table class="framed" zh="505">
+      <p>在 A 行添加的初始化函数必须是普通函数，因为需要访问隐式参数 <code>this</code>。箭头函数无法提供此访问权限 – 它们的 <code>this</code> 是静态作用域的（像任何普通变量一样）。</p>
+      <h3 id="summary-tables" tabindex="-1">总结表格&nbsp;&nbsp;<a class="heading-anchor" href="#summary-tables" aria-hidden="true">#</a></h3>
+      <p>类型签名：</p>
+      <table class="framed">
         <thead>
           <tr>
             <th>装饰器种类</th>
@@ -1362,8 +1386,8 @@ assert.<span class="hljs-title function_">deepEqual</span>(
           </tr>
         </tbody>
       </table>
-      <p zh="549">函数中 <code>this</code> 的值：</p>
-      <table class="framed" zh="551">
+      <p>函数中 <code>this</code> 的值：</p>
+      <table class="framed">
         <thead>
           <tr>
             <th><code>this</code> 是 →</th>
@@ -1405,18 +1429,18 @@ assert.<span class="hljs-title function_">deepEqual</span>(
           </tr>
         </tbody>
       </table>
-      <h2 id="more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" tabindex="-1" zh="586">装饰器语法与语义的更多信息（可选章节）&nbsp;&nbsp;<a class="heading-anchor" href="#more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" aria-hidden="true">#</a></h2>
-      <p zh="588">(本章节为可选内容。如果您跳过此章节，仍然可以理解后续内容。)</p>
-      <h3 id="the-syntax-of-decorator-expressions" tabindex="-1" zh="589">装饰器表达式的语法&nbsp;&nbsp;<a class="heading-anchor" href="#the-syntax-of-decorator-expressions" aria-hidden="true">#</a></h3>
-      <ul zh="591">
-        <li zh="592">装饰器表达式以一个或多个标识符的链开始，标识符之间用点分隔。除第一个标识符外，每个标识符都可以是私有的（前缀为 <code>#</code>）。不允许使用方括号 <code>[]</code>。</li>
-        <li zh="595">可选：末尾可以加上括号中的函数调用参数。下一小节将解释这意味着什么。</li>
-        <li zh="596">如果我们把它放在括号中，我们可以使用任何表达式：
+      <h2 id="more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" tabindex="-1">装饰器语法与语义的更多信息（可选章节）&nbsp;&nbsp;<a class="heading-anchor" href="#more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" aria-hidden="true">#</a></h2>
+      <p>(本章节为可选内容。如果您跳过此章节，仍然可以理解后续内容。)</p>
+      <h3 id="the-syntax-of-decorator-expressions" tabindex="-1">装饰器表达式的语法&nbsp;&nbsp;<a class="heading-anchor" href="#the-syntax-of-decorator-expressions" aria-hidden="true">#</a></h3>
+      <ul>
+        <li>装饰器表达式以一个或多个标识符的链开始，标识符之间用点分隔。除第一个标识符外，每个标识符都可以是私有的（前缀为 <code>#</code>）。不允许使用方括号 <code>[]</code>。</li>
+        <li>可选：末尾可以加上括号中的函数调用参数。下一小节将解释这意味着什么。</li>
+        <li>如果我们把它放在括号中，我们可以使用任何表达式：
           <pre><code class="language-js">@(«expr»)
 </code></pre>
         </li>
       </ul>
-      <p zh="599">无论装饰器允许在哪里，我们都可以使用多个装饰器。以下代码演示了装饰器语法：</p>
+      <p>无论装饰器允许在哪里，我们都可以使用多个装饰器。以下代码演示了装饰器语法：</p>
       <pre><code class="language-js"><span class="hljs-comment">// 五个 MyClass 的装饰器</span>
 
 @myFunc
@@ -1429,19 +1453,19 @@ assert.<span class="hljs-title function_">deepEqual</span>(
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> {}
 </code></pre>
-      <h3 id="how-are-decorators-executed%3F" tabindex="-1" zh="614">装饰器如何执行？&nbsp;&nbsp;<a class="heading-anchor" href="#how-are-decorators-executed%3F" aria-hidden="true">#</a></h3>
-      <ul zh="616">
-        <li zh="617">
-          <p zh="618">评估：<code>@</code> 符号后面的表达式在类定义的执行过程中被评估，与计算属性键和静态字段一起（见代码）。结果必须是函数。它们被存储在临时位置（可以认为是局部变量），以便稍后调用。</p>
+      <h3 id="how-are-decorators-executed%3F" tabindex="-1">装饰器如何执行？&nbsp;&nbsp;<a class="heading-anchor" href="#how-are-decorators-executed%3F" aria-hidden="true">#</a></h3>
+      <ul>
+        <li>
+          <p>评估：<code>@</code> 符号后面的表达式在类定义的执行过程中被评估，与计算属性键和静态字段一起（见代码）。结果必须是函数。它们被存储在临时位置（可以认为是局部变量），以便稍后调用。</p>
         </li>
-        <li zh="620">
-          <p zh="621">调用：装饰器函数在类定义的执行过程中稍后被调用，在方法被评估后，但在构造函数和原型被组装之前。结果再次存储在临时位置。</p>
+        <li>
+          <p>调用：装饰器函数在类定义的执行过程中稍后被调用，在方法被评估后，但在构造函数和原型被组装之前。结果再次存储在临时位置。</p>
         </li>
-        <li zh="622">
-          <p zh="623">应用：在所有装饰器函数被调用后，使用它们的结果，这可能会影响构造函数和原型。类装饰器在所有方法和字段装饰器之后应用。</p>
+        <li>
+          <p>应用：在所有装饰器函数被调用后，使用它们的结果，这可能会影响构造函数和原型。类装饰器在所有方法和字段装饰器之后应用。</p>
         </li>
       </ul>
-      <p zh="624">以下代码说明了装饰器表达式、计算属性键和字段初始化器的评估顺序：</p>
+      <p>以下代码说明了装饰器表达式、计算属性键和字段初始化器的评估顺序：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">decorate</span>(<span class="hljs-params">str</span>) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`EVALUATE @decorate(): <span class="hljs-subst">${str}</span>`</span>);
   <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`APPLY @decorate(): <span class="hljs-subst">${str}</span>`</span>); <span class="hljs-comment">// (A)</span>
@@ -1477,46 +1501,46 @@ assert.<span class="hljs-title function_">deepEqual</span>(
 <span class="hljs-comment">// APPLY @decorate(): class</span>
 <span class="hljs-comment">// static field value</span>
 </code></pre>
-      <p zh="676">函数 <code>decorate</code> 在每次评估 <code>decorate()</code> 表达式时被调用。在 A行，它返回实际的装饰器函数，该函数稍后会被应用。</p>
-      <h3 id="decorator-initializer-execution" tabindex="-1" zh="679">装饰器初始化器何时运行？&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-initializer-execution" aria-hidden="true">#</a></h3>
-      <p zh="681">装饰器初始化器的运行时间取决于装饰器的种类：</p>
-      <ul zh="682">
-        <li zh="683">
-          <p zh="684">类装饰器初始化器在类完全定义并且所有静态字段初始化后运行。</p>
+      <p>函数 <code>decorate</code> 在每次评估 <code>decorate()</code> 表达式时被调用。在 A行，它返回实际的装饰器函数，该函数稍后会被应用。</p>
+      <h3 id="decorator-initializer-execution" tabindex="-1">装饰器初始化器何时运行？&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-initializer-execution" aria-hidden="true">#</a></h3>
+      <p>装饰器初始化器的运行时间取决于装饰器的种类：</p>
+      <ul>
+        <li>
+          <p>类装饰器初始化器在类完全定义并且所有静态字段初始化后运行。</p>
         </li>
-        <li zh="685">
-          <p zh="686">非静态类元素装饰器的初始化器在实例化期间运行，在实例字段初始化之前。</p>
+        <li>
+          <p>非静态类元素装饰器的初始化器在实例化期间运行，在实例字段初始化之前。</p>
         </li>
-        <li zh="687">
-          <p zh="688">静态类元素装饰器的初始化器在类定义期间运行，在静态字段定义之前，但在所有其他类元素定义之后。</p>
+        <li>
+          <p>静态类元素装饰器的初始化器在类定义期间运行，在静态字段定义之前，但在所有其他类元素定义之后。</p>
         </li>
       </ul>
-      <p zh="689">为什么会这样？对于非静态初始化器，我们有五个选项 – 它们可以在以下时机运行：</p>
-      <ol zh="690">
-        <li zh="691">在 <code>super</code> 之前</li>
-        <li zh="693">在 <code>super</code> 之后，字段初始化之前</li>
-        <li zh="695">按定义顺序交错在字段之间</li>
-        <li zh="696">在字段初始化之后，子类实例化之前</li>
-        <li zh="697">在子类实例化之后</li>
+      <p>为什么会这样？对于非静态初始化器，我们有五个选项 – 它们可以在以下时机运行：</p>
+      <ol>
+        <li>在 <code>super</code> 之前</li>
+        <li>在 <code>super</code> 之后，字段初始化之前</li>
+        <li>按定义顺序交错在字段之间</li>
+        <li>在字段初始化之后，子类实例化之前</li>
+        <li>在子类实例化之后</li>
       </ol>
-      <p zh="698">为什么选择了第 2 种方案？</p>
-      <ul zh="699">
-        <li zh="700">
-          <p zh="701">第 1 种方案被拒绝，因为装饰器初始化器必须能够访问 <code>this</code>，而在 <code>super</code> 运行之前无法做到这一点。</p>
+      <p>为什么选择了第 2 种方案？</p>
+      <ul>
+        <li>
+          <p>第 1 种方案被拒绝，因为装饰器初始化器必须能够访问 <code>this</code>，而在 <code>super</code> 运行之前无法做到这一点。</p>
         </li>
-        <li zh="704">
-          <p zh="705">第 3 种方案被拒绝，因为同时运行所有装饰器初始化器比确保它们正确交错要简单。</p>
-        </li>
-      </ul>
-      <ul zh="706">
-        <li zh="707">
-          <p zh="708">第 4 种方案被拒绝，因为在字段之前运行装饰器初始化器可以确保字段在被装饰方法完全初始化之前不会被访问。例如，如果有 <code>@bind</code> 装饰器，则字段初始化器可以依赖于被装饰的方法已被绑定。</p>
-        </li>
-        <li zh="710">
-          <p zh="711">第 5 种方案被拒绝，因为它允许超类干扰子类，这会破坏超类不应意识到其子类的规则。</p>
+        <li>
+          <p>第 3 种方案被拒绝，因为同时运行所有装饰器初始化器比确保它们正确交错要简单。</p>
         </li>
       </ul>
-      <p zh="712">以下代码演示了 Babel 当前如何调用装饰器初始化器。请注意，Babel 尚不支持类字段装饰器的初始化器（这是对装饰器 API 的最近更改）。</p>
+      <ul>
+        <li>
+          <p>第 4 种方案被拒绝，因为在字段之前运行装饰器初始化器可以确保字段在被装饰方法完全初始化之前不会被访问。例如，如果有 <code>@bind</code> 装饰器，则字段初始化器可以依赖于被装饰的方法已被绑定。</p>
+        </li>
+        <li>
+          <p>第 5 种方案被拒绝，因为它允许超类干扰子类，这会破坏超类不应意识到其子类的规则。</p>
+        </li>
+      </ul>
+      <p>以下代码演示了 Babel 当前如何调用装饰器初始化器。请注意，Babel 尚不支持类字段装饰器的初始化器（这是对装饰器 API 的最近更改）。</p>
       <pre><code class="language-js"><span class="hljs-comment">// 我们在记录步骤时等待实例化后，这样我们就可以将`this`的值与实例进行比较。</span>
 <span class="hljs-comment">const</span> steps = [];
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">push</span>(<span class="hljs-params">msg, _this</span>) {
@@ -1597,10 +1621,10 @@ assert.<span class="hljs-title function_">deepEqual</span>(
 <span class="hljs-comment">// instanceField</span>
 <span class="hljs-comment">// constructor</span>
 </code></pre>
-      <h2 id="techniques-for-exposing-data-from-decorators" tabindex="-1" zh="820">装饰器暴露数据的技巧&nbsp;&nbsp;<a class="heading-anchor" href="#techniques-for-exposing-data-from-decorators" aria-hidden="true">#</a></h2>
-      <p zh="822">有时装饰器会收集数据。让我们探索它们如何将这些数据提供给其他方。</p>
-      <h3 id="storing-exposed-data-in-a-surrounding-scope" tabindex="-1" zh="823">在外部作用域存储暴露的数据&nbsp;&nbsp;<a class="heading-anchor" href="#storing-exposed-data-in-a-surrounding-scope" aria-hidden="true">#</a></h3>
-      <p zh="825">最简单的解决方案是将数据存储在外部作用域的某个位置。例如，装饰器 <code>@collect</code> 收集类并将它们存储在 Set <code>classes</code> 中（A 行）：</p>
+      <h2 id="techniques-for-exposing-data-from-decorators" tabindex="-1">装饰器暴露数据的技巧&nbsp;&nbsp;<a class="heading-anchor" href="#techniques-for-exposing-data-from-decorators" aria-hidden="true">#</a></h2>
+      <p>有时装饰器会收集数据。让我们探索它们如何将这些数据提供给其他方。</p>
+      <h3 id="storing-exposed-data-in-a-surrounding-scope" tabindex="-1">在外部作用域存储暴露的数据&nbsp;&nbsp;<a class="heading-anchor" href="#storing-exposed-data-in-a-surrounding-scope" aria-hidden="true">#</a></h3>
+      <p>最简单的解决方案是将数据存储在外部作用域的某个位置。例如，装饰器 <code>@collect</code> 收集类并将它们存储在 Set <code>classes</code> 中（A 行）：</p>
       <pre><code class="language-js"><span class="hljs-keyword">const</span> classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>(); <span class="hljs-comment">// (A)</span>
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">collect</span>(<span class="hljs-params">value, {kind, addInitializer}</span>) {
@@ -1620,12 +1644,12 @@ assert.<span class="hljs-title function_">deepEqual</span>(
   classes, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([A, B, C])
 );
 </code></pre>
-      <p zh="849">此方法的缺点是，如果装饰器来自另一个模块，则此方法无效。</p>
-      <h3 id="managing-exposed-data-via-a-factory-function" tabindex="-1" zh="850">通过工厂函数管理暴露的数据&nbsp;&nbsp;<a class="heading-anchor" href="#managing-exposed-data-via-a-factory-function" aria-hidden="true">#</a></h3>
-      <p zh="852">一种更复杂的方法是使用工厂函数 <code>createClassCollector()</code>，该函数返回：</p>
-      <ul zh="854">
-        <li zh="855">一个类装饰器 <code>collect</code></li>
-        <li zh="857">一个 Set <code>classes</code>，装饰器将把收集到的类添加到其中</li>
+      <p>此方法的缺点是，如果装饰器来自另一个模块，则此方法无效。</p>
+      <h3 id="managing-exposed-data-via-a-factory-function" tabindex="-1">通过工厂函数管理暴露的数据&nbsp;&nbsp;<a class="heading-anchor" href="#managing-exposed-data-via-a-factory-function" aria-hidden="true">#</a></h3>
+      <p>一种更复杂的方法是使用工厂函数 <code>createClassCollector()</code>，该函数返回：</p>
+      <ul>
+        <li>一个类装饰器 <code>collect</code></li>
+        <li>一个 Set <code>classes</code>，装饰器将把收集到的类添加到其中</li>
       </ul>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">createClassCollector</span>(<span class="hljs-params"></span>) {
   <span class="hljs-keyword">const</span> classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
@@ -1653,11 +1677,11 @@ assert.<span class="hljs-title function_">deepEqual</span>(
   classes, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([A, B, C])
 );
 </code></pre>
-      <h3 id="managing-exposed-data-via-a-class" tabindex="-1" zh="885">通过类管理暴露的数据&nbsp;&nbsp;<a class="heading-anchor" href="#managing-exposed-data-via-a-class" aria-hidden="true">#</a></h3>
-      <p zh="887">我们也可以使用类来代替工厂函数。它有两个成员：</p>
-      <ul zh="888">
-        <li zh="889"><code>.classes</code>，一个包含收集到的类的 Set</li>
-        <li zh="891"><code>.install</code>，一个类装饰器</li>
+      <h3 id="managing-exposed-data-via-a-class" tabindex="-1">通过类管理暴露的数据&nbsp;&nbsp;<a class="heading-anchor" href="#managing-exposed-data-via-a-class" aria-hidden="true">#</a></h3>
+      <p>我们也可以使用类来代替工厂函数。它有两个成员：</p>
+      <ul>
+        <li><code>.classes</code>，一个包含收集到的类的 Set</li>
+        <li><code>.install</code>，一个类装饰器</li>
       </ul>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ClassCollector</span> {
   classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
@@ -1681,10 +1705,10 @@ assert.<span class="hljs-title function_">deepEqual</span>(
   collector.<span class="hljs-property">classes</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([A, B, C])
 );
 </code></pre>
-      <p zh="923">我们通过将一个箭头函数分配给公共实例字段来实现 <code>.install</code>（A 行）。实例字段初始化器在 <code>this</code> 指向当前实例的作用域中运行。这也是箭头函数的外部作用域，解释了为什么 <code>this</code> 在 B 行具有该值。</p>
-      <p zh="927">我们也可以通过 getter 来实现 <code>.install</code>，但那样的话，每次读取 <code>.install</code> 时都必须返回一个新函数。</p>
-      <h2 id="class-decorators" tabindex="-1" zh="930">类装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-decorators" aria-hidden="true">#</a></h2>
-      <p zh="932">类装饰器具有以下类型签名：</p>
+      <p>我们通过将一个箭头函数分配给公共实例字段来实现 <code>.install</code>（A 行）。实例字段初始化器在 <code>this</code> 指向当前实例的作用域中运行。这也是箭头函数的外部作用域，解释了为什么 <code>this</code> 在 B 行具有该值。</p>
+      <p>我们也可以通过 getter 来实现 <code>.install</code>，但那样的话，每次读取 <code>.install</code> 时都必须返回一个新函数。</p>
+      <h2 id="class-decorators" tabindex="-1">类装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-decorators" aria-hidden="true">#</a></h2>
+      <p>类装饰器具有以下类型签名：</p>
       <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
   <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
   <span class="hljs-attr">context</span>: {
@@ -1694,15 +1718,15 @@ assert.<span class="hljs-title function_">deepEqual</span>(
   }
 </span>) =&gt;</span> <span class="hljs-title class_">Function</span> | <span class="hljs-built_in">void</span>;
 </code></pre>
-      <p zh="949">类装饰器的能力：</p>
-      <ul zh="950">
-        <li zh="951">它可以通过改变 <code>value</code> 来改变被装饰的类。</li>
-        <li zh="953">它可以通过返回可调用的值来替换被装饰的类。</li>
-        <li zh="954">它可以注册初始化器，初始化器在被装饰的类完全设置后调用。</li>
-        <li zh="955">由于类不是其他语言结构的成员（而方法是类的成员），因此它不获取 <code>context.access</code>。</li>
+      <p>类装饰器的能力：</p>
+      <ul>
+        <li>它可以通过改变 <code>value</code> 来改变被装饰的类。</li>
+        <li>它可以通过返回可调用的值来替换被装饰的类。</li>
+        <li>它可以注册初始化器，初始化器在被装饰的类完全设置后调用。</li>
+        <li>由于类不是其他语言结构的成员（而方法是类的成员），因此它不获取 <code>context.access</code>。</li>
       </ul>
-      <h3 id="example%3A-collecting-instances" tabindex="-1" zh="957">示例：收集实例&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-collecting-instances" aria-hidden="true">#</a></h3>
-      <p zh="959">在下面的示例中，我们使用装饰器收集所有被装饰类的实例：</p>
+      <h3 id="example%3A-collecting-instances" tabindex="-1">示例：收集实例&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-collecting-instances" aria-hidden="true">#</a></h3>
+      <p>在下面的示例中，我们使用装饰器收集所有被装饰类的实例：</p>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">InstanceCollector</span> {
   instances = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
   install = <span class="hljs-function">(<span class="hljs-params">value, {kind}</span>) =&gt;</span> {
@@ -1730,19 +1754,19 @@ assert.<span class="hljs-title function_">deepEqual</span>(
   collector.<span class="hljs-property">instances</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([inst1, inst2, inst3])
 );
 </code></pre>
-      <p zh="1002">我们通过将一个函数包装在 <code>.install</code> 中来实现收集实例。该函数在实例化时被调用，并将新创建的实例添加到收集器的实例集合中。</p>
-      <p zh="1004">请注意，我们不能在 A 行返回一个箭头函数，因为箭头函数不能被 new 调用。</p>
-      <p zh="1005">此方法的一个缺点是，它破坏了 <code>instanceof</code>：</p>
+      <p>我们通过将一个函数包装在 <code>.install</code> 中来实现收集实例。该函数在实例化时被调用，并将新创建的实例添加到收集器的实例集合中。</p>
+      <p>请注意，我们不能在 A 行返回一个箭头函数，因为箭头函数不能被 new 调用。</p>
+      <p>此方法的一个缺点是，它破坏了 <code>instanceof</code>：</p>
       <pre><code class="language-js">assert.<span class="hljs-title function_">equal</span>(
   inst1 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>,
   <span class="hljs-literal">false</span>
 );
 </code></pre>
-      <p zh="1013">下一小节将解释我们如何修复这个问题。</p>
-      <h3 id="making-sure-that-instanceof-works" tabindex="-1" zh="1014">确保 <code>instanceof</code> 正常工作&nbsp;&nbsp;<a class="heading-anchor" href="#making-sure-that-instanceof-works" aria-hidden="true">#</a></h3>
-      <p zh="1017">在本节中，我们将使用简单的装饰器 <code>@countInstances</code> 来演示如何使被包装的类支持 <code>instanceof</code>。</p>
-      <h4 id="enabling-instanceof-via-.prototype" tabindex="-1" zh="1020">通过 <code>.prototype</code> 启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-.prototype" aria-hidden="true">#</a></h4>
-      <p zh="1024">启用 <code>instanceof</code> 的一种方法是将包装函数的 <code>.prototype</code> 设置为被包装的 <code>value</code> 的 <code>.prototype</code>（A 行）：</p>
+      <p>下一小节将解释我们如何修复这个问题。</p>
+      <h3 id="making-sure-that-instanceof-works" tabindex="-1">确保 <code>instanceof</code> 正常工作&nbsp;&nbsp;<a class="heading-anchor" href="#making-sure-that-instanceof-works" aria-hidden="true">#</a></h3>
+      <p>在本节中，我们将使用简单的装饰器 <code>@countInstances</code> 来演示如何使被包装的类支持 <code>instanceof</code>。</p>
+      <h4 id="enabling-instanceof-via-.prototype" tabindex="-1">通过 <code>.prototype</code> 启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-.prototype" aria-hidden="true">#</a></h4>
+      <p>启用 <code>instanceof</code> 的一种方法是将包装函数的 <code>.prototype</code> 设置为被包装的 <code>value</code> 的 <code>.prototype</code>（A 行）：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">countInstances</span>(<span class="hljs-params">value</span>) {
   <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
   <span class="hljs-keyword">let</span> instanceCount = <span class="hljs-number">0</span>;
@@ -1769,13 +1793,13 @@ assert.<span class="hljs-title function_">equal</span>(inst1.<span class="hljs-p
 assert.<span class="hljs-title function_">ok</span>(inst2 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>);
 assert.<span class="hljs-title function_">equal</span>(inst2.<span class="hljs-property">count</span>, <span class="hljs-number">2</span>);
 </code></pre>
-      <p zh="1074">这是有效的，原因如下：</p>
+      <p>这是有效的，原因如下：</p>
       <pre><code class="language-js">inst <span class="hljs-keyword">instanceof</span> C
 C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-title function_">isPrototypeOf</span>(inst)
 </code></pre>
-      <p zh="1081">有关 <code>instanceof</code> 的更多信息，请参见 <a href="https://exploringjs.com/js/book/ch_classes.html#instanceof-operator">“Exploring JavaScript”</a>。</p>
-      <h4 id="enabling-instanceof-via-symbol.hasinstance" tabindex="-1" zh="1084">通过 <code>Symbol.hasInstance</code> 启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-symbol.hasinstance" aria-hidden="true">#</a></h4>
-      <p zh="1088">启用 <code>instanceof</code> 的另一种选择是给包装函数一个键为 <code>Symbol.hasInstance</code> 的方法（A 行）：</p>
+      <p>有关 <code>instanceof</code> 的更多信息，请参见 <a href="https://exploringjs.com/js/book/ch_classes.html#instanceof-operator">“Exploring JavaScript”</a>。</p>
+      <h4 id="enabling-instanceof-via-symbol.hasinstance" tabindex="-1">通过 <code>Symbol.hasInstance</code> 启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-symbol.hasinstance" aria-hidden="true">#</a></h4>
+      <p>启用 <code>instanceof</code> 的另一种选择是给包装函数一个键为 <code>Symbol.hasInstance</code> 的方法（A 行）：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">countInstances</span>(<span class="hljs-params">value</span>) {
   <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
   <span class="hljs-keyword">let</span> instanceCount = <span class="hljs-number">0</span>;
@@ -1810,9 +1834,9 @@ assert.<span class="hljs-title function_">equal</span>(inst1.<span class="hljs-p
 assert.<span class="hljs-title function_">ok</span>(inst2 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>);
 assert.<span class="hljs-title function_">equal</span>(inst2.<span class="hljs-property">count</span>, <span class="hljs-number">2</span>);
 </code></pre>
-      <p zh="1142">“Exploring JavaScript” 中有<a href="https://exploringjs.com/js/book/ch_symbols.html#publicly-known-symbols" zh="1143">关于 <code>Symbol.hasInstance</code> 的更多信息</a>。</p>
-      <h4 id="enabling-instanceof-via-subclassing" tabindex="-1" zh="1145">通过子类化启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-subclassing" aria-hidden="true">#</a></h4>
-      <p zh="1148">我们还可以通过返回 <code>value</code> 的子类来启用 <code>instanceof</code>（A 行）：</p>
+      <p>“Exploring JavaScript” 中有<a href="https://exploringjs.com/js/book/ch_symbols.html#publicly-known-symbols">关于 <code>Symbol.hasInstance</code> 的更多信息</a>。</p>
+      <h4 id="enabling-instanceof-via-subclassing" tabindex="-1">通过子类化启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-subclassing" aria-hidden="true">#</a></h4>
+      <p>我们还可以通过返回 <code>value</code> 的子类来启用 <code>instanceof</code>（A 行）：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">countInstances</span>(<span class="hljs-params">value</span>) {
   <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
   <span class="hljs-keyword">let</span> instanceCount = <span class="hljs-number">0</span>;
@@ -1838,8 +1862,8 @@ assert.<span class="hljs-title function_">equal</span>(inst1.<span class="hljs-p
 assert.<span class="hljs-title function_">ok</span>(inst2 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>);
 assert.<span class="hljs-title function_">equal</span>(inst2.<span class="hljs-property">count</span>, <span class="hljs-number">2</span>);
 </code></pre>
-      <h3 id="example-freezing-instances" tabindex="-1" zh="1191">示例：冻结实例&nbsp;&nbsp;<a class="heading-anchor" href="#example-freezing-instances" aria-hidden="true">#</a></h3>
-      <p zh="1193">装饰器类 <code>@freeze</code> 通过冻结它所装饰的类生成的所有实例来实现：</p>
+      <h3 id="example-freezing-instances" tabindex="-1">示例：冻结实例&nbsp;&nbsp;<a class="heading-anchor" href="#example-freezing-instances" aria-hidden="true">#</a></h3>
+      <p>装饰器类 <code>@freeze</code> 通过冻结它所装饰的类生成的所有实例来实现：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">freeze</span> (<span class="hljs-params">value, {kind}</span>) {
   <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
@@ -1862,20 +1886,20 @@ assert.<span class="hljs-title function_">throws</span>(
   <span class="hljs-regexp">/^TypeError: Cannot assign to read only property 'name'/</span>
 );
 </code></pre>
-      <p zh="1226">此装饰器有以下缺点：</p>
-      <ul zh="1227">
-        <li zh="1228">它破坏了 <code>instanceof</code>。我们已经看到如何修复这个问题。</li>
-        <li zh="1230">对装饰类的子类化效果不佳：
-          <ul zh="1231">
-            <li zh="1232">构造函数的连接方式并不理想，因为混合了包装构造函数。这可以通过返回被装饰的 <code>value</code> 的子类来部分修复。</li>
-            <li zh="1234">子类无法设置属性，因为它们的 <code>this</code> 是不可变的。无法避免此缺点。</li>
+      <p>此装饰器有以下缺点：</p>
+      <ul>
+        <li>它破坏了 <code>instanceof</code>。我们已经看到如何修复这个问题。</li>
+        <li>对装饰类的子类化效果不佳：
+          <ul>
+            <li>构造函数的连接方式并不理想，因为混合了包装构造函数。这可以通过返回被装饰的 <code>value</code> 的子类来部分修复。</li>
+            <li>子类无法设置属性，因为它们的 <code>this</code> 是不可变的。无法避免此缺点。</li>
           </ul>
         </li>
       </ul>
-      <p zh="1236">最后一个缺点可以通过在所有构造函数执行后让类装饰器访问装饰类的实例来避免。</p>
-      <p zh="1237">这将改变继承的工作方式，因为超类现在可以更改由子类添加的属性。因此，未来是否会有这样的机制尚不确定。</p>
-      <h3 id="example%3A-making-classes-function-callable" tabindex="-1" zh="1238">示例：让类可函数调用&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-making-classes-function-callable" aria-hidden="true">#</a></h3>
-      <p zh="1240">被 <code>@functionCallable</code> 装饰的类可以通过函数调用而不是 <code>new</code> 操作符来调用：</p>
+      <p>最后一个缺点可以通过在所有构造函数执行后让类装饰器访问装饰类的实例来避免。</p>
+      <p>这将改变继承的工作方式，因为超类现在可以更改由子类添加的属性。因此，未来是否会有这样的机制尚不确定。</p>
+      <h3 id="example%3A-making-classes-function-callable" tabindex="-1">示例：让类可函数调用&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-making-classes-function-callable" aria-hidden="true">#</a></h3>
+      <p>被 <code>@functionCallable</code> 装饰的类可以通过函数调用而不是 <code>new</code> 操作符来调用：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">functionCallable</span>(<span class="hljs-params">value, {kind}</span>) {
   <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
@@ -1898,8 +1922,8 @@ assert.<span class="hljs-title function_">equal</span>(
   robin.<span class="hljs-property">name</span>, <span class="hljs-string">'Robin'</span>
 );
 </code></pre>
-      <h2 id="class-method-decorators" tabindex="-1" zh="1276">类方法装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-method-decorators" aria-hidden="true">#</a></h2>
-      <p zh="1278">类方法装饰器具有以下类型签名：</p>
+      <h2 id="class-method-decorators" tabindex="-1">类方法装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-method-decorators" aria-hidden="true">#</a></h2>
+      <p>类方法装饰器具有以下类型签名：</p>
       <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassMethodDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
   <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
   <span class="hljs-attr">context</span>: {
@@ -1912,16 +1936,16 @@ assert.<span class="hljs-title function_">equal</span>(
   }
 </span>) =&gt;</span> <span class="hljs-title class_">Function</span> | <span class="hljs-built_in">void</span>;
 </code></pre>
-      <p zh="1300">方法装饰器的能力：</p>
-      <ul zh="1301">
-        <li zh="1302">它可以通过改变 <code>value</code> 来改变被装饰的方法。</li>
-        <li zh="1304">它可以通过返回一个函数来替换被装饰的方法。</li>
-        <li zh="1305">它可以注册初始化器。</li>
-        <li zh="1306"><code>context.access</code> 仅支持获取其属性的值，而不支持设置。</li>
+      <p>方法装饰器的能力：</p>
+      <ul>
+        <li>它可以通过改变 <code>value</code> 来改变被装饰的方法。</li>
+        <li>它可以通过返回一个函数来替换被装饰的方法。</li>
+        <li>它可以注册初始化器。</li>
+        <li><code>context.access</code> 仅支持获取其属性的值，而不支持设置。</li>
       </ul>
-      <p zh="1308">构造函数不能被装饰：它们看起来像方法，但实际上并不是真正的方法。</p>
-      <h3 id="example-tracing-method-invocations" tabindex="-1" zh="1309">示例：追踪方法调用&nbsp;&nbsp;<a class="heading-anchor" href="#example-tracing-method-invocations" aria-hidden="true">#</a></h3>
-      <p zh="1311">装饰器 <code>@trace</code> 包装方法，以便将它们的调用及结果记录到控制台：</p>
+      <p>构造函数不能被装饰：它们看起来像方法，但实际上并不是真正的方法。</p>
+      <h3 id="example-tracing-method-invocations" tabindex="-1">示例：追踪方法调用&nbsp;&nbsp;<a class="heading-anchor" href="#example-tracing-method-invocations" aria-hidden="true">#</a></h3>
+      <p>装饰器 <code>@trace</code> 包装方法，以便将它们的调用及结果记录到控制台：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">trace</span>(<span class="hljs-params">value, {kind, name}</span>) {
   <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'method'</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
@@ -1960,8 +1984,8 @@ assert.<span class="hljs-title function_">equal</span>(
 <span class="hljs-comment">// CALL toString: []</span>
 <span class="hljs-comment">// =&gt; "Homepage"</span>
 </code></pre>
-      <h3 id="example%3A-binding-methods-to-instances" tabindex="-1" zh="1365">示例：将方法绑定到实例&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-binding-methods-to-instances" aria-hidden="true">#</a></h3>
-      <p zh="1367">通常，提取方法（A 行）意味着我们无法函数调用它们，因为这会将 <code>this</code> 设置为 <code>undefined</code>：</p>
+      <h3 id="example%3A-binding-methods-to-instances" tabindex="-1">示例：将方法绑定到实例&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-binding-methods-to-instances" aria-hidden="true">#</a></h3>
+      <p>通常，提取方法（A 行）意味着我们无法函数调用它们，因为这会将 <code>this</code> 设置为 <code>undefined</code>：</p>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Color1</span> {
   #name;
   <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
@@ -1979,7 +2003,7 @@ assert.<span class="hljs-title function_">throws</span>(
   <span class="hljs-regexp">/^TypeError: Cannot read properties of undefined/</span>
 );
 </code></pre>
-      <p zh="1394">我们可以通过装饰器 <code>@bind</code> 修复这个问题：</p>
+      <p>我们可以通过装饰器 <code>@bind</code> 修复这个问题：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">bind</span>(<span class="hljs-params">value, {kind, name, addInitializer}</span>) {
   <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'method'</span>) {
     <span class="hljs-title function_">addInitializer</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) { <span class="hljs-comment">// (B)</span>
@@ -1995,7 +2019,7 @@ assert.<span class="hljs-title function_">throws</span>(
   }
   @bind
   <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">`Color(<span class="hljs-subst>${<span class=" hljs-variable="" language_"="">this</span>.#name}</span>)`;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Color(<span class="hljs-subst>${<span class="hljs-variable language_">this</span>.#name}</span>)`</span>;
   }
 }
 
@@ -2013,9 +2037,9 @@ assert.<span class="hljs-title function_">notEqual</span>(
   <span class="hljs-title class_">Color2</span>.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-property">toString</span>
 );
 </code></pre>
-      <p zh="1442">通过将 A 行的初始化器注册为普通函数，我们可以在实例化时访问 <code>this</code>。这也解释了为什么 B 行的 <code>this</code> 具有该值。</p>
-      <h3 id="example%3A-applying-functions-to-methods" tabindex="-1" zh="1445">示例：对方法应用函数&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-applying-functions-to-methods" aria-hidden="true">#</a></h3>
-      <p zh="1447">库 <code>core-decorators</code> 提供了一个装饰器，允许我们对方法应用函数。这使我们能够使用像 Lodash 的 <code>memoize()</code> 这样的辅助函数。以下代码展示了装饰器 <code>@applyFunction</code> 的实现：</p>
+      <p>通过将 A 行的初始化器注册为普通函数，我们可以在实例化时访问 <code>this</code>。这也解释了为什么 B 行的 <code>this</code> 具有该值。</p>
+      <h3 id="example%3A-applying-functions-to-methods" tabindex="-1">示例：对方法应用函数&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-applying-functions-to-methods" aria-hidden="true">#</a></h3>
+      <p>库 <code>core-decorators</code> 提供了一个装饰器，允许我们对方法应用函数。这使我们能够使用像 Lodash 的 <code>memoize()</code> 这样的辅助函数。以下代码展示了装饰器 <code>@applyFunction</code> 的实现：</p>
       <pre><code class="language-js"><span class="hljs-keyword">import</span> { memoize } <span class="hljs-keyword">from</span> <span class="hljs-string">'lodash-es'</span>;
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">applyFunction</span>(<span class="hljs-params">functionFactory</span>) {
@@ -2050,8 +2074,8 @@ assert.<span class="hljs-title function_">equal</span>(
   invocationCount, <span class="hljs-number">1</span>
 );
 </code></pre>
-      <h2 id="class-getter-decorators%2C-class-setter-decorators" tabindex="-1" zh="1489">类 getter 装饰器、setter 装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-getter-decorators%2C-class-setter-decorators" aria-hidden="true">#</a></h2>
-      <p zh="1491">这些是 getter 装饰器和 setter 装饰器的类型签名：</p>
+      <h2 id="class-getter-decorators%2C-class-setter-decorators" tabindex="-1">类 getter 装饰器、setter 装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-getter-decorators%2C-class-setter-decorators" aria-hidden="true">#</a></h2>
+      <p>这些是 getter 装饰器和 setter 装饰器的类型签名：</p>
       <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassGetterDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
   <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
   <span class="hljs-attr">context</span>: {
@@ -2076,15 +2100,15 @@ assert.<span class="hljs-title function_">equal</span>(
   }
 </span>) =&gt;</span> <span class="hljs-title class_">Function</span> | <span class="hljs-built_in">void</span>;
 </code></pre>
-      <p zh="1533">getter 装饰器和 setter 装饰器的能力类似于方法装饰器。</p>
-      <h3 id="example%3A-computing-values-lazily" tabindex="-1" zh="1534">示例：惰性计算值&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-computing-values-lazily" aria-hidden="true">#</a></h3>
-      <p zh="1536">惰性计算属性值的实现需要两种技术：</p>
-      <ul zh="1537">
-        <li zh="1538">
-          <p zh="1539">我们通过 getter 实现该属性。这样，计算其值的代码仅在读取属性时执行。</p>
+      <p>getter 装饰器和 setter 装饰器的能力类似于方法装饰器。</p>
+      <h3 id="example%3A-computing-values-lazily" tabindex="-1">示例：惰性计算值&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-computing-values-lazily" aria-hidden="true">#</a></h3>
+      <p>惰性计算属性值的实现需要两种技术：</p>
+      <ul>
+        <li>
+          <p>我们通过 getter 实现该属性。这样，计算其值的代码仅在读取属性时执行。</p>
         </li>
-        <li zh="1540">
-          <p zh="1541">装饰器 <code>@lazy</code> 包装原始 getter：当包装器第一次被调用时，它调用 getter 并创建一个自身数据属性，其值为计算结果。从此以后，无论何时有人读取该属性，自身属性都会覆盖继承的 getter。</p>
+        <li>
+          <p>装饰器 <code>@lazy</code> 包装原始 getter：当包装器第一次被调用时，它调用 getter 并创建一个自身数据属性，其值为计算结果。从此以后，无论何时有人读取该属性，自身属性都会覆盖继承的 getter。</p>
         </li>
       </ul>
       <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
@@ -2126,9 +2150,9 @@ assert.<span class="hljs-title function_">equal</span>(inst.<span class="hljs-pr
 <span class="hljs-comment">// 3 inst.value</span>
 <span class="hljs-comment">// 4 end</span>
 </code></pre>
-      <p zh="1600">请注意，属性 <code>.[name]</code> 是不可变的（因为只有一个 getter），这就是为什么我们必须在 A 行定义该属性，而不能使用赋值的原因。</p>
-      <h2 id="class-field-decorators" tabindex="-1" zh="1602">类字段装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-field-decorators" aria-hidden="true">#</a></h2>
-      <p zh="1604">类字段装饰器具有以下类型签名：</p>
+      <p>请注意，属性 <code>.[name]</code> 是不可变的（因为只有一个 getter），这就是为什么我们必须在 A 行定义该属性，而不能使用赋值的原因。</p>
+      <h2 id="class-field-decorators" tabindex="-1">类字段装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-field-decorators" aria-hidden="true">#</a></h2>
+      <p>类字段装饰器具有以下类型签名：</p>
       <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassFieldDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
   <span class="hljs-attr">value</span>: <span class="hljs-literal">undefined</span>,
   <span class="hljs-attr">context</span>: {
@@ -2141,26 +2165,26 @@ assert.<span class="hljs-title function_">equal</span>(inst.<span class="hljs-pr
   }
 </span>) =&gt;</span> <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">initialValue</span>: <span class="hljs-built_in">unknown</span></span>) =&gt;</span> <span class="hljs-built_in">unknown</span> | <span class="hljs-built_in">void</span>;
 </code></pre>
-      <p zh="1632">字段装饰器的能力：</p>
-      <ul zh="1633">
-        <li zh="1634">
-          <p zh="1635">它不能改变或替换它的字段。如果我们需要该功能，我们必须使用 <em>自动访问器</em>（稍后将解释的内容）。</p>
+      <p>字段装饰器的能力：</p>
+      <ul>
+        <li>
+          <p>它不能改变或替换它的字段。如果我们需要该功能，我们必须使用 <em>自动访问器</em>（稍后将解释的内容）。</p>
         </li>
-        <li zh="1637">
-          <p zh="1638">通过返回一个接收原始初始化值并返回新初始化值的函数来改变字段的初始化值。</p>
-          <ul zh="1639">
-            <li zh="1640">在该函数内部，<code>this</code> 指向当前实例。</li>
+        <li>
+          <p>通过返回一个接收原始初始化值并返回新初始化值的函数来改变字段的初始化值。</p>
+          <ul>
+            <li>在该函数内部，<code>this</code> 指向当前实例。</li>
           </ul>
         </li>
-        <li zh="1642">
-          <p zh="1643">注册初始化器。这是装饰器 API 的一个最近更改（2022-03 之后），之前是不可行的。</p>
+        <li>
+          <p>注册初始化器。这是装饰器 API 的一个最近更改（2022-03 之后），之前是不可行的。</p>
         </li>
       </ul>
-      <ul zh="1644">
-        <li zh="1645">它可以通过 <code>context.access</code> 暴露对其字段的访问（即使是私有字段）。</li>
+      <ul>
+        <li>它可以通过 <code>context.access</code> 暴露对其字段的访问（即使是私有字段）。</li>
       </ul>
-      <h3 id="example%3A-changing-initialization-values-of-fields" tabindex="-1" zh="1647">示例：改变字段初始化值&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-changing-initialization-values-of-fields" aria-hidden="true">#</a></h3>
-      <p zh="1649">装饰器 <code>@twice</code> 通过返回一个函数来改变字段的原始初始化值，该函数接收原始值并返回新值：</p>
+      <h3 id="example%3A-changing-initialization-values-of-fields" tabindex="-1">示例：改变字段初始化值&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-changing-initialization-values-of-fields" aria-hidden="true">#</a></h3>
+      <p>装饰器 <code>@twice</code> 通过返回一个函数来改变字段的原始初始化值，该函数接收原始值并返回新值：</p>
       <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">twice</span>(<span class="hljs-params"></span>) {
   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">initialValue</span> =&gt;</span> initialValue * <span class="hljs-number">2</span>;
 }
@@ -2175,8 +2199,8 @@ assert.<span class="hljs-title function_">equal</span>(
   inst.<span class="hljs-property">field</span>, <span class="hljs-number">6</span>
 );
 </code></pre>
-      <h3 id="read-only-fields" tabindex="-1" zh="1669">示例：只读字段（实例公有字段）&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-fields" aria-hidden="true">#</a></h3>
-      <p zh="1671">装饰器 <code>@readOnly</code> 通过在字段完全设置后（通过赋值或构造函数）使其不可变来实现。</p>
+      <h3 id="read-only-fields" tabindex="-1">示例：只读字段（实例公有字段）&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-fields" aria-hidden="true">#</a></h3>
+      <p>装饰器 <code>@readOnly</code> 通过在字段完全设置后（通过赋值或构造函数）使其不可变来实现。</p>
       <pre><code class="language-js"><span class="hljs-keyword">const</span> readOnlyFieldKeys = <span class="hljs-title class_">Symbol</span>(<span class="hljs-string">'readOnlyFieldKeys'</span>);
 
 @readOnly
@@ -2215,63 +2239,84 @@ assert.<span class="hljs-title function_">throws</span>(
   }
 }
 </code></pre>
-      <p zh="1727">与字段版本相比，此装饰器有一个显著的优点：它不需要包装类即可确保被装饰的结构变为只读。</p>
-      <h2 id="faq" tabindex="-1" zh="1728">常见问题&nbsp;&nbsp;<a class="heading-anchor" href="#faq" aria-hidden="true">#</a></h2>
-      <h3 id="function-decorators" tabindex="-1" zh="1730">为什么函数不能被装饰？&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true">#</a></h3>
-      <p zh="1732">当前提案以类为起点。<a href="#more-decorator-related-proposals" zh="1733">函数表达式的装饰器提案已经提出。</a> 然而，自那以后进展不大，并且尚未有函数 <em>声明</em> 的提案。</p>
-      <p zh="1735">另一方面，装饰函数相对简单：</p>
+      <p>与字段版本相比，此装饰器有一个显著的优点：它不需要包装类即可确保被装饰的结构变为只读。</p>
+      <h2 id="faq" tabindex="-1">常见问题&nbsp;&nbsp;<a class="heading-anchor" href="#faq" aria-hidden="true">#</a></h2>
+      <h3 id="function-decorators" tabindex="-1">为什么函数不能被装饰？&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true">#</a></h3>
+      <p>当前提案以类为起点。<a href="#more-decorator-related-proposals">函数表达式的装饰器提案已经提出。</a> 然而，自那以后进展不大，并且尚未有函数 <em>声明</em> 的提案。</p>
+      <p>另一方面，装饰函数相对简单：</p>
       <pre><code class="language-js"><span class="hljs-keyword">const</span> decoratedFunc = <span class="hljs-title function_">decorator</span>(<span class="hljs-function">(<span class="hljs-params">x, y</span>) =&gt;</span> {});
 </code></pre>
-      <p zh="1742">使用提案中的管道操作符，这看起来更好：</p>
+      <p>使用提案中的管道操作符，这看起来更好：</p>
       <pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">decoratedFunc</span> = (<span class="hljs-params">x, y</span>) =&gt; {} |&gt; <span class="hljs-title function_">decorator</span>(%);
 </code></pre>
-      <h2 id="more-decorator-related-proposals" tabindex="-1" zh="1749">更多与装饰器相关的提案&nbsp;&nbsp;<a class="heading-anchor" href="#more-decorator-related-proposals" aria-hidden="true">#</a></h2>
-      <p zh="1751">以下 ECMAScript 提案提供了更多与装饰器相关的特性：</p>
-      <ul zh="1752">
-        <li zh="1753">第 2 阶段：<a href="https://github.com/tc39/proposal-decorator-metadata">“Decorator Metadata”</a> by Chris Garrett (last update: 2022-04-11)
+      <h2 id="more-decorator-related-proposals" tabindex="-1">更多与装饰器相关的提案&nbsp;&nbsp;<a class="heading-anchor" href="#more-decorator-related-proposals" aria-hidden="true">#</a></h2>
+      <p>以下 ECMAScript 提案提供了更多与装饰器相关的特性：</p>
+      <ul>
+        <li>第 2 阶段：<a href="https://github.com/tc39/proposal-decorator-metadata">“Decorator Metadata”</a> by Chris Garrett (last update: 2022-04-11)
           <ul>
             <li>Quote: “This proposal seeks to extend the Decorators proposal by adding the ability for decorators to associate metadata with the value being decorated.”</li>
           </ul>
         </li>
-        <li zh="1757">第 0 阶段：<a href="https://docs.google.com/document/d/1ikxIP5-RVYq6d_f8lAvf3pKC00W78ueyp-xIZ6q67uU">“Function Expression Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
-        <li zh="1759">第 0 阶段：<a href="https://docs.google.com/document/d/1Qpkqf_8NzAwfD8LdnqPjXAQ2wwh8BBUGynhn-ZlCWT0">“Method Parameter Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
+        <li>第 0 阶段：<a href="https://docs.google.com/document/d/1ikxIP5-RVYq6d_f8lAvf3pKC00W78ueyp-xIZ6q67uU">“Function Expression Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
+        <li>第 0 阶段：<a href="https://docs.google.com/document/d/1Qpkqf_8NzAwfD8LdnqPjXAQ2wwh8BBUGynhn-ZlCWT0">“Method Parameter Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
       </ul>
-      <h2 id="resources" tabindex="-1" zh="1761">资源&nbsp;&nbsp;<a class="heading-anchor" href="#resources" aria-hidden="true">#</a></h2>
-      <h3 id="decorator-implementations" tabindex="-1" zh="1763">实现&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-implementations" aria-hidden="true">#</a></h3>
-      <ul zh="1765">
-        <li zh="1766">Babel 目前通过 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators"><code>@babel/plugin-proposal-decorators</code></a> 对第 3 阶段装饰器提供了最佳支持。
-          <ul zh="1769">
-            <li zh="1770">确保选择 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version" zh="1771">最新的装饰器版本</a>。</li>
-            <li zh="1772">本文中所有代码均通过 Babel 开发。</li>
+      <h2 id="resources" tabindex="-1">资源&nbsp;&nbsp;<a class="heading-anchor" href="#resources" aria-hidden="true">#</a></h2>
+      <h3 id="decorator-implementations" tabindex="-1">实现&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-implementations" aria-hidden="true">#</a></h3>
+      <ul>
+        <li>Babel 目前通过 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators"><code>@babel/plugin-proposal-decorators</code></a> 对第 3 阶段装饰器提供了最佳支持。
+          <ul>
+            <li>确保选择 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version">最新的装饰器版本</a>。</li>
+            <li>本文中所有代码均通过 Babel 开发。</li>
           </ul>
         </li>
-        <li zh="1773">TypeScript 目前在一个标志后面支持第 1 阶段装饰器。
-          <ul zh="1774">
-            <li zh="1775">有 <a href="https://github.com/microsoft/TypeScript/pull/50820" zh="1776">Ron Buckton 的一个 PR</a> 支持第 3 阶段装饰器，并可能在 TypeScript 4.9 之后的版本中发布。</li>
+        <li>TypeScript 目前在一个标志后面支持第 1 阶段装饰器。
+          <ul>
+            <li>有 <a href="https://github.com/microsoft/TypeScript/pull/50820">Ron Buckton 的一个 PR</a> 支持第 3 阶段装饰器，并可能在 TypeScript 4.9 之后的版本中发布。</li>
           </ul>
         </li>
       </ul>
-      <h3 id="libraries-with-decorators" tabindex="-1" zh="1777">带装饰器的库&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true">#</a></h3>
-      <p zh="1779">这些是带装饰器的库。目前它们仅支持第 1 阶段装饰器，但可以作为可能性的灵感：</p>
+      <h3 id="libraries-with-decorators" tabindex="-1">带装饰器的库&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true">#</a></h3>
+      <p>这些是带装饰器的库。目前它们仅支持第 1 阶段装饰器，但可以作为可能性的灵感：</p>
       <ul>
         <li><a href="https://github.com/jayphelps/core-decorators.js">core-decorators.js</a> by Jay Phelps (targets Babel)</li>
         <li><a href="https://github.com/NetanelBasal/helpful-decorators">“Helpful Decorators For TypeScript Projects”</a> by Netanel Basal</li>
       </ul>
-      <h2 id="acknowledgements" tabindex="-1" zh="1785">致谢&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true">#</a></h2>
-      <ul zh="1787">
-        <li zh="1788">感谢 Chris Garrett 解答我关于装饰器的问题。</li>
+      <h2 id="acknowledgements" tabindex="-1">致谢&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true">#</a></h2>
+      <ul>
+        <li>感谢 Chris Garrett 解答我关于装饰器的问题。</li>
       </ul>
-      <h2 id="further-reading" tabindex="-1" zh="1789">延伸阅读&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true">#</a></h2>
-      <ul zh="1791">
-        <li zh="1792">
-          <p zh="1793"><a href="https://exploringjs.com/js/book/ch_callables.html" zh="1794">第 “可调用值” 章</a> [普通函数、箭头函数、类、方法] 在《探索 JavaScript》中</p>
+      <h2 id="further-reading" tabindex="-1">延伸阅读&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true">#</a></h2>
+      <ul>
+        <li>
+          <p><a href="https://exploringjs.com/js/book/ch_callables.html">第 “可调用值” 章</a> [普通函数、箭头函数、类、方法] 在《探索 JavaScript》中</p>
         </li>
-        <li zh="1795">
-          <p zh="1796"><a href="https://exploringjs.com/js/book/ch_classes.html" zh="1797">第 “类” 章</a> 在《探索 JavaScript》中</p>
+        <li>
+          <p><a href="https://exploringjs.com/js/book/ch_classes.html">第 “类” 章</a> 在《探索 JavaScript》中</p>
         </li>
       </ul>
     </div>
   </div>
 </body>
+<script purpose="标记中文元素index">
+  {
+    const tagsCanBeSingle = ['UL', 'OL', 'A', 'P'];
+    const list = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'TABLE']; //  'A', 'P', 
+    const has = (el, tag) => el.tagName === tag && /[\u4e00-\u9fa5]/.test(el.textContent);
+
+    const indexes = [];
+    let index = 0;
+    document.querySelectorAll('*').forEach((el) => {
+      // a、p等元素不在别的列表里
+      const noParentList = (el.parentElement === null ? true : el.parentElement.closest('UL,OL,P') === null) && tagsCanBeSingle.includes(el.tagName);
+
+      if (list.some((tag) => has(el, tag)) || noParentList) {
+        el.setAttribute('zh', index);
+        indexes.push(index);
+      }
+      index++;
+    });
+    console.log(indexes.join());
+  }
+</script>
 
 </html>
