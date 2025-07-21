@@ -2275,11 +2275,16 @@ assert.<span class="hljs-title function_">throws</span>(
     const list = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'LI', 'OL', 'A', 'TABLE'];
     const has = (el, tag) => el.tagName === tag && /[\u4e00-\u9fa5]/.test(el.textContent);
 
+    const indexes = [];
+    let index = 0;
     document.querySelectorAll('*').forEach((el) => {
       if (list.some((tag) => has(el, tag))) {
         el.setAttribute('zh', '');
+        indexes.push(index);
       }
+      index++;
     });
+    console.log(index);
   </script>
 </body>
 
