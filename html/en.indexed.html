@@ -1,0 +1,2618 @@
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JavaScript metaprogramming with the 2022-03 decorators API</title>
+  <style id="main">
+    .page-navigation {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+    }
+
+    .page-navigation a {
+      text-decoration: none;
+    }
+
+    .page-navigation a:hover {
+      background-color: var(--highlight-color);
+    }
+
+    .page-nav-span {
+      padding: 0.5rem 1rem 0.5rem 1rem;
+      border: thin solid var(--border-line-color);
+      border-radius: 0.5rem;
+    }
+
+    .archive-item-list {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .archive-item .title {
+      font-size: 120%;
+      font-weight: bold;
+    }
+
+    .archive-item .date {
+      color: var(--dimmed-text-color);
+    }
+
+    .post-list-page .page-nav {
+      margin-top: 1.5rem;
+      padding-top: 0.5rem;
+      border-top: solid thin var(--border-line-color);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: 'page-nav-left page-nav-right';
+    }
+
+    .post-list-page .page-nav-left {
+      grid-area: page-nav-left;
+      justify-self: start;
+    }
+
+    .post-list-page .page-nav-right {
+      grid-area: page-nav-right;
+      justify-self: end;
+    }
+
+    .post-list-page div.post-list-item {
+      margin-top: 1rem;
+    }
+
+    div.post-item-subtitle {
+      margin-top: -1rem;
+      color: var(--dimmed-text-color);
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/services/carbon-ad.css */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --ad-background-color: hsl(0, 0%, 99%);
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ad-background-color: hsl(0, 0%, 10%);
+      }
+    }
+
+    .ad-box {
+      margin-top: -1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .ad-description {
+      color: var(--dimmed-text-color);
+      font-size: 80%;
+      text-align: right;
+    }
+
+    #carbonads {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --width: 728px;
+      --font-size: 22px;
+    }
+
+    #carbonads {
+      display: block;
+      overflow: hidden;
+      max-width: var(--width);
+      position: relative;
+      background-color: var(--ad-background-color);
+      border: solid 1px gray;
+      font-size: var(--font-size);
+      box-sizing: border-box;
+    }
+
+    .detail #carbonads {
+      margin-top: 12px;
+    }
+
+    #carbonads a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    #carbonads a:hover {
+      color: inherit;
+    }
+
+    .carbon-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    carbon-img {
+      display: block;
+      float: left;
+      margin: 0;
+      max-width: var(--width);
+      line-height: 1;
+    }
+
+    .carbon-img img {
+      display: block;
+      height: 90px;
+      width: auto;
+    }
+
+    .carbon-text {
+      display: block;
+      float: left;
+      padding: 0 1em;
+      line-height: 1.35;
+      max-width: calc(100% - 130px - 2em);
+      text-align: left;
+    }
+
+    .carbon-poweredby {
+      display: block;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 6px 10px;
+      background: repeating-linear-gradient(-45deg,
+          transparent,
+          transparent 5px,
+          hsla(0, 0%, 0%, 0.025) 5px,
+          hsla(0, 0%, 0%, 0.025) 10px) hsla(203, 11%, 95%, 0.8);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      font-size: 8px;
+      border-top-left-radius: 4px;
+      line-height: 1;
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/services/disqus-comments.css */
+    @media (prefers-color-scheme: dark) {
+      iframe[src*='disqus.com'] {
+        color-scheme: light;
+      }
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/simple-view-set/site-shell/highlightjs.github.css */
+    @media screen {
+      .hljs {
+        color: #24292e;
+        background: #ffffff;
+      }
+
+      .hljs-doctag,
+      .hljs-keyword,
+      .hljs-meta .hljs-keyword,
+      .hljs-template-tag,
+      .hljs-template-variable,
+      .hljs-type,
+      .hljs-variable.language_ {
+        color: #d73a49;
+      }
+
+      .hljs-title,
+      .hljs-title.class_,
+      .hljs-title.class_.inherited__,
+      .hljs-title.function_ {
+        color: #6f42c1;
+      }
+
+      .hljs-attr,
+      .hljs-attribute,
+      .hljs-literal,
+      .hljs-meta,
+      .hljs-number,
+      .hljs-operator,
+      .hljs-variable,
+      .hljs-selector-attr,
+      .hljs-selector-class,
+      .hljs-selector-id {
+        color: #005cc5;
+      }
+
+      .hljs-regexp,
+      .hljs-string,
+      .hljs-meta .hljs-string {
+        color: #032f62;
+      }
+
+      .hljs-built_in,
+      .hljs-symbol {
+        color: #e36209;
+      }
+
+      .hljs-comment,
+      .hljs-code,
+      .hljs-formula {
+        color: #6a737d;
+      }
+
+      .hljs-name,
+      .hljs-quote,
+      .hljs-selector-tag,
+      .hljs-selector-pseudo {
+        color: #22863a;
+      }
+
+      .hljs-subst {
+        color: #24292e;
+      }
+
+      .hljs-section {
+        color: #005cc5;
+        font-weight: bold;
+      }
+
+      .hljs-bullet {
+        color: #735c0f;
+      }
+
+      .hljs-emphasis {
+        color: #24292e;
+        font-style: italic;
+      }
+
+      .hljs-strong {
+        color: #24292e;
+        font-weight: bold;
+      }
+
+      .hljs-addition {
+        color: #22863a;
+        background-color: #f0fff4;
+      }
+
+      .hljs-deletion {
+        color: #b31d28;
+        background-color: #ffeef0;
+      }
+
+      .hljs-char.escape_,
+      .hljs-link,
+      .hljs-params,
+      .hljs-property,
+      .hljs-punctuation,
+      .hljs-tag {}
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/simple-view-set/site-shell/highlightjs.github-dark.css */
+    @media screen and (prefers-color-scheme: dark) {
+      .hljs {
+        color: #c9d1d9;
+        background: #0d1117;
+      }
+
+      .hljs-doctag,
+      .hljs-keyword,
+      .hljs-meta .hljs-keyword,
+      .hljs-template-tag,
+      .hljs-template-variable,
+      .hljs-type,
+      .hljs-variable.language_ {
+        color: #ff7b72;
+      }
+
+      .hljs-title,
+      .hljs-title.class_,
+      .hljs-title.class_.inherited__,
+      .hljs-title.function_ {
+        color: #d2a8ff;
+      }
+
+      .hljs-attr,
+      .hljs-attribute,
+      .hljs-literal,
+      .hljs-meta,
+      .hljs-number,
+      .hljs-operator,
+      .hljs-variable,
+      .hljs-selector-attr,
+      .hljs-selector-class,
+      .hljs-selector-id {
+        color: #79c0ff;
+      }
+
+      .hljs-regexp,
+      .hljs-string,
+      .hljs-meta .hljs-string {
+        color: #a5d6ff;
+      }
+
+      .hljs-built_in,
+      .hljs-symbol {
+        color: #ffa657;
+      }
+
+      .hljs-comment,
+      .hljs-code,
+      .hljs-formula {
+        color: #8b949e;
+      }
+
+      .hljs-name,
+      .hljs-quote,
+      .hljs-selector-tag,
+      .hljs-selector-pseudo {
+        color: #7ee787;
+      }
+
+      .hljs-subst {
+        color: #c9d1d9;
+      }
+
+      .hljs-section {
+        color: #1f6feb;
+        font-weight: bold;
+      }
+
+      .hljs-bullet {
+        color: #f2cc60;
+      }
+
+      .hljs-emphasis {
+        color: #c9d1d9;
+        font-style: italic;
+      }
+
+      .hljs-strong {
+        color: #c9d1d9;
+        font-weight: bold;
+      }
+
+      .hljs-addition {
+        color: #aff5b4;
+        background-color: #033a16;
+      }
+
+      .hljs-deletion {
+        color: #ffdcd7;
+        background-color: #67060c;
+      }
+
+      .hljs-char.escape_,
+      .hljs-link,
+      .hljs-params,
+      .hljs-property,
+      .hljs-punctuation,
+      .hljs-tag {}
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/simple-view-set/site-shell/markdown.css */
+    td {
+      vertical-align: text-top;
+    }
+
+    table.framed {
+      overflow-x: auto;
+      border-collapse: collapse;
+    }
+
+    table.framed td,
+    table.framed th {
+      border: thin solid var(--border-line-color);
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem;
+      padding-left: 0.6rem;
+      padding-right: 0.6rem;
+    }
+
+    a.heading-anchor {
+      visibility: hidden;
+      color: var(--dimmed-text-color) !important;
+      text-decoration: none;
+    }
+
+    a.heading-anchor:hover {
+      text-decoration: none;
+    }
+
+    h1:hover .heading-anchor,
+    h2:hover .heading-anchor,
+    h3:hover .heading-anchor,
+    h4:hover .heading-anchor,
+    h5:hover .heading-anchor,
+    h6:hover .heading-anchor {
+      visibility: visible;
+    }
+
+    *:target {
+      background-color: var(--highlight-color);
+    }
+
+    .table-of-contents {
+      counter-reset: toc-section;
+    }
+
+    .table-of-contents>ul {
+      list-style: none;
+    }
+
+    .table-of-contents>ul>li>a:before {
+      counter-increment: toc-section;
+      content: counter(toc-section) '\2002';
+    }
+
+    .table-of-contents>ul>li>a {
+      counter-reset: toc-subsection;
+    }
+
+    .table-of-contents>ul>li>ul {
+      list-style: none;
+    }
+
+    .table-of-contents>ul>li>ul>li>a:before {
+      counter-increment: toc-subsection;
+      content: counter(toc-section) '.' counter(toc-subsection) '\2002';
+    }
+
+    .table-of-contents {
+      border-top: solid thin var(--border-line-color);
+      border-bottom: solid thin var(--border-line-color);
+    }
+
+    .number-headings h1 {
+      counter-reset: the-section;
+    }
+
+    .number-headings h2:before {
+      counter-increment: the-section;
+      content: counter(the-section) '\2002';
+    }
+
+    .number-headings h2 {
+      counter-reset: the-subsection;
+    }
+
+    .number-headings h3:before {
+      counter-increment: the-subsection;
+      content: counter(the-section) '.' counter(the-subsection) '\2002';
+    }
+
+    .number-headings h3 {
+      counter-reset: the-subsubsection;
+    }
+
+    .number-headings h4:before {
+      counter-increment: the-subsubsection;
+      content: counter(the-section) '.' counter(the-subsection) '.' counter(the-subsubsection) '\2002';
+    }
+
+    pre {
+      overflow-x: auto;
+      margin-left: 1rem;
+    }
+
+    code {
+      font-family: var(--code-font-family);
+      font-size: var(--code-font-size);
+    }
+
+    #page-core-content img {
+      max-width: 100%;
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/simple-view-set/site-shell/simple-site-shell.css */
+    :root {
+      color-scheme: light dark;
+    }
+
+    html {
+      box-sizing: border-box;
+    }
+
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      color: var(--text-color);
+      font-family: var(--body-font-family);
+      font-size: var(--body-font-size);
+      line-height: var(--body-line-height);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: var(--heading-color);
+    }
+
+    h2 {
+      border-bottom: solid thin var(--border-line-color);
+    }
+
+    a {
+      color: inherit;
+      text-underline-offset: 0.2rem;
+    }
+
+    #top-level {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+      grid-template-rows: max-content 1fr;
+      grid-template-areas: 'top-bar   sidebar' 'page-core sidebar';
+      place-items: stretch;
+      background-color: var(--shell-background);
+    }
+
+    #top-bar {
+      grid-area: top-bar;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      padding-top: 1rem;
+      padding-bottom: 2rem;
+      background-color: var(--shell-background);
+    }
+
+    #blog-title {
+      text-align: center;
+      color: var(--heading-color);
+      font-family: var(--blog-title-font-family);
+      font-weight: var(--blog-title-font-weight);
+      font-size: var(--blog-title-font-size);
+    }
+
+    #blog-title a {
+      text-decoration: none;
+    }
+
+    #top-links {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .topbar-separator {
+      color: var(--border-line-color);
+    }
+
+    #top-links a.link-to-current-page {
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    #sidebar {
+      grid-area: sidebar;
+      background-color: var(--shell-background);
+      padding: 1.5rem 1rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    div.labeled-image {
+      text-align: center;
+    }
+
+    .labeled-image-image img {
+      width: 10rem;
+      border: solid thin darkgray;
+    }
+
+    #page-core {
+      grid-area: page-core;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      background-color: var(--content-background);
+    }
+
+    #page-core-content {
+      width: 38rem;
+      margin: auto;
+    }
+
+    #page-core-content h1 {
+      margin-top: 0rem;
+    }
+
+    @media screen and (max-width: 43rem) {
+      #top-level {
+        grid-template-columns: 1fr;
+        grid-template-rows: max-content max-content max-content;
+        grid-template-areas: 'top-bar' 'sidebar' 'page-core';
+      }
+
+      #top-bar {
+        padding-bottom: 0rem;
+      }
+
+      #sidebar {
+        align-items: start;
+        gap: 0.5rem;
+      }
+
+      .labeled-image {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+      }
+
+      div.labeled-image-image {
+        width: 4rem;
+        text-align: right;
+      }
+
+      .labeled-image-image img {
+        height: 3rem;
+        width: auto;
+      }
+
+      div.labeled-image-label {
+        text-align: left;
+      }
+    }
+
+    @media print {
+      #top-level {
+        grid-template-columns: 1fr;
+        grid-template-areas: 'page-core';
+      }
+
+      #top-bar,
+      #sidebar {
+        display: none;
+      }
+    }
+
+    /* ../../../_Projects/_pubtools/tools/quibl/dist/ts/client/simple-view-set/file/simple-html-page-view.css */
+    .post-subtitle {
+      margin-top: -1.5rem;
+      margin-bottom: 1rem;
+      color: var(--dimmed-text-color);
+    }
+
+    .outdated {
+      border-radius: 1rem;
+      background-color: var(--warning-color);
+      padding: 0.5rem 1rem 0.5rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ts/client/blog-site-shell.css */
+    @font-face {
+      font-family: 'Encode Sans Semi Expanded';
+      font-weight: bold;
+      src: url('./EncodeSansSemiExpanded-Bold.ttf') format('truetype');
+    }
+
+    :root {
+      --sidebar-width: 13rem;
+      --max-content-width: 38rem;
+      --blog-title-font-family: 'Encode Sans Semi Expanded', sans-serif;
+      --blog-title-font-weight: bold;
+      --blog-title-font-size: 40px;
+      --body-font-family: Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua', Georgia,
+        serif;
+      --body-font-size: 16px;
+      --body-line-height: 1.5;
+      --code-font-family: Courier, 'Courier New', Monaco, monospace;
+      --code-font-size: 85%;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --shell-background: #d9ecff;
+        --heading-color: darkblue;
+        --highlight-color: #ffff74;
+        --warning-color: #ff9090;
+        --content-background: white;
+        --text-color: black;
+        --dimmed-text-color: gray;
+        --border-line-color: gray;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --shell-background: darkblue;
+        --heading-color: #d9ecff;
+        --highlight-color: #78773b;
+        --warning-color: #a30000;
+        --content-background: black;
+        --text-color: white;
+        --dimmed-text-color: gray;
+        --border-line-color: gray;
+      }
+
+      img {
+        filter: brightness(0.8) contrast(1.2);
+      }
+    }
+  </style>
+  <style id="highlight">
+    .hljs {
+      display: block;
+      overflow-x: auto;
+      padding: .5em;
+      background: #fff;
+      color: #000
+    }
+
+    .hljs-comment,
+    .hljs-quote,
+    .hljs-variable {
+      color: green
+    }
+
+    .hljs-built_in,
+    .hljs-keyword,
+    .hljs-name,
+    .hljs-selector-tag,
+    .hljs-tag {
+      color: #00f
+    }
+
+    .hljs-addition,
+    .hljs-attribute,
+    .hljs-literal,
+    .hljs-section,
+    .hljs-string,
+    .hljs-template-tag,
+    .hljs-template-variable,
+    .hljs-title,
+    .hljs-type {
+      color: #a31515
+    }
+
+    .hljs-deletion,
+    .hljs-meta,
+    .hljs-selector-attr,
+    .hljs-selector-pseudo {
+      color: #2b91af
+    }
+
+    .hljs-doctag {
+      color: grey
+    }
+
+    .hljs-attr {
+      color: red
+    }
+
+    .hljs-bullet,
+    .hljs-link,
+    .hljs-symbol {
+      color: #00b0e8
+    }
+
+    .hljs-emphasis {
+      font-style: italic
+    }
+
+    .hljs-strong {
+      font-weight: 700
+    }
+
+    .dark .hljs {
+      display: block;
+      overflow-x: auto;
+      padding: .5em;
+      background: #2b2b2b
+    }
+
+    .dark .hljs {
+      color: #bababa
+    }
+
+    .dark .hljs-emphasis,
+    .dark .hljs-strong {
+      color: #a8a8a2
+    }
+
+    .dark .hljs-bullet,
+    .dark .hljs-link,
+    .dark .hljs-literal,
+    .dark .hljs-number,
+    .dark .hljs-quote,
+    .dark .hljs-regexp {
+      color: #6896ba
+    }
+
+    .dark .hljs-code,
+    .dark .hljs-selector-class {
+      color: #a6e22e
+    }
+
+    .dark .hljs-emphasis {
+      font-style: italic
+    }
+
+    .dark .hljs-attribute,
+    .dark .hljs-keyword,
+    .dark .hljs-name,
+    .dark .hljs-section,
+    .dark .hljs-selector-tag,
+    .dark .hljs-variable {
+      color: #cb7832
+    }
+
+    .dark .hljs-params {
+      color: #b9b9b9
+    }
+
+    .dark .hljs-string {
+      color: #6a8759
+    }
+
+    .dark .hljs-addition,
+    .dark .hljs-built_in,
+    .dark .hljs-builtin-name,
+    .dark .hljs-selector-attr,
+    .dark .hljs-selector-id,
+    .dark .hljs-selector-pseudo,
+    .dark .hljs-subst,
+    .dark .hljs-symbol,
+    .dark .hljs-template-tag,
+    .dark .hljs-template-variable,
+    .dark .hljs-type {
+      color: #e0c46c
+    }
+
+    .dark .hljs-comment,
+    .dark .hljs-deletion,
+    .dark .hljs-meta {
+      color: #7f7f7f
+    }
+  </style>
+</head>
+
+<body>
+  <div id="page-core-content" class="number-headings">
+    <h1 en="9">JavaScript metaprogramming with the 2022-03 decorators API</h1>
+    <div>
+      <p en="11">JavaScript decorators have finally reached <a href="https://exploringjs.com/js/book/ch_history.html#tc39-process" en="12">stage 3</a>! Their latest version is already supported by Babel and <a href="#decorator-implementations" en="13">will soon be supported by TypeScript</a>.</p>
+      <p en="14">This blog post covers the 2022-03 version (stage 3) of the ECMAScript proposal <a href="https://github.com/tc39/proposal-decorators">“Decorators”</a> by Daniel Ehrenberg and Chris Garrett.</p>
+      <p en="16">A decorator is a keyword that starts with an <code>@</code> symbol and can be put in front of classes and class members (such as methods). For example, <code>@trace</code> is a decorator:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  @trace
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'C'</span>;
+  }
+}
+</code>
+</pre>
+      <p en="27">A decorator changes how the decorated construct works. In this case, every invocation of <code>.toString()</code> will be “traced” (arguments and result will be logged to the console). <a href="#example-tracing-method-invocations" en="29">We’ll see how <code>@trace</code> is implemented later.</a></p>
+      <!--more-->
+      <p en="31">Decorators are mostly an object-oriented feature and popular in OOP frameworks and libraries such as Ember, Angular, Vue, web component frameworks and MobX.</p>
+      <p en="32">There are two stakeholders when it comes to decorators:</p>
+      <ul en="33">
+        <li en="34">Library authors have to know their API so that they can implement them.</li>
+        <li en="35">Library users only have to know how to apply them.</li>
+      </ul>
+      <p en="36">This blog post is intended for library authors: We’ll learn how decorators work and use our knowledge to implement several of them.</p>
+      <nav class="table-of-contents">
+        <ul en="38">
+          <li en="39">
+            <a href="#history-of-decorators" en="40">The history of decorators (optional section)</a>
+            <ul en="41">
+              <li en="42">
+                <a href="#the-history-of-decorators" en="43">The history of decorators</a>
+              </li>
+              <li en="44">
+                <a href="#the-history-of-babel%E2%80%99s-decorator-implementation" en="45">The history of Babel’s decorator implementation</a>
+              </li>
+            </ul>
+          </li>
+          <li en="46">
+            <a href="#what-are-decorators%3F" en="47">What are decorators?</a>
+            <ul en="48">
+              <li en="49">
+                <a href="#the-shape-of-decorator-functions" en="50">The shape of decorator functions</a>
+              </li>
+              <li en="51">
+                <a href="#what-can-decorators-do%3F" en="52">What can decorators do?</a>
+              </li>
+              <li en="53">
+                <a href="#summary-tables" en="54">Summary tables</a>
+              </li>
+            </ul>
+          </li>
+          <li en="55">
+            <a href="#more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" en="56">More information on the syntax and semantics of decorators (optional section)</a>
+            <ul en="57">
+              <li en="58">
+                <a href="#the-syntax-of-decorator-expressions" en="59">The syntax of decorator expressions</a>
+              </li>
+              <li en="60">
+                <a href="#how-are-decorators-executed%3F" en="61">How are decorators executed?</a>
+              </li>
+              <li en="62">
+                <a href="#decorator-initializer-execution" en="63">When do decorator initializers run?</a>
+              </li>
+            </ul>
+          </li>
+          <li en="64">
+            <a href="#techniques-for-exposing-data-from-decorators" en="65">Techniques for exposing data from decorators</a>
+            <ul en="66">
+              <li en="67">
+                <a href="#storing-exposed-data-in-a-surrounding-scope" en="68">Storing exposed data in a surrounding scope</a>
+              </li>
+              <li en="69">
+                <a href="#managing-exposed-data-via-a-factory-function" en="70">Managing exposed data via a factory function</a>
+              </li>
+              <li en="71">
+                <a href="#managing-exposed-data-via-a-class" en="72">Managing exposed data via a class</a>
+              </li>
+            </ul>
+          </li>
+          <li en="73">
+            <a href="#class-decorators" en="74">Class decorators</a>
+            <ul en="75">
+              <li en="76">
+                <a href="#example%3A-collecting-instances" en="77">Example: collecting instances</a>
+              </li>
+              <li en="78">
+                <a href="#making-sure-that-instanceof-works" en="79">Making sure that <code>instanceof</code> works</a>
+              </li>
+              <li en="81">
+                <a href="#example-freezing-instances" en="82">Example: freezing instances</a>
+              </li>
+              <li en="83">
+                <a href="#example%3A-making-classes-function-callable" en="84">Example: making classes function-callable</a>
+              </li>
+            </ul>
+          </li>
+          <li en="85">
+            <a href="#class-method-decorators" en="86">Class method decorators</a>
+            <ul en="87">
+              <li en="88">
+                <a href="#example-tracing-method-invocations" en="89">Example: tracing method invocations</a>
+              </li>
+              <li en="90">
+                <a href="#example%3A-binding-methods-to-instances" en="91">Example: binding methods to instances</a>
+              </li>
+              <li en="92">
+                <a href="#example%3A-applying-functions-to-methods" en="93">Example: applying functions to methods</a>
+              </li>
+            </ul>
+          </li>
+          <li en="94">
+            <a href="#class-getter-decorators%2C-class-setter-decorators" en="95">Class getter decorators, class setter decorators</a>
+            <ul en="96">
+              <li en="97">
+                <a href="#example%3A-computing-values-lazily" en="98">Example: computing values lazily</a>
+              </li>
+            </ul>
+          </li>
+          <li en="99">
+            <a href="#class-field-decorators" en="100">Class field decorators</a>
+            <ul en="101">
+              <li en="102">
+                <a href="#example%3A-changing-initialization-values-of-fields" en="103">Example: changing initialization values of fields</a>
+              </li>
+              <li en="104">
+                <a href="#read-only-fields" en="105">Example: read-only fields (instance public fields)</a>
+              </li>
+              <li en="106">
+                <a href="#example%3A-dependency-injection-(instance-public-fields)" en="107">Example: dependency injection (instance public fields)</a>
+              </li>
+              <li en="108">
+                <a href="#example-friend-visibility" en="109">Example: “friend”&nbsp;visibility (instance private fields)</a>
+              </li>
+              <li en="110">
+                <a href="#example%3A-enums-(static-public-fields)" en="111">Example: enums (static public fields)</a>
+              </li>
+            </ul>
+          </li>
+          <li en="112">
+            <a href="#auto-accessors" en="113">Auto-accessors: a new member of class definitions</a>
+            <ul en="114">
+              <li en="115">
+                <a href="#why-are-auto-accessors-needed%3F" en="116">Why are auto-accessors needed?</a>
+              </li>
+            </ul>
+          </li>
+          <li en="117">
+            <a href="#class-auto-accessor-decorators" en="118">Class auto-accessor decorators</a>
+            <ul en="119">
+              <li en="120">
+                <a href="#read-only-auto-accessors" en="121">Example: read-only auto-accessors</a>
+              </li>
+            </ul>
+          </li>
+          <li en="122">
+            <a href="#faq" en="123">Frequently asked questions</a>
+            <ul en="124">
+              <li en="125">
+                <a href="#function-decorators" en="126">Why can’t functions be decorated?</a>
+              </li>
+            </ul>
+          </li>
+          <li en="127">
+            <a href="#more-decorator-related-proposals" en="128">More decorator-related proposals</a>
+          </li>
+          <li en="129">
+            <a href="#resources" en="130">Resources</a>
+            <ul en="131">
+              <li en="132">
+                <a href="#decorator-implementations" en="133">Implementations</a>
+              </li>
+              <li en="134">
+                <a href="#libraries-with-decorators" en="135">Libraries with decorators</a>
+              </li>
+            </ul>
+          </li>
+          <li en="136">
+            <a href="#acknowledgements" en="137">Acknowledgements</a>
+          </li>
+          <li en="138">
+            <a href="#further-reading" en="139">Further reading</a>
+          </li>
+        </ul>
+      </nav>
+      <h2 id="history-of-decorators" tabindex="-1" en="140">The history of decorators (optional section)&nbsp;&nbsp;<a class="heading-anchor" href="#history-of-decorators" aria-hidden="true">#</a></h2>
+      <p en="142">(This section is optional. If you skip it, you can still understand the remaining content.)</p>
+      <p en="143">Let’s start by looking at the history of decorators. Among others, two questions will be answered:</p>
+      <ul en="144">
+        <li en="145">Why is this proposal taking so long?</li>
+        <li en="146">Why does it feel like JavaScript has already had decorators for years?</li>
+      </ul>
+      <h3 id="the-history-of-decorators" tabindex="-1" en="147">The history of decorators&nbsp;&nbsp;<a class="heading-anchor" href="#the-history-of-decorators" aria-hidden="true">#</a></h3>
+      <p en="149">The following history describes:</p>
+      <ul en="150">
+        <li en="151">How various groups both worked on their own projects and collaborated on the TC39 proposal.</li>
+        <li en="152">How the TC39 proposal advanced through the stages of <a href="https://exploringjs.com/js/book/ch_history.html#tc39-process" en="153">the TC39 process</a> (which start at 0 and end at 4, when the proposal is ready to be added to ECMAScript). Along the way, the proposal changed in numerous ways.</li>
+      </ul>
+      <p en="154">This is a chronological account of relevant events:</p>
+      <ul en="155">
+        <li en="156">
+          <p en="157"><a href="https://github.com/tc39/notes/blob/main/meetings/2014-04/apr-10.md">2014-04-10</a>: Decorators were proposed to TC39 by Yehuda Katz. The proposal advanced to stage 0.</p>
+          <ul en="159">
+            <li en="160">Katz’s proposal was created in collaboration with Ron Buckton. Discussions about that proposal date back as far as <a href="https://twitter.com/rbuckton/status/1581292852532813825" en="161">July 2013</a>.</li>
+          </ul>
+        </li>
+        <li en="162">
+          <p en="163">2014-10-22 (ngEurope conference, Paris): The Angular team announced that Angular 2.0 was being written in AtScript and compiled to JavaScript (via Traceur) and Dart. Plans included basing AtScript on TypeScript while adding:</p>
+          <ul en="164">
+            <li en="165">Three kinds of <em>annotations</em>:
+              <ul en="167">
+                <li en="168"><em>Type annotations</em></li>
+                <li en="170"><em>Field annotations</em> explicitly declare fields.</li>
+                <li en="172"><em>Metadata annotations</em> have the same syntax as decorators but only add metadata and don’t change how annotated constructs work.</li>
+              </ul>
+            </li>
+            <li en="174">Runtime type checking</li>
+            <li en="175">Type introspection</li>
+          </ul>
+        </li>
+        <li en="176">
+          <p en="177"><a href="https://github.com/tc39/notes/blob/main/meetings/2015-01/jan-28.md">2015-01-28</a>: Yehuda Katz and Jonathan Turner reported that Katz and the TypeScript team were exchanging ideas.</p>
+        </li>
+        <li en="179">
+          <p en="180">2015-03-05 (ng-conf, Salt Lake City): The Angular team and the TypeScript team announced that Angular would switch from AtScript to TypeScript and that TypeScript would adopt some of AtScript’s features (especially decorators).</p>
+        </li>
+        <li en="181">
+          <p en="182"><a href="https://github.com/tc39/notes/blob/main/meetings/2015-03/mar-24.md">2015-03-24</a>: The decorator proposal reached stage 1. At that time, they had <a href="https://github.com/wycats/javascript-decorators" en="184">a repository on GitHub</a> (created by Yehuda Katz) that was later moved to <a href="https://github.com/tc39/proposal-decorators" en="185">its current location</a>.</p>
+        </li>
+        <li en="186">
+          <p en="187">2015-07-20: <a href="https://devblogs.microsoft.com/typescript/announcing-typescript-1-5/">TypeScript 1.5</a> came out and supported <a href="https://www.typescriptlang.org/docs/handbook/decorators.html" en="189">stage 1 decorators</a> behind the flag <code>--experimentalDecorators</code>.</p>
+          <p en="191">Several JavaScript projects (e.g. Angular and MobX) used this TypeScript feature which made it look like JavaScript already had decorators.</p>
+          <p en="192">So far, TypeScript has not supported a newer version of the decorators API. <a href="https://github.com/microsoft/TypeScript/pull/50820" en="193">A pull request by Ron Buckton provides support for stage 3 decorators</a> and will likely ship in the release after v4.9.</p>
+        </li>
+        <li en="194">
+          <p en="195"><a href="https://github.com/tc39/notes/blob/main/meetings/2016-07/jul-28.md">2016-07-28</a>: The proposal reached stage 2, after a presentation by Yehuda Katz and Brian Terlson.</p>
+        </li>
+        <li en="197">
+          <p en="198"><a href="https://github.com/tc39/notes/blob/main/meetings/2017-07/jul-27.md">2017-07-27</a>: Daniel Ehrenberg held his first decorator presentation, after joining the proposal a few months earlier. He drove its evolution for several years.</p>
+        </li>
+        <li en="200">
+          <p en="201">Later, Chris Garrett joined the proposal and helped get it to stage 3, which happened <a href="https://github.com/tc39/notes/blob/main/meetings/2022-03/mar-28.md">on 2022-03-28</a>. Decorator metadata was moved to <a href="https://github.com/tc39/proposal-decorator-metadata" en="203">a separate proposal</a> that started at stage 2.</p>
+        </li>
+      </ul>
+      <p en="204">It took a long time to reach stage 3 because it was difficult to get all stakeholders to agree on an API. Concerns included interactions with other features (such as class members and private state) and performance.</p>
+      <h3 id="the-history-of-babel%E2%80%99s-decorator-implementation" tabindex="-1" en="205">The history of Babel’s decorator implementation&nbsp;&nbsp;<a class="heading-anchor" href="#the-history-of-babel%E2%80%99s-decorator-implementation" aria-hidden="true">#</a></h3>
+      <p en="207">Babel closely tracked the evolution of the decorator proposal, thanks to the efforts of Logan Smyth, Nicolò Ribaudo and others:</p>
+      <ul en="208">
+        <li en="209">
+          <p en="210"><a href="https://babeljs.io/blog/2015/03/31/5.0.0">2015-03-31</a>: Babel 5.0.0 supported stage 1 decorators.</p>
+        </li>
+        <li en="212">
+          <p en="213"><a href="https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy">2015-11-29</a> An external plugin by Logan Smyth brought support for stage 1 decorators to Babel 6.</p>
+        </li>
+        <li en="215">
+          <p en="216"><a href="https://babeljs.io/blog/2018/08/27/7.0.0">2018-08-27</a> Babel 7.0.0 supported stage 2 decorators via the official <code>@babel/plugin-proposal-decorators</code>.</p>
+        </li>
+        <li en="219">
+          <p en="220">The official plugin currently supports <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version" en="221">the following versions</a>:</p>
+          <ul en="222">
+            <li en="223"><code>"legacy"</code>: <a href="https://github.com/wycats/javascript-decorators/blob/e1bf8d41bfa2591d949dd3bbf013514c8904b913/README.md" en="225">stage 1 decorators</a></li>
+            <li en="226"><code>"2018-09"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/7fa580b40f2c19c561511ea2c978e307ae689a1b" en="228">stage 2 decorators</a></li>
+            <li en="229"><code>"2021-12"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/d6c056fa061646178c34f361bad33d583316dc85" en="231">an updated version of the original stage 2 decorators</a></li>
+            <li en="232"><code>"2022-03"</code>: <a href="https://github.com/tc39/proposal-decorators/tree/8ca65c046dd5e9aa3846a1fe5df343a6f7efd9f8" en="234">stage 3 decorators</a></li>
+          </ul>
+        </li>
+      </ul>
+      <h2 id="what-are-decorators%3F" tabindex="-1" en="235">What are decorators?&nbsp;&nbsp;<a class="heading-anchor" href="#what-are-decorators%3F" aria-hidden="true">#</a></h2>
+      <p en="237">Decorators let us change how JavaScript constructs (such as classes and methods) work. Let’s revisit our previous example with the decorator <code>@trace</code>:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  @trace
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'C'</span>;
+  }
+}
+</code></pre>
+      <p en="247">To implement <code>@trace</code>, we only have to write a function (<a href="#example-tracing-method-invocations" en="249">the exact implementation will be shown later</a>):</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">trace</span>(<span class="hljs-params">decoratedMethod</span>) {
+  <span class="hljs-comment">// Returns a function that replaces `decoratedMethod`.</span>
+}
+</code></pre>
+      <p en="256">The class with the decorated method is roughly equivalent to the following code:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'C'</span>;
+  }
+}
+C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-property">toString</span> = <span class="hljs-title function_">trace</span>(C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-property">toString</span>);
+</code></pre>
+      <p en="272">In other words: A decorator is a function that we can apply to language constructs. We do so by putting <code>@</code> plus its name in front of them.</p>
+      <p en="274">Writing and using decorators is <em>metaprogramming</em>:</p>
+      <ul en="276">
+        <li en="277">We don’t write code that processes user data (<em>programming</em>).</li>
+        <li en="279">We write code that processes code that processes user data (<em>metaprogramming</em>).</li>
+      </ul>
+      <p en="281">For more information on metaprogramming, see <a href="https://exploringjs.com/deep-js/ch_proxies.html#programming-vs-metaprogramming" en="282">section “Programming versus metaprogramming”</a> in “Deep JavaScript”.</p>
+      <h3 id="the-shape-of-decorator-functions" tabindex="-1" en="283">The shape of decorator functions&nbsp;&nbsp;<a class="heading-anchor" href="#the-shape-of-decorator-functions" aria-hidden="true">#</a></h3>
+      <p en="285">Before we explore examples of decorator functions, I’d like to take a look at their TypeScript type signature:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">Decorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: <span class="hljs-title class_">DecoratedValue</span>, <span class="hljs-comment">// only fields differ</span>
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-built_in">string</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">symbol</span>;
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in">void</span>): <span class="hljs-built_in">void</span>;
+
+    // Don’t always exist:
+    <span class="hljs-keyword">static</span>: <span class="hljs-built_in">boolean</span>;
+    <span class="hljs-keyword">private</span>: <span class="hljs-built_in">boolean</span>;
+    access: {get: () =&gt; <span class="hljs-built_in">unknown</span>, set: (value: <span class="hljs-built_in">unknown</span>) =&gt; <span class="hljs-built_in">void</span>};
+  }
+</span>) =&gt;</span> <span class="hljs-built_in">void</span> | <span class="hljs-title class_">ReplacementValue</span>; <span class="hljs-comment">// only fields differ</span>
+</code></pre>
+      <p en="311">That is, a decorator is a function. Its parameters are:</p>
+      <ul en="312">
+        <li en="313">The <code>value</code> that the decorator is applied to.</li>
+        <li en="315">The object <code>context</code> with:
+          <ul>
+            <li en="318">Additional information on <code en="319">value</code> (<code>.static</code>, <code>.private</code>)</li>
+            <li>A small API (<code en="323">.access</code>, <code>.addInitializer</code>) with metaprogramming functionality</li>
+          </ul>
+        </li>
+      </ul>
+      <p>Property <code en="326">.kind</code> tells the decorator which kind of JavaScript construct it is applied to. We can use the same function for multiple constructs.</p>
+      <p>Currently, decorators can be applied to classes, methods, getters, setters, fields, and <em en="328">auto-accessors</em> (a new class member that is explained <a href="#auto-accessors">later</a>). The values of <code>.kind</code> reflect that:</p>
+      <ul>
+        <li><code>'class'</code></li>
+        <li><code>'method'</code></li>
+        <li><code>'getter'</code></li>
+        <li><code>'setter'</code></li>
+        <li><code>'accessor'</code></li>
+        <li><code>'field'</code></li>
+      </ul>
+      <p en="344">This is the exact type of <code>Decorator</code>:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">Decorator</span> =
+  | <span class="hljs-title class_">ClassDecorator</span>
+  | <span class="hljs-title class_">ClassMethodDecorator</span>
+  | <span class="hljs-title class_">ClassGetterDecorator</span>
+  | <span class="hljs-title class_">ClassSetterDecorator</span>
+  | <span class="hljs-title class_">ClassAutoAccessorDecorator</span>
+  | <span class="hljs-title class_">ClassFieldDecorator</span>
+;
+</code></pre>
+      <p en="356">We’ll soon encounter each of these kinds of decorators and its type signature – where only these parts change:</p>
+      <ul en="357">
+        <li en="358">The type of <code>value</code></li>
+        <li en="360">Some of the properties of <code>context</code></li>
+        <li en="362">The return type</li>
+      </ul>
+      <h3 id="what-can-decorators-do%3F" tabindex="-1" en="363">What can decorators do?&nbsp;&nbsp;<a class="heading-anchor" href="#what-can-decorators-do%3F" aria-hidden="true">#</a></h3>
+      <p en="365">Each decorator has up to four abilities:</p>
+      <ul en="366">
+        <li en="367">
+          <p en="368">It can change the decorated entity by changing the parameter <code>value</code>.</p>
+        </li>
+        <li en="370">
+          <p en="371">It can replace the decorated entity by returning a compatible value:</p>
+          <ul en="372">
+            <li en="373">“Compatible”&nbsp;means that the returned value must have the same type as the decorated value – e.g., class decorators must return callable values.</li>
+            <li en="374">If the decorator doesn’t want to replace the decorated value, it can return <code>undefined</code> – either explicitly or implicitly, by not returning anything.</li>
+          </ul>
+        </li>
+        <li>
+          <p en="377">Exposing access to the decorated entity to others. <code en="378">context.access</code> enables it to do that, via its methods <code>.get()</code> and <code>.set()</code>.</p>
+        </li>
+        <li>
+          <p en="382">Processing the decorated entity and its container (if it has one), after both exist: That functionality is provided by <code en="383">context.addInitializer</code>. It lets the decorator register an <em>initializer</em> – a callback that is invoked when everything is ready (more details are explained <a href="#decorator-initializer-execution">later</a>).</p>
+        </li>
+      </ul>
+      <p en="386">The next subsections demonstrate these abilities. We initially won’t use <code en="387">context.kind</code> to check which kind of construct a decorator is applied to. We will do that later, though.</p>
+      <h4 id="ability%3A-replacing-the-decorated-entity" tabindex="-1">Ability: replacing the decorated entity&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-replacing-the-decorated-entity" aria-hidden="true" en="389">#</a></h4>
+      <p>In the following example, the decorator <code en="391">@replaceMethod</code> replaces method <code>.hello()</code> (line B) with a function that it returns (line A).</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">replaceMethod</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) { <span class="hljs-comment">// (A)</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`How are you, <span class="hljs-subst">${<span class="hljs-variable language_">this</span>.name}</span>?`</span>;
+  }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> {
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">name</span> = name;
+  }
+  @replaceMethod
+  <span class="hljs-title function_">hello</span>(<span class="hljs-params"></span>) { <span class="hljs-comment">// (B)</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Hi <span class="hljs-subst">${<span class="hljs-variable language_">this</span>.name}</span>!`</span>;
+  }
+}
+
+<span class="hljs-keyword">const</span> robin = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">'Robin'</span>);
+assert.<span class="hljs-title function_">equal</span>(
+  robin.<span class="hljs-title function_">hello</span>(), <span class="hljs-string">'How are you, Robin?'</span>
+);
+</code></pre>
+      <h4 id="ability%3A-exposing-access-to-the-decorated-entity-to-others" tabindex="-1" en="426">Ability: exposing access to the decorated entity to others&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-exposing-access-to-the-decorated-entity-to-others" aria-hidden="true">#</a></h4>
+      <p en="428">In the next example, the decorator <code>@exposeAccess</code> stores an object in the variable <code>acc</code> that lets us access property <code>.green</code> of the instances of <code>Color</code>.</p>
+      <pre><code class="language-js"><span class="hljs-keyword">let</span> acc;
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">exposeAccess</span>(<span class="hljs-params">_value, {access}</span>) {
+  acc = access;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Color</span> {
+  @exposeAccess
+  name = <span class="hljs-string">'green'</span>
+}
+
+<span class="hljs-keyword">const</span> green = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>();
+assert.<span class="hljs-title function_">equal</span>(
+  green.<span class="hljs-property">name</span>, <span class="hljs-string">'green'</span>
+);
+<span class="hljs-comment">// Using `acc` to get and set `green.name`</span>
+assert.<span class="hljs-title function_">equal</span>(
+  acc.<span class="hljs-property">get</span>.<span class="hljs-title function_">call</span>(green), <span class="hljs-string">'green'</span>
+);
+acc.<span class="hljs-property">set</span>.<span class="hljs-title function_">call</span>(green, <span class="hljs-string">'red'</span>);
+assert.<span class="hljs-title function_">equal</span>(
+  green.<span class="hljs-property">name</span>, <span class="hljs-string">'red'</span>
+);
+</code></pre>
+      <h4 id="ability%3A-processing-the-decorated-entity-and-its-container" tabindex="-1" en="459">Ability: processing the decorated entity and its container&nbsp;&nbsp;<a class="heading-anchor" href="#ability%3A-processing-the-decorated-entity-and-its-container" aria-hidden="true">#</a></h4>
+      <p en="461">In the following code, we use the decorator <code>@collect</code> to store the keys of decorated methods in the instance property <code>.collectedMethodKeys</code>:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">collect</span>(<span class="hljs-params">_value, {name, addInitializer}</span>) {
+  <span class="hljs-title function_">addInitializer</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) { <span class="hljs-comment">// (A)</span>
+    <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">collectedMethodKeys</span>) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">collectedMethodKeys</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
+    }
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">collectedMethodKeys</span>.<span class="hljs-title function_">add</span>(name);
+  });
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  @collect
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {}
+  @collect
+  [<span class="hljs-title class_">Symbol</span>.<span class="hljs-property">iterator</span>]() {}
+}
+<span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">C</span>();
+assert.<span class="hljs-title function_">deepEqual</span>(
+  inst.<span class="hljs-property">collectedMethodKeys</span>,
+  <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'toString'</span>, <span class="hljs-title class_">Symbol</span>.<span class="hljs-property">iterator</span>])
+);
+</code></pre>
+      <p en="499">The initializer function added by the decorator in line A must be an ordinary function because access to the implicit parameter <code>this</code> is needed. Arrow functions don’t provide this access – their <code>this</code> is statically scoped (like any normal variable).</p>
+      <h3 id="summary-tables" tabindex="-1" en="502">Summary tables&nbsp;&nbsp;<a class="heading-anchor" href="#summary-tables" aria-hidden="true">#</a></h3>
+      <p en="504">Type signature:</p>
+      <table class="framed" en="505">
+        <thead>
+          <tr>
+            <th>Kind of decorator</th>
+            <th><code>(input) =&gt; output</code></th>
+            <th><code>.access</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Class</td>
+            <td><code>(func) =&gt; func2</code></td>
+            <td>–</td>
+          </tr>
+          <tr>
+            <td>Method</td>
+            <td><code>(func) =&gt; func2</code></td>
+            <td><code>{get}</code></td>
+          </tr>
+          <tr>
+            <td>Getter</td>
+            <td><code>(func) =&gt; func2</code></td>
+            <td><code>{get}</code></td>
+          </tr>
+          <tr>
+            <td>Setter</td>
+            <td><code>(func) =&gt; func2</code></td>
+            <td><code>{set}</code></td>
+          </tr>
+          <tr>
+            <td>Auto-accessor</td>
+            <td><code>({get,set}) =&gt; {get,set,init}</code></td>
+            <td><code>{get,set}</code></td>
+          </tr>
+          <tr>
+            <td>Field</td>
+            <td><code>() =&gt; (initValue)=&gt;initValue2</code></td>
+            <td><code>{get,set}</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p en="549">Value of <code>this</code> in functions:</p>
+      <table class="framed" en="551">
+        <thead>
+          <tr>
+            <th><code>this</code> is →</th>
+            <th><code>undefined</code></th>
+            <th>Class</th>
+            <th>Instance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Decorator function</td>
+            <td>✔</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Static initializer</td>
+            <td></td>
+            <td>✔</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Non-static initializer</td>
+            <td></td>
+            <td></td>
+            <td>✔</td>
+          </tr>
+          <tr>
+            <td>Static field decorator result</td>
+            <td></td>
+            <td>✔</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Non-static field decorator result</td>
+            <td></td>
+            <td></td>
+            <td>✔</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 id="more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" tabindex="-1" en="586">More information on the syntax and semantics of decorators (optional section)&nbsp;&nbsp;<a class="heading-anchor" href="#more-information-on-the-syntax-and-semantics-of-decorators-(optional-section)" aria-hidden="true">#</a></h2>
+      <p en="588">(This section is optional. If you skip it, you can still understand the remaining content.)</p>
+      <h3 id="the-syntax-of-decorator-expressions" tabindex="-1" en="589">The syntax of decorator expressions&nbsp;&nbsp;<a class="heading-anchor" href="#the-syntax-of-decorator-expressions" aria-hidden="true">#</a></h3>
+      <ul en="591">
+        <li en="592">A decorator expression starts with a chain of one or more identifiers, separated by dots. Each identifier except the first one can be private (prefix <code>#</code>). Square brackets <code>[]</code> are not allowed.</li>
+        <li en="595">Optional at the end: function call arguments in parentheses. The next subsection explains what that means.</li>
+        <li en="596">We can use any expression if we put it in parentheses:
+          <pre><code class="language-js">@(«expr»)
+</code></pre>
+        </li>
+      </ul>
+      <p en="599">Wherever decorators are allowed, we can use more than one of them. The following code demonstrates decorator syntax:</p>
+      <pre><code class="language-js"><span class="hljs-comment">// Five decorators for MyClass</span>
+
+@myFunc
+@<span class="hljs-title function_">myFuncFactory</span>(<span class="hljs-string">'arg1'</span>, <span class="hljs-string">'arg2'</span>)
+
+@libraryModule.<span class="hljs-property">prop</span>
+@someObj.<span class="hljs-title function_">method</span>(<span class="hljs-number">123</span>)
+
+@(<span class="hljs-title function_">wrap</span>(dict[<span class="hljs-string">'prop'</span>])) <span class="hljs-comment">// arbitrary expression</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> {}
+</code></pre>
+      <h3 id="how-are-decorators-executed%3F" tabindex="-1" en="614">How are decorators executed?&nbsp;&nbsp;<a class="heading-anchor" href="#how-are-decorators-executed%3F" aria-hidden="true">#</a></h3>
+      <ul en="616">
+        <li en="617">
+          <p en="618">Evaluation: The expressions after the <code>@</code> symbols are evaluated during the execution of the class definition, along with computed property keys and static fields (see code below). The results must be functions. They are stored in temporary locations (think local variables), to be invoked later.</p>
+        </li>
+        <li en="620">
+          <p en="621">Invocation: The decorator functions are called later during the execution of a class definition, after methods have been evaluated but before constructor and prototype have been assembled. Once again the results are stored in temporary locations.</p>
+        </li>
+        <li en="622">
+          <p en="623">Application: After all decorator functions were invoked, their results are used, which can affect constructor and prototype. Class decorators are applied after all method and field decorators.</p>
+        </li>
+      </ul>
+      <p en="624">The following code illustrates in which order decorator expressions, computed property keys and field initializers are evaluated:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">decorate</span>(<span class="hljs-params">str</span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`EVALUATE @decorate(): <span class="hljs-subst">${str}</span>`</span>);
+  <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`APPLY @decorate(): <span class="hljs-subst">${str}</span>`</span>); <span class="hljs-comment">// (A)</span>
+}
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">log</span>(<span class="hljs-params">str</span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(str);
+  <span class="hljs-keyword">return</span> str;
+}
+
+@<span class="hljs-title function_">decorate</span>(<span class="hljs-string">'class'</span>)
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">TheClass</span> {
+
+  @<span class="hljs-title function_">decorate</span>(<span class="hljs-string">'static field'</span>)
+  <span class="hljs-keyword">static</span> staticField = <span class="hljs-title function_">log</span>(<span class="hljs-string">'static field value'</span>);
+
+  @<span class="hljs-title function_">decorate</span>(<span class="hljs-string">'prototype method'</span>)
+  [<span class="hljs-title function_">log</span>(<span class="hljs-string">'computed key'</span>)]() {}
+
+  @<span class="hljs-title function_">decorate</span>(<span class="hljs-string">'instance field'</span>)
+  instanceField = <span class="hljs-title function_">log</span>(<span class="hljs-string">'instance field value'</span>);
+    <span class="hljs-comment">// This initializer only runs if we instantiate the class</span>
+}
+
+<span class="hljs-comment">// Output:</span>
+<span class="hljs-comment">// EVALUATE @decorate(): class</span>
+<span class="hljs-comment">// EVALUATE @decorate(): static field</span>
+<span class="hljs-comment">// EVALUATE @decorate(): prototype method</span>
+<span class="hljs-comment">// computed key</span>
+<span class="hljs-comment">// EVALUATE @decorate(): instance field</span>
+<span class="hljs-comment">// APPLY @decorate(): prototype method</span>
+<span class="hljs-comment">// APPLY @decorate(): static field</span>
+<span class="hljs-comment">// APPLY @decorate(): instance field</span>
+<span class="hljs-comment">// APPLY @decorate(): class</span>
+<span class="hljs-comment">// static field value</span>
+</code></pre>
+      <p en="676">Function <code>decorate</code> is invoked whenever the expression <code>decorate()</code> after the <code en="679">@</code> symbol is evaluated. In line A, it returns the actual decorator function, which is applied later.</p>
+      <h3 id="decorator-initializer-execution" tabindex="-1">When do decorator initializers run?&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-initializer-execution" aria-hidden="true" en="681">#</a></h3>
+      <p en="682">When a decorator initializer runs, depends on the kind of decorator:</p>
+      <ul en="683">
+        <li en="684">
+          <p en="685">Class decorator initializers run after the class is fully defined and all static fields were initialized.</p>
+        </li>
+        <li en="686">
+          <p en="687">The initializers of non-static class element decorators run during instantiation, before instance fields are initialized.</p>
+        </li>
+        <li en="688">
+          <p en="689">The initializers of static class element decorators run during class definition, before static fields are defined but after other all other class elements were defined.</p>
+        </li>
+      </ul>
+      <p en="690">Why is that? For non-static initializers, we have five options – they can run:</p>
+      <ol en="691">
+        <li>Before <code en="693">super</code></li>
+        <li>After <code en="695">super</code>, before field initialization</li>
+        <li en="696">Interleaved between fields in definition order</li>
+        <li en="697">After field initialization, before child class instantiation</li>
+        <li en="698">After child class instantiation</li>
+      </ol>
+      <p en="699">Why was #2 chosen?</p>
+      <ul en="700">
+        <li en="701">
+          <p>#1 was rejected because decorator initializers must be able to access <code>this</code>, which isn’t possible before <code en="704">super</code> runs.</p>
+        </li>
+        <li en="705">
+          <p en="706">#3 was rejected because running all decorator initializers at the same time is simpler than ensuring that they are properly interleaved.</p>
+        </li>
+      </ul>
+      <ul en="707">
+        <li en="708">
+          <p>#4 was rejected because running decorator initializers before fields ensures that fields don’t see partially initialized methods. For example, if there are <code en="710">@bind</code> decorators, then field initializers can rely on the decorated methods being bound.</p>
+        </li>
+        <li en="711">
+          <p en="712">#5 was rejected because it would allow superclasses to interfere with subclasses, which would break the rule that superclasses should not be aware of their subclasses.</p>
+        </li>
+      </ul>
+      <p>The following code demonstrates in which order Babel currently invokes decorator initializers. Note that Babel does not yet support initializers for class field decorators (which was a recent change to the decorators API).</p>
+      <pre><code class="language-js"><span class="hljs-comment">// We wait until after instantiation before we log steps,</span>
+<span class="hljs-comment">// so that we can compare the value of `this` with the instance.</span>
+<span class="hljs-keyword">const</span> steps = [];
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">push</span>(<span class="hljs-params">msg, _this</span>) {
+  steps.<span class="hljs-title function_">push</span>({msg, _this});
+}
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">pushStr</span>(<span class="hljs-params">str</span>) {
+  steps.<span class="hljs-title function_">push</span>(str);
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">init</span>(<span class="hljs-params">_value, {name, addInitializer}</span>) {
+  <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">`@init <span class="hljs-subst">${name}</span>`</span>);
+  <span class="hljs-keyword">if</span> (addInitializer) {
+    <span class="hljs-title function_">addInitializer</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) {
+      <span class="hljs-title function_">push</span>(<span class="hljs-string">`DECORATOR INITIALIZER <span class="hljs-subst">${name}</span>`</span>, <span class="hljs-variable language_">this</span>);
+    });
+  }
+}
+
+@init <span class="hljs-keyword">class</span> <span class="hljs-title class_">TheClass</span> {
+  <span class="hljs-comment">//--- Static ---</span>
+
+  <span class="hljs-keyword">static</span> {
+    <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'static block'</span>);
+  }
+
+  @init <span class="hljs-keyword">static</span> <span class="hljs-title function_">staticMethod</span>(<span class="hljs-params"></span>) {}
+  @init <span class="hljs-keyword">static</span> accessor staticAcc = <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'staticAcc'</span>);
+  @init <span class="hljs-keyword">static</span> staticField = <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'staticField'</span>);
+
+  <span class="hljs-comment">//--- Non-static ---</span>
+
+  @init <span class="hljs-title function_">prototypeMethod</span>(<span class="hljs-params"></span>) {}
+  @init accessor instanceAcc = <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'instanceAcc'</span>);
+  @init instanceField = <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'instanceField'</span>);
+
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'constructor'</span>);
+  }
+}
+
+<span class="hljs-title function_">pushStr</span>(<span class="hljs-string">'===== Instantiation ====='</span>);
+<span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TheClass</span>();
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> step <span class="hljs-keyword">of</span> steps) {
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> step === <span class="hljs-string">'string'</span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(step);
+    <span class="hljs-keyword">continue</span>;
+  }
+  <span class="hljs-keyword">let</span> thisDesc = <span class="hljs-string">'???'</span>;
+  <span class="hljs-keyword">if</span> (step.<span class="hljs-property">_this</span> === <span class="hljs-title class_">TheClass</span>) {
+    thisDesc = <span class="hljs-title class_">TheClass</span>.<span class="hljs-property">name</span>;
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (step.<span class="hljs-property">_this</span> === inst) {
+    thisDesc = <span class="hljs-string">'inst'</span>;
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (step.<span class="hljs-property">_this</span> === <span class="hljs-literal">undefined</span>) {
+    thisDesc = <span class="hljs-string">'undefined'</span>;
+  }
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`<span class="hljs-subst">${step.msg}</span> (this===<span class="hljs-subst">${thisDesc}</span>)`</span>);
+}
+
+<span class="hljs-comment">// Output:</span>
+<span class="hljs-comment">// @init staticMethod</span>
+<span class="hljs-comment">// @init staticAcc</span>
+<span class="hljs-comment">// @init prototypeMethod</span>
+<span class="hljs-comment">// @init instanceAcc</span>
+<span class="hljs-comment">// @init staticField</span>
+<span class="hljs-comment">// @init instanceField</span>
+<span class="hljs-comment">// @init TheClass</span>
+<span class="hljs-comment">// DECORATOR INITIALIZER staticMethod (this===TheClass)</span>
+<span class="hljs-comment">// DECORATOR INITIALIZER staticAcc (this===TheClass)</span>
+<span class="hljs-comment">// static block</span>
+<span class="hljs-comment">// staticAcc</span>
+<span class="hljs-comment">// staticField</span>
+<span class="hljs-comment">// DECORATOR INITIALIZER TheClass (this===TheClass)</span>
+<span class="hljs-comment">// ===== Instantiation =====</span>
+<span class="hljs-comment">// DECORATOR INITIALIZER prototypeMethod (this===inst)</span>
+<span class="hljs-comment">// DECORATOR INITIALIZER instanceAcc (this===inst)</span>
+<span class="hljs-comment">// instanceAcc</span>
+<span class="hljs-comment" en="820">// instanceField</span>
+<span class="hljs-comment">// constructor</span>
+</code></pre>
+      <h2 id="techniques-for-exposing-data-from-decorators" tabindex="-1" en="822">Techniques for exposing data from decorators&nbsp;&nbsp;<a class="heading-anchor" href="#techniques-for-exposing-data-from-decorators" aria-hidden="true" en="823">#</a></h2>
+      <p>Sometimes decorators collect data. Let’s explore how they can make this data available to other parties.</p>
+      <h3 id="storing-exposed-data-in-a-surrounding-scope" tabindex="-1" en="825">Storing exposed data in a surrounding scope&nbsp;&nbsp;<a class="heading-anchor" href="#storing-exposed-data-in-a-surrounding-scope" aria-hidden="true">#</a></h3>
+      <p>The simplest solution is to store data in a location in a surrounding scope. For example, the decorator <code>@collect</code> collects classes and stores them in the Set <code>classes</code> (line A):</p>
+      <pre><code class="language-js"><span class="hljs-keyword">const</span> classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>(); <span class="hljs-comment">// (A)</span>
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">collect</span>(<span class="hljs-params">value, {kind, addInitializer}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
+    classes.<span class="hljs-title function_">add</span>(value);
+  }
+}
+
+@collect
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> {}
+@collect
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> {}
+@collect
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {}
+
+assert.<span class="hljs-title function_">deepEqual</span>(
+  classes, <span class="hljs-keyword" en="849">new</span> <span class="hljs-title class_" en="850">Set</span>([A, B, C])
+);
+</code></pre>
+      <p>The downside of this approach is that it doesn’t work if a decorator comes from another module.</p>
+      <h3 id="managing-exposed-data-via-a-factory-function" tabindex="-1" en="852">Managing exposed data via a factory function&nbsp;&nbsp;<a class="heading-anchor" href="#managing-exposed-data-via-a-factory-function" aria-hidden="true">#</a></h3>
+      <p en="854">A more sophisticated approach is to use a factory function <code en="855">createClassCollector()</code> that returns:</p>
+      <ul>
+        <li en="857">A class decorator <code>collect</code></li>
+        <li>A Set <code>classes</code>, to which the decorator will add the classes it collects</li>
+      </ul>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">createClassCollector</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">const</span> classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
+  <span class="hljs-keyword">function</span> <span class="hljs-title function_">collect</span>(<span class="hljs-params">value, {kind, addInitializer}</span>) {
+    <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
+      classes.<span class="hljs-title function_">add</span>(value);
+    }
+  }
+  <span class="hljs-keyword">return</span> {
+    classes,
+    collect,
+  };
+}
+
+<span class="hljs-keyword">const</span> {classes, collect} = <span class="hljs-title function_">createClassCollector</span>();
+
+@collect
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> {}
+@collect
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> {}
+@collect
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {}
+
+assert.<span class="hljs-title function_">deepEqual</span>(
+  classes, <span class="hljs-keyword" en="885">new</span> <span class="hljs-title class_">Set</span>([A, B, C])
+);
+</code></pre>
+      <h3 id="managing-exposed-data-via-a-class" tabindex="-1" en="887">Managing exposed data via a class&nbsp;&nbsp;<a class="heading-anchor" href="#managing-exposed-data-via-a-class" aria-hidden="true" en="888">#</a></h3>
+      <p en="889">Instead of a factory function, we can also use a class. It has two members:</p>
+      <ul>
+        <li en="891"><code>.classes</code>, a Set with the collected classes</li>
+        <li><code>.install</code>, a class decorator</li>
+      </ul>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ClassCollector</span> {
+  classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
+  install = <span class="hljs-function">(<span class="hljs-params">value, {kind}</span>) =&gt;</span> { <span class="hljs-comment">// (A)</span>
+    <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">classes</span>.<span class="hljs-title function_">add</span>(value); <span class="hljs-comment">// (B)</span>
+    }
+  };
+}
+
+<span class="hljs-keyword">const</span> collector = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassCollector</span>();
+
+@collector.<span class="hljs-property">install</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> {}
+@collector.<span class="hljs-property">install</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> {}
+@collector.<span class="hljs-property">install</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {}
+
+assert.<span class="hljs-title function_">deepEqual</span>(
+  collector.<span class="hljs-property" en="923">classes</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([A, B, C])
+);
+</code></pre>
+      <p>We implemented <code en="927">.install</code> by assigning an arrow function to a public instance field (line A). Instance field initializers run in scopes where <code>this</code> refers to the current instance. That is also the outer scope of the arrow function and explains what value <code>this</code> has in line B.</p>
+      <p en="930">We could also implement <code>.install</code> via a getter, but then we’d have to return a new function whenever <code en="932">.install</code> is read.</p>
+      <h2 id="class-decorators" tabindex="-1">Class decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-decorators" aria-hidden="true">#</a></h2>
+      <p>Class decorators have the following type signature:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-string">'class'</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in">void</span>): <span class="hljs-built_in" en="949">void</span>;
+  }
+</span>) =&gt;</span> <span class="hljs-title class_" en="950">Function</span> | <span class="hljs-built_in" en="951">void</span>;
+</code></pre>
+      <p>Abilities of a class decorator:</p>
+      <ul en="953">
+        <li en="954">It can change the decorated class by changing <code en="955">value</code>.</li>
+        <li>It can replace the decorated class by returning a callable value.</li>
+        <li en="957">It can register initializers, which are called after the decorated class is fully set up.</li>
+        <li>It does not get <code en="959">context.access</code> because classes are not members of other language constructs (whereas, e.g., methods are members of classes).</li>
+      </ul>
+      <h3 id="example%3A-collecting-instances" tabindex="-1">Example: collecting instances&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-collecting-instances" aria-hidden="true">#</a></h3>
+      <p>In the next example, we use a decorator to collect all instances of a decorated class:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">InstanceCollector</span> {
+  instances = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
+  install = <span class="hljs-function">(<span class="hljs-params">value, {kind}</span>) =&gt;</span> {
+    <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
+      <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) { <span class="hljs-comment">// (A)</span>
+        <span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">value</span>(...args); <span class="hljs-comment">// (B)</span>
+        _this.<span class="hljs-property">instances</span>.<span class="hljs-title function_">add</span>(inst);
+        <span class="hljs-keyword">return</span> inst;
+      };
+    }
+  };
+}
+
+<span class="hljs-keyword">const</span> collector = <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstanceCollector</span>();
+
+@collector.<span class="hljs-property">install</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> {}
+
+<span class="hljs-keyword">const</span> inst1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+<span class="hljs-keyword">const</span> inst2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+<span class="hljs-keyword">const</span> inst3 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+
+assert.<span class="hljs-title function_">deepEqual</span>(
+  collector.<span class="hljs-property" en="1002">instances</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_" en="1004">Set</span>([inst1, inst2, inst3])
+);
+</code></pre>
+      <p en="1005">The only way in which we can collect all instances of a given class via a decorator is by wrapping that class. The decorator in the field <code>.install</code> does that by returning a function (line A) that new-calls the decorated <code>value</code> (line B) and collects and returns the result.</p>
+      <p>Note that we can’t return an arrow function in line A, because arrow functions can’t be new-called.</p>
+      <p>One downside of this approach is that it breaks <code>instanceof</code>:</p>
+      <pre><code class="language-js">assert.<span class="hljs-title function_" en="1013">equal</span>(
+  inst1 <span class="hljs-keyword" en="1014">instanceof</span> <span class="hljs-title class_">MyClass</span>,
+  <span class="hljs-literal">false</span>
+);
+</code></pre>
+      <p en="1017">The next subsection explains how we can fix that.</p>
+      <h3 id="making-sure-that-instanceof-works" tabindex="-1">Making sure that <code>instanceof</code> works&nbsp;&nbsp;<a class="heading-anchor" href="#making-sure-that-instanceof-works" aria-hidden="true" en="1020">#</a></h3>
+      <p>In this section, we use the simple decorator <code>@countInstances</code> to show how we can support <code>instanceof</code> for wrapped classes.</p>
+      <h4 id="enabling-instanceof-via-.prototype" tabindex="-1" en="1024">Enabling <code>instanceof</code> via <code>.prototype</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-.prototype" aria-hidden="true">#</a></h4>
+      <p>One way of enabling <code>instanceof</code> is to set the <code>.prototype</code> of the wrapper function to the <code>.prototype</code> of the wrapped <code>value</code> (line A):</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">countInstances</span>(<span class="hljs-params">value</span>) {
+  <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
+  <span class="hljs-keyword">let</span> instanceCount = <span class="hljs-number">0</span>;
+  <span class="hljs-comment">// The wrapper must be new-callable</span>
+  <span class="hljs-keyword">const</span> wrapper = <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
+    instanceCount++;
+    <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">new</span> <span class="hljs-title function_">value</span>(...args);
+    <span class="hljs-comment">// Change the instance</span>
+    instance.<span class="hljs-property">count</span> = instanceCount;
+    <span class="hljs-keyword">return</span> instance;
+  };
+  wrapper.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span> = value.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>; <span class="hljs-comment">// (A)</span>
+  <span class="hljs-keyword">return</span> wrapper;
+}
+
+@countInstances
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> {}
+
+<span class="hljs-keyword">const</span> inst1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+assert.<span class="hljs-title function_">ok</span>(inst1 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>);
+assert.<span class="hljs-title function_">equal</span>(inst1.<span class="hljs-property">count</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">const</span> inst2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+assert.<span class="hljs-title function_">ok</span>(inst2 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_" en="1074">MyClass</span>);
+assert.<span class="hljs-title function_">equal</span>(inst2.<span class="hljs-property">count</span>, <span class="hljs-number">2</span>);
+</code></pre>
+      <p>Why does that work? Because the following expressions are equivalent:</p>
+      <pre><code class="language-js">inst <span class="hljs-keyword" en="1081">instanceof</span> C
+C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-title function_" en="1084">isPrototypeOf</span>(inst)
+</code></pre>
+      <p>For more information on <code>instanceof</code>, see <a href="https://exploringjs.com/js/book/ch_classes.html#instanceof-operator">“Exploring JavaScript”</a>.</p>
+      <h4 id="enabling-instanceof-via-symbol.hasinstance" tabindex="-1" en="1088">Enabling <code>instanceof</code> via <code>Symbol.hasInstance</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-symbol.hasinstance" aria-hidden="true">#</a></h4>
+      <p>Another option for enabling <code>instanceof</code> is to give the wrapper function a method whose key is <code>Symbol.hasInstance</code> (line A):</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">countInstances</span>(<span class="hljs-params">value</span>) {
+  <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
+  <span class="hljs-keyword">let</span> instanceCount = <span class="hljs-number">0</span>;
+  <span class="hljs-comment">// The wrapper must be new-callable</span>
+  <span class="hljs-keyword">const</span> wrapper = <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
+    instanceCount++;
+    <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">new</span> <span class="hljs-title function_">value</span>(...args);
+    <span class="hljs-comment">// Change the instance</span>
+    instance.<span class="hljs-property">count</span> = instanceCount;
+    <span class="hljs-keyword">return</span> instance;
+  };
+  <span class="hljs-comment">// Property is read-only, so we can’t use assignment</span>
+  <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">defineProperty</span>( <span class="hljs-comment">// (A)</span>
+    wrapper, <span class="hljs-title class_">Symbol</span>.<span class="hljs-property">hasInstance</span>,
+    {
+      <span class="hljs-attr">value</span>: <span class="hljs-keyword">function</span> (<span class="hljs-params">x</span>) {
+        <span class="hljs-keyword">return</span> x <span class="hljs-keyword">instanceof</span> value; 
+      }
+    }
+  );
+  <span class="hljs-keyword">return</span> wrapper;
+}
+
+@countInstances
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> {}
+
+<span class="hljs-keyword">const</span> inst1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+assert.<span class="hljs-title function_">ok</span>(inst1 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>);
+assert.<span class="hljs-title function_">equal</span>(inst1.<span class="hljs-property">count</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">const</span> inst2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+assert.<span class="hljs-title function_">ok</span>(inst2 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_" en="1142">MyClass</span>);
+assert.<span class="hljs-title function_" en="1143">equal</span>(inst2.<span class="hljs-property">count</span>, <span class="hljs-number" en="1145">2</span>);
+</code></pre>
+      <p>“Exploring JavaScript” has <a href="https://exploringjs.com/js/book/ch_symbols.html#publicly-known-symbols">more information on <code en="1148">Symbol.hasInstance</code></a>.</p>
+      <h4 id="enabling-instanceof-via-subclassing" tabindex="-1">Enabling <code>instanceof</code> via subclassing&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-subclassing" aria-hidden="true">#</a></h4>
+      <p>We can also enable <code>instanceof</code> by returning a subclass of <code>value</code> (line A):</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">countInstances</span>(<span class="hljs-params">value</span>) {
+  <span class="hljs-keyword">const</span> _this = <span class="hljs-variable language_">this</span>;
+  <span class="hljs-keyword">let</span> instanceCount = <span class="hljs-number">0</span>;
+  <span class="hljs-comment">// The wrapper must be new-callable</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">extends</span> value { <span class="hljs-comment">// (A)</span>
+    <span class="hljs-title function_">constructor</span>(<span class="hljs-params">...args</span>) {
+      <span class="hljs-variable language_">super</span>(...args);
+      instanceCount++;
+      <span class="hljs-comment">// Change the instance</span>
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">count</span> = instanceCount;
+    }
+  };
+}
+
+@countInstances
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> {}
+
+<span class="hljs-keyword">const</span> inst1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+assert.<span class="hljs-title function_">ok</span>(inst1 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">MyClass</span>);
+assert.<span class="hljs-title function_">equal</span>(inst1.<span class="hljs-property">count</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">const</span> inst2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyClass</span>();
+assert.<span class="hljs-title function_">ok</span>(inst2 <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_" en="1191">MyClass</span>);
+assert.<span class="hljs-title function_">equal</span>(inst2.<span class="hljs-property" en="1193">count</span>, <span class="hljs-number">2</span>);
+</code></pre>
+      <h3 id="example-freezing-instances" tabindex="-1">Example: freezing instances&nbsp;&nbsp;<a class="heading-anchor" href="#example-freezing-instances" aria-hidden="true">#</a></h3>
+      <p>The decorator class <code>@freeze</code> freezes all instances produced by the classes it decorates:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">freeze</span> (<span class="hljs-params">value, {kind}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
+      <span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">value</span>(...args);
+      <span class="hljs-keyword">return</span> <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">freeze</span>(inst);
+    }
+  }
+}
+
+@freeze
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Color</span> {
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">name</span> = name;
+  }
+}
+
+<span class="hljs-keyword">const</span> red = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'red'</span>);
+assert.<span class="hljs-title function_">throws</span>(
+  <span class="hljs-function" en="1226">() =&gt;</span> red.<span class="hljs-property" en="1227">name</span> = <span class="hljs-string" en="1228">'green'</span>,
+  <span class="hljs-regexp">/^TypeError: Cannot assign to read only property 'name'/</span>
+);
+</code></pre>
+      <p en="1230">This decorator has downsides:</p>
+      <ul en="1231">
+        <li en="1232">It breaks <code>instanceof</code>. We have already seen how to fix this.</li>
+        <li en="1234">Subclassing a decorated class doesn’t work well:
+          <ul>
+            <li en="1236">The way in which constructors are connected isn’t ideal – with a wrapped constructor in the mix. This can be partially fixed by returning a subclass of the decorated <code en="1237">value</code>.</li>
+            <li en="1238">Subclasses can’t set up properties, because their <code>this</code> is immutable. There is no way to avoid this downside.</li>
+          </ul>
+        </li>
+      </ul>
+      <p en="1240">The last downside could be avoided by giving class decorators access to the instances of the decorated classes after all constructors were executed.</p>
+      <p>This would change how inheritance works because a superclass could now change properties that were added by subclasses. Therefore, it’s not sure if such a mechanism is in the cards.</p>
+      <h3 id="example%3A-making-classes-function-callable" tabindex="-1">Example: making classes function-callable&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-making-classes-function-callable" aria-hidden="true">#</a></h3>
+      <p>Classes decorated by <code>@functionCallable</code> can be invoked by function calls instead of the <code>new</code> operator:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">functionCallable</span>(<span class="hljs-params">value, {kind}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">new</span>.<span class="hljs-property">target</span> !== <span class="hljs-literal">undefined</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TypeError</span>(<span class="hljs-string">'This function can’t be new-invoked'</span>);
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title function_">value</span>(...args);
+    }
+  }
+}
+
+@functionCallable
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> {
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">name</span> = name;
+  }
+}
+<span class="hljs-keyword">const</span> robin = <span class="hljs-title class_">Person</span>(<span class="hljs-string" en="1276">'Robin'</span>);
+assert.<span class="hljs-title function_">equal</span>(
+  robin.<span class="hljs-property" en="1278">name</span>, <span class="hljs-string">'Robin'</span>
+);
+</code></pre>
+      <h2 id="class-method-decorators" tabindex="-1">Class method decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-method-decorators" aria-hidden="true">#</a></h2>
+      <p>Class method decorators have the following type signature:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassMethodDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-string">'method'</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">symbol</span>;
+    <span class="hljs-keyword">static</span>: <span class="hljs-built_in">boolean</span>;
+    <span class="hljs-keyword">private</span>: <span class="hljs-built_in">boolean</span>;
+    access: { get: () =&gt; <span class="hljs-built_in">unknown</span> };
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in" en="1300">void</span>): <span class="hljs-built_in" en="1301">void</span>;
+  }
+</span>) =&gt;</span> <span class="hljs-title class_" en="1302">Function</span> | <span class="hljs-built_in">void</span>;
+</code></pre>
+      <p en="1304">Abilities of a method decorator:</p>
+      <ul en="1305">
+        <li en="1306">It can change the decorated method by changing <code>value</code>.</li>
+        <li en="1308">It can replace the decorated method by returning a function.</li>
+        <li en="1309">It can register initializers.</li>
+        <li><code en="1311">context.access</code> only supports getting the value of its property, not setting it.</li>
+      </ul>
+      <p>Constructors can’t be decorated: They look like methods, but they aren’t really methods.</p>
+      <h3 id="example-tracing-method-invocations" tabindex="-1">Example: tracing method invocations&nbsp;&nbsp;<a class="heading-anchor" href="#example-tracing-method-invocations" aria-hidden="true">#</a></h3>
+      <p>The decorator <code>@trace</code> wraps methods so that their invocations and results are logged to the console:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">trace</span>(<span class="hljs-params">value, {kind, name}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'method'</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`CALL <span class="hljs-subst">${name}</span>: <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(args)}</span>`</span>);
+      <span class="hljs-keyword">const</span> result = value.<span class="hljs-title function_">apply</span>(<span class="hljs-variable language_">this</span>, args);
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'=&gt; '</span> + <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(result));
+      <span class="hljs-keyword">return</span> result;
+    };
+  }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">StringBuilder</span> {
+  #str = <span class="hljs-string">''</span>;
+  @trace
+  <span class="hljs-title function_">add</span>(<span class="hljs-params">str</span>) {
+    <span class="hljs-variable language_">this</span>.#str += str;
+  }
+  @trace
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#str;
+  }
+}
+
+<span class="hljs-keyword">const</span> sb = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();
+sb.<span class="hljs-title function_">add</span>(<span class="hljs-string">'Home'</span>);
+sb.<span class="hljs-title function_">add</span>(<span class="hljs-string">'page'</span>);
+assert.<span class="hljs-title function_">equal</span>(
+  sb.<span class="hljs-title function_">toString</span>(), <span class="hljs-string">'Homepage'</span>
+);
+
+<span class="hljs-comment">// Output:</span>
+<span class="hljs-comment">// CALL add: ["Home"]</span>
+<span class="hljs-comment">// =&gt; undefined</span>
+<span class="hljs-comment" en="1365">// CALL add: ["page"]</span>
+<span class="hljs-comment">// =&gt; undefined</span>
+<span class="hljs-comment" en="1367">// CALL toString: []</span>
+<span class="hljs-comment">// =&gt; "Homepage"</span>
+</code></pre>
+      <h3 id="example%3A-binding-methods-to-instances" tabindex="-1">Example: binding methods to instances&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-binding-methods-to-instances" aria-hidden="true">#</a></h3>
+      <p>Normally, extracting methods (line A) means that we can’t function-call them because that sets <code>this</code> to <code>undefined</code>:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Color1</span> {
+  #name;
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.#name = name;
+  }
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Color(<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.#name}</span>)`</span>;
+  }
+}
+
+<span class="hljs-keyword">const</span> green1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color1</span>(<span class="hljs-string">'green'</span>);
+<span class="hljs-keyword">const</span> toString1 = green1.<span class="hljs-property">toString</span>; <span class="hljs-comment">// (A)</span>
+assert.<span class="hljs-title function_" en="1394">throws</span>(
+  <span class="hljs-function">() =&gt;</span> <span class="hljs-title function_">toString1</span>(),
+  <span class="hljs-regexp">/^TypeError: Cannot read properties of undefined/</span>
+);
+</code></pre>
+      <p>We can fix that via the decorator <code>@bind</code>:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">bind</span>(<span class="hljs-params">value, {kind, name, addInitializer}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'method'</span>) {
+    <span class="hljs-title function_">addInitializer</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) { <span class="hljs-comment">// (B)</span>
+      <span class="hljs-variable language_">this</span>[name] = value.<span class="hljs-title function_">bind</span>(<span class="hljs-variable language_">this</span>); <span class="hljs-comment">// (C)</span>
+    });
+  }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Color2</span> {
+  #name;
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.#name = name;
+  }
+  @bind
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Color(<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.#name}</span>)`</span>;
+  }
+}
+
+<span class="hljs-keyword">const</span> green2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color2</span>(<span class="hljs-string">'green'</span>);
+<span class="hljs-keyword">const</span> toString2 = green2.<span class="hljs-property">toString</span>;
+assert.<span class="hljs-title function_">equal</span>(
+  <span class="hljs-title function_">toString2</span>(), <span class="hljs-string">'Color(green)'</span>
+);
+
+<span class="hljs-comment">// The own property green2.toString is different</span>
+<span class="hljs-comment">// from Color2.prototype.toString</span>
+assert.<span class="hljs-title function_">ok</span>(<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">hasOwn</span>(green2, <span class="hljs-string">'toString'</span>));
+assert.<span class="hljs-title function_">notEqual</span>(
+  green2.<span class="hljs-property" en="1442">toString</span>,
+  <span class="hljs-title class_">Color2</span>.<span class="hljs-property"><span class="hljs-keyword" en="1445">prototype</span></span>.<span class="hljs-property">toString</span>
+);
+</code></pre>
+      <p en="1447">Per decorated method, the initializer registered in line B is invoked whenever an instance is created and adds an own property whose value is a function with a fixed <code>this</code> (line C).</p>
+      <h3 id="example%3A-applying-functions-to-methods" tabindex="-1">Example: applying functions to methods&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-applying-functions-to-methods" aria-hidden="true">#</a></h3>
+      <p>The library <code>core-decorators</code> has <a href="https://github.com/jayphelps/core-decorators#decorate">a decorator</a> that lets us apply functions to methods. That enables us to use helper functions such as Lodash’s <code>memoize()</code>. The following code shows an implementation <code>@applyFunction</code> of such a decorator:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">import</span> { memoize } <span class="hljs-keyword">from</span> <span class="hljs-string">'lodash-es'</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">applyFunction</span>(<span class="hljs-params">functionFactory</span>) {
+  <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value, {kind}</span>) =&gt;</span> { <span class="hljs-comment">// decorator function</span>
+    <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'method'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-title function_">functionFactory</span>(value);
+    }
+  };
+}
+
+<span class="hljs-keyword">let</span> invocationCount = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Task</span> {
+  @<span class="hljs-title function_">applyFunction</span>(memoize)
+  <span class="hljs-title function_">expensiveOperation</span>(<span class="hljs-params">str</span>) {
+    invocationCount++;
+    <span class="hljs-comment">// Expensive processing of `str` 😀</span>
+    <span class="hljs-keyword">return</span> str + str;
+  }
+}
+
+<span class="hljs-keyword">const</span> task = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Task</span>();
+assert.<span class="hljs-title function_">equal</span>(
+  task.<span class="hljs-title function_">expensiveOperation</span>(<span class="hljs-string">'abc'</span>),
+  <span class="hljs-string">'abcabc'</span>
+);
+assert.<span class="hljs-title function_">equal</span>(
+  task.<span class="hljs-title function_" en="1489">expensiveOperation</span>(<span class="hljs-string">'abc'</span>),
+  <span class="hljs-string" en="1491">'abcabc'</span>
+);
+assert.<span class="hljs-title function_">equal</span>(
+  invocationCount, <span class="hljs-number">1</span>
+);
+</code></pre>
+      <h2 id="class-getter-decorators%2C-class-setter-decorators" tabindex="-1">Class getter decorators, class setter decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-getter-decorators%2C-class-setter-decorators" aria-hidden="true">#</a></h2>
+      <p>These are the type signatures of getter decorators and setter decorators:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassGetterDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-string">'getter'</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">symbol</span>;
+    <span class="hljs-keyword">static</span>: <span class="hljs-built_in">boolean</span>;
+    <span class="hljs-keyword">private</span>: <span class="hljs-built_in">boolean</span>;
+    access: { get: () =&gt; <span class="hljs-built_in">unknown</span> };
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in">void</span>): <span class="hljs-built_in">void</span>;
+  }
+</span>) =&gt;</span> <span class="hljs-title class_">Function</span> | <span class="hljs-built_in">void</span>;
+
+<span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassSetterDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: <span class="hljs-title class_">Function</span>,
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-string">'setter'</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">symbol</span>;
+    <span class="hljs-keyword">static</span>: <span class="hljs-built_in">boolean</span>;
+    <span class="hljs-keyword">private</span>: <span class="hljs-built_in">boolean</span>;
+    access: { set: (value: <span class="hljs-built_in">unknown</span>) =&gt; <span class="hljs-built_in" en="1533">void</span> };
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in" en="1534">void</span>): <span class="hljs-built_in">void</span>;
+  }
+</span>) =&gt;</span> <span class="hljs-title class_" en="1536">Function</span> | <span class="hljs-built_in" en="1537">void</span>;
+</code></pre>
+      <p en="1538">Getter decorators and setter decorators have similar abilities to method decorators.</p>
+      <h3 id="example%3A-computing-values-lazily" tabindex="-1" en="1539">Example: computing values lazily&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-computing-values-lazily" aria-hidden="true" en="1540">#</a></h3>
+      <p en="1541">To implement a property whose value is computed <em>lazily</em> (on demand), we use two techniques:</p>
+      <ul>
+        <li>
+          <p>We implement the property via a getter. That way, the code that computes its value, is only executed if the property is read.</p>
+        </li>
+        <li>
+          <p>The decorator <code>@lazy</code> wraps the original getter: When the wrapper is invoked for the first time, it invokes the getter and creates an own data property whose value is the result. From now on, the own property overrides the inherited getter whenever someone reads the property.</p>
+        </li>
+      </ul>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  @lazy
+  <span class="hljs-keyword">get</span> <span class="hljs-title function_">value</span>() {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'COMPUTING'</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'Result of computation'</span>;
+  }
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">lazy</span>(<span class="hljs-params">value, {kind, name, addInitializer}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'getter'</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">const</span> result = value.<span class="hljs-title function_">call</span>(<span class="hljs-variable language_">this</span>);
+      <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">defineProperty</span>( <span class="hljs-comment">// (A)</span>
+        <span class="hljs-variable language_">this</span>, name,
+        {
+          <span class="hljs-attr">value</span>: result,
+          <span class="hljs-attr">writable</span>: <span class="hljs-literal">false</span>,
+        }
+      );
+      <span class="hljs-keyword">return</span> result;
+    };
+  }
+}
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'1 new C()'</span>);
+<span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">C</span>();
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'2 inst.value'</span>);
+assert.<span class="hljs-title function_">equal</span>(inst.<span class="hljs-property">value</span>, <span class="hljs-string">'Result of computation'</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'3 inst.value'</span>);
+assert.<span class="hljs-title function_">equal</span>(inst.<span class="hljs-property">value</span>, <span class="hljs-string">'Result of computation'</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'4 end'</span>);
+
+<span class="hljs-comment" en="1600">// Output:</span>
+<span class="hljs-comment">// 1 new C()</span>
+<span class="hljs-comment" en="1602">// 2 inst.value</span>
+<span class="hljs-comment">// COMPUTING</span>
+<span class="hljs-comment" en="1604">// 3 inst.value</span>
+<span class="hljs-comment">// 4 end</span>
+</code></pre>
+      <p>Note that property <code>.[name]</code> is immutable (because there is only a getter), which is why we have to define the property (line A) and can’t use assignment.</p>
+      <h2 id="class-field-decorators" tabindex="-1">Class field decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-field-decorators" aria-hidden="true">#</a></h2>
+      <p>Class field decorators have the following type signature:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassFieldDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: <span class="hljs-literal">undefined</span>,
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-string">'field'</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">symbol</span>;
+    <span class="hljs-keyword">static</span>: <span class="hljs-built_in">boolean</span>;
+    <span class="hljs-keyword">private</span>: <span class="hljs-built_in">boolean</span>;
+    access: { get: () =&gt; <span class="hljs-built_in">unknown</span>, set: (value: <span class="hljs-built_in">unknown</span>) =&gt; <span class="hljs-built_in">void</span> };
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in">void</span>): <span class="hljs-built_in">void</span>;
+  }
+</span>) =&gt;</span> <span class="hljs-function" en="1632">(<span class="hljs-params" en="1633"><span class="hljs-attr" en="1634">initialValue</span>: <span class="hljs-built_in" en="1635">unknown</span></span>) =&gt;</span> <span class="hljs-built_in">unknown</span> | <span class="hljs-built_in" en="1637">void</span>;
+</code></pre>
+      <p en="1638">Abilities of a field decorator:</p>
+      <ul en="1639">
+        <li en="1640">
+          <p>It cannot change or replace its field. If we need that functionality, we have to use an <em en="1642">auto-accessor</em> (what that is, is described <a href="#auto-accessors" en="1643">later</a>).</p>
+        </li>
+        <li en="1644">
+          <p en="1645">It can change the value with which “its” field is initialized, by returning a function that receives the original initialization value and returns a new initialization value.</p>
+          <ul>
+            <li en="1647">Inside that function, <code>this</code> refers to the current instance.</li>
+          </ul>
+        </li>
+        <li en="1649">
+          <p>It can register initializers. That is a recent change (post-2022-03) of the decorators API and wasn’t possible before.</p>
+        </li>
+      </ul>
+      <ul>
+        <li>It can expose access to its field (even if it’s private) via <code>context.access</code>.</li>
+      </ul>
+      <h3 id="example%3A-changing-initialization-values-of-fields" tabindex="-1">Example: changing initialization values of fields&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-changing-initialization-values-of-fields" aria-hidden="true">#</a></h3>
+      <p>The decorator <code>@twice</code> doubles the original initialization value of a field by returning a function that performs this change:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">twice</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">initialValue</span> =&gt;</span> initialValue * <span class="hljs-number">2</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  @twice
+  field = <span class="hljs-number" en="1669">3</span>;
+}
+
+<span class="hljs-keyword">const</span> inst = <span class="hljs-keyword" en="1671">new</span> <span class="hljs-title function_">C</span>();
+assert.<span class="hljs-title function_">equal</span>(
+  inst.<span class="hljs-property">field</span>, <span class="hljs-number">6</span>
+);
+</code></pre>
+      <h3 id="read-only-fields" tabindex="-1">Example: read-only fields (instance public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-fields" aria-hidden="true">#</a></h3>
+      <p>The decorator <code>@readOnly</code> makes a field immutable. It waits until the field was completely set up (either via an assignment or via the constructor) before it does so.</p>
+      <pre><code class="language-js"><span class="hljs-keyword">const</span> readOnlyFieldKeys = <span class="hljs-title class_">Symbol</span>(<span class="hljs-string">'readOnlyFieldKeys'</span>);
+
+@readOnly
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Color</span> {
+  @readOnly
+  name;
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">name</span> = name;
+  }
+}
+
+<span class="hljs-keyword">const</span> blue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'blue'</span>);
+assert.<span class="hljs-title function_">equal</span>(blue.<span class="hljs-property">name</span>, <span class="hljs-string">'blue'</span>);
+assert.<span class="hljs-title function_">throws</span>(
+  <span class="hljs-function">() =&gt;</span> blue.<span class="hljs-property">name</span> = <span class="hljs-string">'brown'</span>,
+  <span class="hljs-regexp">/^TypeError: Cannot assign to read only property 'name'/</span>
+);
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">readOnly</span>(<span class="hljs-params">value, {kind, name}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'field'</span>) { <span class="hljs-comment">// (A)</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>[readOnlyFieldKeys]) {
+        <span class="hljs-variable language_">this</span>[readOnlyFieldKeys] = [];
+      }
+      <span class="hljs-variable language_">this</span>[readOnlyFieldKeys].<span class="hljs-title function_">push</span>(name);
+    };
+  }
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'class'</span>) { <span class="hljs-comment">// (B)</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">...args</span>) {
+      <span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">value</span>(...args);
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword" en="1727">const</span> key <span class="hljs-keyword" en="1728">of</span> inst[readOnlyFieldKeys]) {
+        <span class="hljs-title class_">Object</span>.<span class="hljs-title function_" en="1730">defineProperty</span>(inst, key, {<span class="hljs-attr">writable</span>: <span class="hljs-literal" en="1732">false</span>});
+      }
+      <span class="hljs-keyword" en="1733">return</span> inst;
+    }
+  }
+}
+</code></pre>
+      <p>We need two steps to implement the functionality of <code en="1735">@readOnly</code> (which is why the class is also decorated):</p>
+      <ul>
+        <li>We first collect all keys of read-only fields (line A).</li>
+        <li>Then we wait until the instance was completely set up and make the fields, whose keys we collected, non-writable (line B). We need to wrap the class because decorator initializers are executed too early.</li>
+      </ul>
+      <p>Similarly to making instances immutable, this decorator breaks <code>instanceof</code>. The same workaround can be used here, too.</p>
+      <p>We’ll later see <a href="#read-only-auto-accessors" en="1742">a version <code>@readOnly</code> that works with auto-accessors</a> instead of fields. That implementation does not require the class to be decorated.</p>
+      <h3 id="example%3A-dependency-injection-(instance-public-fields)" tabindex="-1">Example: dependency injection (instance public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-dependency-injection-(instance-public-fields)" aria-hidden="true">#</a></h3>
+      <p><em>Dependency injection</em> is motivated by the following observation: If we provide the constructor of a class with its dependencies (vs. the constructor setting them up itself), then it’s easier to adapt the dependencies to different environments, including testing.</p>
+      <p>This is an <em en="1749">inversion of control</em>: The constructor does not do its own setup, we do it for it. Approaches for doing dependency injection:</p>
+      <ol>
+        <li en="1751">Manually, by creating dependencies and passing them to the constructor.</li>
+        <li en="1752">Via “contexts” in frontend frameworks such as React</li>
+        <li en="1753">Via decorators and a <em>dependency injection registry</em> (a minor variation of <em>dependency injection containers</em>)</li>
+      </ol>
+      <p>The following code is a simple implementation of approach #3:</p>
+      <pre en="1757"><code class="language-js"><span class="hljs-keyword" en="1759">const</span> {registry, inject} = <span class="hljs-title function_">createRegistry</span>();
+
+<span class="hljs-keyword" en="1761">class</span> <span class="hljs-title class_">Logger</span> {
+  <span class="hljs-title function_" en="1763">log</span>(<span class="hljs-params">str</span>) {
+    <span class="hljs-variable language_" en="1765">console</span>.<span class="hljs-title function_" en="1766">log</span>(str);
+  }
+}
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> {
+  @inject logger;
+  <span class="hljs-title function_" en="1769">run</span>(<span class="hljs-params" en="1770"></span>) {
+    <span class="hljs-variable language_" en="1771">this</span>.<span class="hljs-property" en="1772">logger</span>.<span class="hljs-title function_" en="1773">log</span>(<span class="hljs-string" en="1774">'Hello!'</span>);
+  }
+}
+
+registry.<span class="hljs-title function_" en="1775">register</span>(<span class="hljs-string" en="1776">'logger'</span>, <span class="hljs-title class_" en="1777">Logger</span>);
+<span class="hljs-keyword">new</span> <span class="hljs-title class_" en="1779">Main</span>().<span class="hljs-title function_">run</span>();
+
+<span class="hljs-comment">// Output:</span>
+<span class="hljs-comment">// Hello!</span>
+</code></pre>
+      <p>This is how <code>createRegistry()</code> is implemented:</p>
+      <pre en="1785"><code class="language-js"><span class="hljs-keyword" en="1787">function</span> <span class="hljs-title function_" en="1788">createRegistry</span>(<span class="hljs-params" en="1789"></span>) {
+  <span class="hljs-keyword">const</span> nameToClass = <span class="hljs-keyword" en="1791">new</span> <span class="hljs-title class_" en="1792">Map</span>();
+  <span class="hljs-keyword" en="1793">const</span> nameToInstance = <span class="hljs-keyword" en="1794">new</span> <span class="hljs-title class_" en="1795">Map</span>();
+  <span class="hljs-keyword" en="1796">const</span> registry = {
+    <span class="hljs-title function_" en="1797">register</span>(<span class="hljs-params">name, componentClass</span>) {
+      nameToClass.<span class="hljs-title function_">set</span>(name, componentClass);
+    },
+    <span class="hljs-title function_">getInstance</span>(<span class="hljs-params">name</span>) {
+      <span class="hljs-keyword">if</span> (nameToInstance.<span class="hljs-title function_">has</span>(name)) {
+        <span class="hljs-keyword">return</span> nameToInstance.<span class="hljs-title function_">get</span>(name);
+      }
+      <span class="hljs-keyword">const</span> componentClass = nameToClass.<span class="hljs-title function_">get</span>(name);
+      <span class="hljs-keyword">if</span> (componentClass === <span class="hljs-literal">undefined</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'Unknown component name: '</span> + name);
+      }
+      <span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">componentClass</span>();
+      nameToInstance.<span class="hljs-title function_">set</span>(name, inst);
+      <span class="hljs-keyword">return</span> inst;
+    },
+  }; 
+  <span class="hljs-keyword">function</span> <span class="hljs-title function_">inject</span> (<span class="hljs-params">_value, {kind, name}</span>) {
+    <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'field'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> registry.<span class="hljs-title function_">getInstance</span>(name);
+    }
+  }
+  <span class="hljs-keyword">return</span> {registry, inject};
+}
+</code></pre>
+      <h3 id="example-friend-visibility" tabindex="-1">Example: “friend”&nbsp;visibility (instance private fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example-friend-visibility" aria-hidden="true">#</a></h3>
+      <p>We can change the visibility of some class members by making them private. That prevents them from being accessed publicly. There are more useful kinds of visibility, though. For example, <em>friend visibility</em> lets a group of <em>friends</em> (functions, other classes, etc.) access the member.</p>
+      <p>There are many ways in which friends can be specified. In the following example, everyone who has access to <code>friendName</code>, is a friend of <code>classWithSecret.#name</code>. The idea is that a module contains classes and functions that collaborate and that there is some instance data that only the collaborators should be able see.</p>
+      <pre><code class="language-js"><span class="hljs-keyword">const</span> friendName = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Friend</span>();
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ClassWithSecret</span> {
+  @friendName.<span class="hljs-property">install</span> #name = <span class="hljs-string">'Rumpelstiltskin'</span>;
+  <span class="hljs-title function_">getName</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#name;
+  }
+}
+
+<span class="hljs-comment">// Everyone who has access to `secret`, can access inst.#name</span>
+<span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassWithSecret</span>();
+assert.<span class="hljs-title function_">equal</span>(
+  friendName.<span class="hljs-title function_">get</span>(inst), <span class="hljs-string">'Rumpelstiltskin'</span>
+);
+friendName.<span class="hljs-title function_">set</span>(inst, <span class="hljs-string">'Joe'</span>);
+assert.<span class="hljs-title function_">equal</span>(
+  inst.<span class="hljs-title function_">getName</span>(), <span class="hljs-string">'Joe'</span>
+);
+</code></pre>
+      <p>This is how class <code>Friend</code> is implemented:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Friend</span> {
+  #access = <span class="hljs-literal">undefined</span>;
+  #<span class="hljs-title function_">getAccessOrThrow</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.#access === <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'The friend decorator wasn’t used yet'</span>);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#access;
+  }
+  <span class="hljs-comment">// An instance property whose value is a function whose `this`</span>
+  <span class="hljs-comment">// is fixed (bound to the instance).</span>
+  install = <span class="hljs-function">(<span class="hljs-params">_value, {kind, access}</span>) =&gt;</span> {
+    <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'field'</span>) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.#access) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'This decorator can only be used once'</span>);
+      }
+      <span class="hljs-variable language_">this</span>.#access = access;
+    }
+  }
+  <span class="hljs-title function_">get</span>(<span class="hljs-params">inst</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#<span class="hljs-title function_">getAccessOrThrow</span>().<span class="hljs-property">get</span>.<span class="hljs-title function_">call</span>(inst);
+  }
+  <span class="hljs-title function_">set</span>(<span class="hljs-params">inst, value</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#<span class="hljs-title function_">getAccessOrThrow</span>().<span class="hljs-property">set</span>.<span class="hljs-title function_">call</span>(inst, value);
+  }
+}
+</code></pre>
+      <h3 id="example%3A-enums-(static-public-fields)" tabindex="-1">Example: enums (static public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-enums-(static-public-fields)" aria-hidden="true">#</a></h3>
+      <p>There are many ways to implement enums. An OOP-style approach is to use a class and static properties (<a href="https://2ality.com/2016/01/enumify.html">more information on this approach</a>):</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Color</span> {
+  <span class="hljs-keyword">static</span> red = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'red'</span>);
+  <span class="hljs-keyword">static</span> green = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'green'</span>);
+  <span class="hljs-keyword">static</span> blue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'blue'</span>);
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">enumKey</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">enumKey</span> = enumKey;
+  }
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Color(<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.enumKey}</span>)`</span>;
+  }
+}
+assert.<span class="hljs-title function_">equal</span>(
+  <span class="hljs-title class_">Color</span>.<span class="hljs-property">green</span>.<span class="hljs-title function_">toString</span>(),
+  <span class="hljs-string">'Color(green)'</span>
+);
+</code></pre>
+      <p>We can use a decorator to automatically:</p>
+      <ul>
+        <li>Create a Map from “enum keys” (the names of their fields) to enum values.</li>
+        <li>Add enum keys to enum values – without having to pass them to the constructor.</li>
+      </ul>
+      <p>That looks as follows:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">enumEntry</span>(<span class="hljs-params">value, {kind, name}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'field'</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">initialValue</span>) {
+      <span class="hljs-keyword">if</span> (!<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">hasOwn</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">'enumFields'</span>)) {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">enumFields</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Map</span>();
+      }
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">enumFields</span>.<span class="hljs-title function_">set</span>(name, initialValue);
+      initialValue.<span class="hljs-property">enumKey</span> = name;
+      <span class="hljs-keyword">return</span> initialValue;
+    };
+  }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Color</span> {
+  @enumEntry <span class="hljs-keyword">static</span> red = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>();
+  @enumEntry <span class="hljs-keyword">static</span> green = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>();
+  @enumEntry <span class="hljs-keyword">static</span> blue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>();
+  <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`Color(<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.enumKey}</span>)`</span>;
+  }
+}
+assert.<span class="hljs-title function_">equal</span>(
+  <span class="hljs-title class_">Color</span>.<span class="hljs-property">green</span>.<span class="hljs-title function_">toString</span>(),
+  <span class="hljs-string">'Color(green)'</span>
+);
+assert.<span class="hljs-title function_">deepEqual</span>(
+  <span class="hljs-title class_">Color</span>.<span class="hljs-property">enumFields</span>,
+  <span class="hljs-keyword">new</span> <span class="hljs-title class_">Map</span>([
+    [<span class="hljs-string">'red'</span>, <span class="hljs-title class_">Color</span>.<span class="hljs-property">red</span>],
+    [<span class="hljs-string">'green'</span>, <span class="hljs-title class_">Color</span>.<span class="hljs-property">green</span>],
+    [<span class="hljs-string">'blue'</span>, <span class="hljs-title class_">Color</span>.<span class="hljs-property">blue</span>],
+  ])
+);
+</code></pre>
+      <h2 id="auto-accessors" tabindex="-1">Auto-accessors: a new member of class definitions&nbsp;&nbsp;<a class="heading-anchor" href="#auto-accessors" aria-hidden="true">#</a></h2>
+      <p>The decorators proposal introduces a new language feature: <em>auto-accessors</em>. An auto-accessor is created by putting the keyword <code>accessor</code> before a class field. It is used like a field but implemented differently at runtime. That helps decorators as we’ll see soon. This is what auto-accessors look like:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  <span class="hljs-keyword">static</span> accessor myField1;
+  <span class="hljs-keyword">static</span> accessor #myField2;
+  accessor myField3;
+  accessor #myField4;
+}
+</code></pre>
+      <p>How do fields and auto-accessors differ?</p>
+      <ul>
+        <li>A field creates either:
+          <ul>
+            <li>Properties (static or instance)</li>
+            <li>Private slots (static or instance)</li>
+          </ul>
+        </li>
+        <li>An auto-accessor creates a private slot (static or instance) for the data and:
+          <ul>
+            <li>A public getter-setter pair (static or prototype)</li>
+            <li>A private getter-setter pair (static or instance)
+              <ul>
+                <li>Private slots are not inherited and therefore never located in prototypes.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <p>Consider the following class:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  accessor str = <span class="hljs-string">'abc'</span>;
+}
+<span class="hljs-keyword">const</span> inst = <span class="hljs-keyword">new</span> <span class="hljs-title function_">C</span>();
+assert.<span class="hljs-title function_">equal</span>(
+  inst.<span class="hljs-property">str</span>, <span class="hljs-string">'abc'</span>
+);
+inst.<span class="hljs-property">str</span> = <span class="hljs-string">'def'</span>;
+assert.<span class="hljs-title function_">equal</span>(
+  inst.<span class="hljs-property">str</span>, <span class="hljs-string">'def'</span>
+);
+</code></pre>
+      <p>Internally, it looks like this:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  #str = <span class="hljs-string">'abc'</span>;
+  <span class="hljs-keyword">get</span> <span class="hljs-title function_">str</span>() {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#str;
+  }
+  <span class="hljs-keyword">set</span> <span class="hljs-title function_">str</span>(<span class="hljs-params">value</span>) {
+    <span class="hljs-variable language_">this</span>.#str = value;
+  }
+}
+</code></pre>
+      <p>The following code shows where the getters and setters of auto-accessors are located:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> {
+  <span class="hljs-keyword">static</span> accessor myField1;
+  <span class="hljs-keyword">static</span> accessor #myField2;
+  accessor myField3;
+  accessor #myField4;
+
+  <span class="hljs-keyword">static</span> {
+    <span class="hljs-comment">// Static getter and setter</span>
+    assert.<span class="hljs-title function_">ok</span>(
+      <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">hasOwn</span>(C, <span class="hljs-string">'myField1'</span>), <span class="hljs-string">'myField1'</span>
+    );
+    <span class="hljs-comment">// Static getter and setter</span>
+    assert.<span class="hljs-title function_">ok</span>(
+      #myField2 <span class="hljs-keyword">in</span> C, <span class="hljs-string">'#myField2'</span>
+    );
+
+    <span class="hljs-comment">// Prototype getter and setter</span>
+    assert.<span class="hljs-title function_">ok</span>(
+      <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">hasOwn</span>(C.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>, <span class="hljs-string">'myField3'</span>), <span class="hljs-string">'myField3'</span>
+    );
+    <span class="hljs-comment">// Private getter and setter</span>
+    <span class="hljs-comment">// (stored in instances, but shared between instances)</span>
+    assert.<span class="hljs-title function_">ok</span>(
+      #myField4 <span class="hljs-keyword">in</span> <span class="hljs-keyword">new</span> <span class="hljs-title function_">C</span>(), <span class="hljs-string">'#myField4'</span>
+    );
+  }
+}
+</code></pre>
+      <p>For more information on why the slots of private getters, private setters and private methods are stored in instances, see <a href="https://exploringjs.com/js/book/ch_classes.html#private-methods-accessors">section “Private methods and accessors”</a> in “Exploring JavaScript”.</p>
+      <h3 id="why-are-auto-accessors-needed%3F" tabindex="-1">Why are auto-accessors needed?&nbsp;&nbsp;<a class="heading-anchor" href="#why-are-auto-accessors-needed%3F" aria-hidden="true">#</a></h3>
+      <p>Auto-accessors are needed by decorators:</p>
+      <ul>
+        <li>They can only influence the values fields are initialized with.</li>
+        <li>But they can completely replace auto-accessors.</li>
+      </ul>
+      <p>Therefore, we have to use auto-accessors instead of fields whenever a decorator needs more control than it has with fields.</p>
+      <h2 id="class-auto-accessor-decorators" tabindex="-1">Class auto-accessor decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-auto-accessor-decorators" aria-hidden="true">#</a></h2>
+      <p>Class auto-accessor decorators have the following type signature:</p>
+      <pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ClassAutoAccessorDecorator</span> = <span class="hljs-function">(<span class="hljs-params">
+  <span class="hljs-attr">value</span>: {
+    get: () =&gt; <span class="hljs-built_in">unknown</span>;
+    set: (value: <span class="hljs-built_in">unknown</span>) =&gt; <span class="hljs-built_in">void</span>;
+  },
+  <span class="hljs-attr">context</span>: {
+    kind: <span class="hljs-string">'accessor'</span>;
+    name: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">symbol</span>;
+    <span class="hljs-keyword">static</span>: <span class="hljs-built_in">boolean</span>;
+    <span class="hljs-keyword">private</span>: <span class="hljs-built_in">boolean</span>;
+    access: { get: () =&gt; <span class="hljs-built_in">unknown</span>, set: (value: <span class="hljs-built_in">unknown</span>) =&gt; <span class="hljs-built_in">void</span> };
+    addInitializer(initializer: () =&gt; <span class="hljs-built_in">void</span>): <span class="hljs-built_in">void</span>;
+  }
+</span>) =&gt;</span> {
+  <span class="hljs-attr">get</span>?: <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">unknown</span>;
+  <span class="hljs-attr">set</span>?: <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">value</span>: <span class="hljs-built_in">unknown</span></span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+  <span class="hljs-attr">init</span>?: <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">initialValue</span>: <span class="hljs-built_in">unknown</span></span>) =&gt;</span> <span class="hljs-built_in">unknown</span>;
+} | <span class="hljs-built_in">void</span>;
+</code></pre>
+      <p>Abilities of an auto-accessor decorator:</p>
+      <ul>
+        <li>It receives the getter and the setter of the auto-accessor via its parameter <code>value</code>.
+          <ul>
+            <li><code>context.access</code> provides the same functionality.</li>
+          </ul>
+        </li>
+        <li>It can replace the decorated auto-accessor by returning an object with the methods <code>.get()</code> and/or <code>.set()</code>.</li>
+        <li>It can influence the initial value of the auto-accessor by returning an object with the method <code>.init()</code>.</li>
+        <li>It can register initializers.</li>
+      </ul>
+      <h3 id="read-only-auto-accessors" tabindex="-1">Example: read-only auto-accessors&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-auto-accessors" aria-hidden="true">#</a></h3>
+      <p>We have already implemented <a href="#read-only-fields">a decorator <code>@readOnly</code> for fields</a>. Let’s do the same for auto-accessors:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-variable constant_">UNINITIALIZED</span> = <span class="hljs-title class_">Symbol</span>(<span class="hljs-string">'UNINITIALIZED'</span>);
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">readOnly</span>(<span class="hljs-params">{get,set}, {name, kind}</span>) {
+  <span class="hljs-keyword">if</span> (kind === <span class="hljs-string">'accessor'</span>) {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-title function_">init</span>(<span class="hljs-params"></span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-variable constant_">UNINITIALIZED</span>;
+      },
+      <span class="hljs-title function_">get</span>(<span class="hljs-params"></span>) {
+        <span class="hljs-keyword">const</span> value = get.<span class="hljs-title function_">call</span>(<span class="hljs-variable language_">this</span>);
+        <span class="hljs-keyword">if</span> (value === <span class="hljs-variable constant_">UNINITIALIZED</span>) {
+          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TypeError</span>(
+            <span class="hljs-string">`Accessor <span class="hljs-subst">${name}</span> hasn’t been initialized yet`</span>
+          );
+        }
+        <span class="hljs-keyword">return</span> value;
+      },
+      <span class="hljs-title function_">set</span>(<span class="hljs-params">newValue</span>) {
+        <span class="hljs-keyword">const</span> oldValue = get.<span class="hljs-title function_">call</span>(<span class="hljs-variable language_">this</span>);
+        <span class="hljs-keyword">if</span> (oldValue !== <span class="hljs-variable constant_">UNINITIALIZED</span>) {
+          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TypeError</span>(
+            <span class="hljs-string">`Accessor <span class="hljs-subst">${name}</span> can only be set once`</span>
+          );
+        }
+        set.<span class="hljs-title function_">call</span>(<span class="hljs-variable language_">this</span>, newValue);
+      },
+    };
+  }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Color</span> {
+  @readOnly
+  accessor name;
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">name</span> = name;
+  }
+}
+
+<span class="hljs-keyword">const</span> blue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'blue'</span>);
+assert.<span class="hljs-title function_">equal</span>(blue.<span class="hljs-property">name</span>, <span class="hljs-string">'blue'</span>);
+assert.<span class="hljs-title function_">throws</span>(
+  <span class="hljs-function">() =&gt;</span> blue.<span class="hljs-property">name</span> = <span class="hljs-string">'yellow'</span>,
+  <span class="hljs-regexp">/^TypeError: Accessor name can only be set once$/</span>
+);
+
+<span class="hljs-keyword">const</span> orange = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-string">'orange'</span>);
+assert.<span class="hljs-title function_">equal</span>(orange.<span class="hljs-property">name</span>, <span class="hljs-string">'orange'</span>);
+</code></pre>
+      <p>Compared to the field version, this decorator has one considerable advantage: It does not need to wrap the class to ensure that the decorated constructs become read-only.</p>
+      <h2 id="faq" tabindex="-1">Frequently asked questions&nbsp;&nbsp;<a class="heading-anchor" href="#faq" aria-hidden="true">#</a></h2>
+      <h3 id="function-decorators" tabindex="-1">Why can’t functions be decorated?&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true">#</a></h3>
+      <p>The current proposal focuses on classes as a starting point. <a href="#more-decorator-related-proposals">Decorators for function expressions were proposed.</a> However, there hasn’t been much progress since then and there is no proposal for function <em>declarations</em>.</p>
+      <p>On the other hand, functions are relatively easy to decorate “manually”:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">const</span> decoratedFunc = <span class="hljs-title function_">decorator</span>(<span class="hljs-function">(<span class="hljs-params">x, y</span>) =&gt;</span> {});
+</code></pre>
+      <p>This looks even better with <a href="https://2ality.com/2022/01/pipe-operator.html">the proposed pipeline operator</a>:</p>
+      <pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">decoratedFunc</span> = (<span class="hljs-params">x, y</span>) =&gt; {} |&gt; <span class="hljs-title function_">decorator</span>(%);
+</code></pre>
+      <h2 id="more-decorator-related-proposals" tabindex="-1">More decorator-related proposals&nbsp;&nbsp;<a class="heading-anchor" href="#more-decorator-related-proposals" aria-hidden="true">#</a></h2>
+      <p>The following ECMAScript proposals provide more decorator-related features:</p>
+      <ul>
+        <li>Stage 2: <a href="https://github.com/tc39/proposal-decorator-metadata">“Decorator Metadata”</a> by Chris Garrett (last update: 2022-04-11)
+          <ul>
+            <li>Quote: “This proposal seeks to extend the Decorators proposal by adding the ability for decorators to associate metadata with the value being decorated.”</li>
+          </ul>
+        </li>
+        <li>Stage 0: <a href="https://docs.google.com/document/d/1ikxIP5-RVYq6d_f8lAvf3pKC00W78ueyp-xIZ6q67uU">“Function Expression Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
+        <li>Stage 0: <a href="https://docs.google.com/document/d/1Qpkqf_8NzAwfD8LdnqPjXAQ2wwh8BBUGynhn-ZlCWT0">“Method Parameter Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
+      </ul>
+      <h2 id="resources" tabindex="-1">Resources&nbsp;&nbsp;<a class="heading-anchor" href="#resources" aria-hidden="true">#</a></h2>
+      <h3 id="decorator-implementations" tabindex="-1">Implementations&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-implementations" aria-hidden="true">#</a></h3>
+      <ul>
+        <li>Babel currently has the best support for stage 3 decorators, via <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators"><code>@babel/plugin-proposal-decorators</code></a>.
+          <ul>
+            <li>Be sure to pick <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version">the latest decorator version</a>.</li>
+            <li>All the code in this blog post was developed via Babel.</li>
+          </ul>
+        </li>
+        <li>TypeScript currently supports stage 1 decorators behind a flag.
+          <ul>
+            <li>There is <a href="https://github.com/microsoft/TypeScript/pull/50820">a pull request by Ron Buckton</a> that supports stage 3 decorators and will likely ship in the release after TypeScript 4.9.</li>
+          </ul>
+        </li>
+      </ul>
+      <h3 id="libraries-with-decorators" tabindex="-1">Libraries with decorators&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true">#</a></h3>
+      <p>These are libraries with decorators. They currently only support stage 1 decorators but can serve as inspirations for what’s possible:</p>
+      <ul>
+        <li><a href="https://github.com/jayphelps/core-decorators.js">core-decorators.js</a> by Jay Phelps (targets Babel)</li>
+        <li><a href="https://github.com/NetanelBasal/helpful-decorators">“Helpful Decorators For TypeScript Projects”</a> by Netanel Basal</li>
+      </ul>
+      <h2 id="acknowledgements" tabindex="-1">Acknowledgements&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true">#</a></h2>
+      <ul>
+        <li>Thanks to Chris Garrett for answering my questions about decorators.</li>
+      </ul>
+      <h2 id="further-reading" tabindex="-1">Further reading&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true">#</a></h2>
+      <ul>
+        <li>
+          <p><a href="https://exploringjs.com/js/book/ch_callables.html">Chapter “Callable values”</a> [ordinary functions, arrow functions, classes, methods] in “Exploring JavaScript”</p>
+        </li>
+        <li>
+          <p><a href="https://exploringjs.com/js/book/ch_classes.html">Chapter “Classes”</a> in “Exploring JavaScript”</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+
+</html>
