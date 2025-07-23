@@ -1350,16 +1350,16 @@ assert.<span class="hljs-title function_" data-en="1696">throws</span>(
         <li data-en="1736">等实例已经创建完成，我们再把收集的字段设为不可写(line B)。我们需要把类包起来因为装饰器初始化器执行得太早了。</li>
       </ul>
       <p data-en="1737">和不可变类似，这个装饰器也会破坏<code data-en="1738">instanceof</code>的行为。 变通方法也是一样的。</p>
-      <p data-en="1739">We’ll later see <a href="#read-only-auto-accessors" data-en="1740">a version <code data-en="1741">@readOnly</code> that works with auto-accessors</a> instead of fields. That implementation does not require the class to be decorated.</p>
-      <h3 id="example%3A-dependency-injection-(instance-public-fields)" tabindex="-1" data-en="1742">Example: dependency injection (instance public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-dependency-injection-(instance-public-fields)" aria-hidden="true" data-en="1743">#</a></h3>
-      <p data-en="1744"><em data-en="1745">Dependency injection</em> is motivated by the following observation: If we provide the constructor of a class with its dependencies (vs. the constructor setting them up itself), then it’s easier to adapt the dependencies to different environments, including testing.</p>
-      <p data-en="1746">This is an <em data-en="1747">inversion of control</em>: The constructor does not do its own setup, we do it for it. Approaches for doing dependency injection:</p>
+      <p data-en="1739">我们一会会看到， <a href="#read-only-auto-accessors" data-en="1740"> <code data-en="1741">@readOnly</code>能够和auto-accessor互动而非和字段互动的版本</a>。而且使用过程不需要装饰类。</p>
+      <h3 id="example%3A-dependency-injection-(instance-public-fields)" tabindex="-1" data-en="1742">示例：依赖注入（实例public字段）&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-dependency-injection-(instance-public-fields)" aria-hidden="true" data-en="1743">#</a></h3>
+      <p data-en="1744"><em data-en="1745">依赖注入（Dependency Injection）</em> 是由以下观察推动的：如果我们提供类的构造函数其依赖项（而不是构造函数自己设置它们），那么就更容易适应不同的环境，包括测试。</p>
+      <p data-en="1746">这是一种​<em data-en="1747">​控制反转（Inversion of Control）</em>​​：构造函数本身不执行初始化操作，而是由我们代为完成。以下是实现依赖注入的几种方法：</p>
       <ol data-en="1748">
-        <li data-en="1749">Manually, by creating dependencies and passing them to the constructor.</li>
-        <li data-en="1750">Via “contexts” in frontend frameworks such as React</li>
-        <li data-en="1751">Via decorators and a <em data-en="1752">dependency injection registry</em> (a minor variation of <em data-en="1753">dependency injection containers</em>)</li>
+        <li>手动创建依赖项并传递给构造函数</li>
+        <li>通过前端框架（如React）中的"contexts"实现</li>
+        <li>通过装饰器和<em>依赖注入注册表</em>（<em>依赖注入容器</em>的一种变体）实现</li>
       </ol>
-      <p data-en="1754">The following code is a simple implementation of approach #3:</p>
+      <p data-en="1754">以下代码是方法 #3 的一个简单实现：</p>
       <pre data-en="1755"><code class="language-js" data-en="1756"><span class="hljs-keyword" data-en="1757">const</span> {registry, inject} = <span class="hljs-title function_" data-en="1758">createRegistry</span>();
 
 <span class="hljs-keyword" data-en="1759">class</span> <span class="hljs-title class_" data-en="1760">Logger</span> {
@@ -1377,10 +1377,10 @@ assert.<span class="hljs-title function_" data-en="1696">throws</span>(
 registry.<span class="hljs-title function_" data-en="1773">register</span>(<span class="hljs-string" data-en="1774">'logger'</span>, <span class="hljs-title class_" data-en="1775">Logger</span>);
 <span class="hljs-keyword" data-en="1776">new</span> <span class="hljs-title class_" data-en="1777">Main</span>().<span class="hljs-title function_" data-en="1778">run</span>();
 
-<span class="hljs-comment" data-en="1779">// Output:</span>
+<span class="hljs-comment" data-en="1779">// 输出：</span>
 <span class="hljs-comment" data-en="1780">// Hello!</span>
 </code></pre>
-      <p data-en="1781">This is how <code data-en="1782">createRegistry()</code> is implemented:</p>
+      <p data-en="1781">这就是 <code data-en="1782">createRegistry()</code> 的实装方法:</p>
       <pre data-en="1783"><code class="language-js" data-en="1784"><span class="hljs-keyword" data-en="1785">function</span> <span class="hljs-title function_" data-en="1786">createRegistry</span>(<span class="hljs-params" data-en="1787"></span>) {
   <span class="hljs-keyword" data-en="1788">const</span> nameToClass = <span class="hljs-keyword" data-en="1789">new</span> <span class="hljs-title class_" data-en="1790">Map</span>();
   <span class="hljs-keyword" data-en="1791">const</span> nameToInstance = <span class="hljs-keyword" data-en="1792">new</span> <span class="hljs-title class_" data-en="1793">Map</span>();
@@ -1409,9 +1409,9 @@ registry.<span class="hljs-title function_" data-en="1773">register</span>(<span
   <span class="hljs-keyword" data-en="1825">return</span> {registry, inject};
 }
 </code></pre>
-      <h3 id="example-friend-visibility" tabindex="-1" data-en="1826">Example: “friend”&nbsp;visibility (instance private fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example-friend-visibility" aria-hidden="true" data-en="1827">#</a></h3>
-      <p data-en="1828">We can change the visibility of some class members by making them private. That prevents them from being accessed publicly. There are more useful kinds of visibility, though. For example, <em data-en="1829">friend visibility</em> lets a group of <em data-en="1830">friends</em> (functions, other classes, etc.) access the member.</p>
-      <p data-en="1831">There are many ways in which friends can be specified. In the following example, everyone who has access to <code data-en="1832">friendName</code>, is a friend of <code data-en="1833">classWithSecret.#name</code>. The idea is that a module contains classes and functions that collaborate and that there is some instance data that only the collaborators should be able see.</p>
+      <h3 id="example-friend-visibility" tabindex="-1" data-en="1826">示例：“友元”可见性（实例私有字段）&nbsp;&nbsp;<a class="heading-anchor" href="#example-friend-visibility" aria-hidden="true" data-en="1827">#</a></h3>
+      <p data-en="1828">我们可以通过将某些类成员设为私有来改变其可见性，从而防止它们被公开访问。不过，还有更多有用的可见性类型。例如，<em>友元可见性</em>允许一组<em>友元</em>（函数、其他类等）访问该成员。</p>
+      <p data-en="1831">有多种方式可以指定友元。在以下示例中，所有能访问<code>friendName</code>的对象都是<code>classWithSecret.#name</code>的友元。其核心思想是：一个模块中包含相互协作的类和函数，而某些实例数据应该仅对这些协作者可见。</p>
       <pre data-en="1834"><code class="language-js" data-en="1835"><span class="hljs-keyword" data-en="1836">const</span> friendName = <span class="hljs-keyword" data-en="1837">new</span> <span class="hljs-title class_" data-en="1838">Friend</span>();
 
 <span class="hljs-keyword" data-en="1839">class</span> <span class="hljs-title class_" data-en="1840">ClassWithSecret</span> {
@@ -1421,7 +1421,7 @@ registry.<span class="hljs-title function_" data-en="1773">register</span>(<span
   }
 }
 
-<span class="hljs-comment" data-en="1847">// Everyone who has access to `secret`, can access inst.#name</span>
+<span class="hljs-comment" data-en="1847">// 能访问 `secret`的，也能访问 inst.#name</span>
 <span class="hljs-keyword" data-en="1848">const</span> inst = <span class="hljs-keyword" data-en="1849">new</span> <span class="hljs-title class_" data-en="1850">ClassWithSecret</span>();
 assert.<span class="hljs-title function_" data-en="1851">equal</span>(
   friendName.<span class="hljs-title function_" data-en="1852">get</span>(inst), <span class="hljs-string" data-en="1853">'Rumpelstiltskin'</span>
@@ -1431,7 +1431,7 @@ assert.<span class="hljs-title function_" data-en="1856">equal</span>(
   inst.<span class="hljs-title function_" data-en="1857">getName</span>(), <span class="hljs-string" data-en="1858">'Joe'</span>
 );
 </code></pre>
-      <p data-en="1859">This is how class <code data-en="1860">Friend</code> is implemented:</p>
+      <p data-en="1859">这是<code data-en="1860">Friend</code>类实装的过程：</p>
       <pre data-en="1861"><code class="language-js" data-en="1862"><span class="hljs-keyword" data-en="1863">class</span> <span class="hljs-title class_" data-en="1864">Friend</span> {
   #access = <span class="hljs-literal" data-en="1865">undefined</span>;
   #<span class="hljs-title function_" data-en="1866">getAccessOrThrow</span>(<span class="hljs-params" data-en="1867"></span>) {
@@ -1440,8 +1440,7 @@ assert.<span class="hljs-title function_" data-en="1856">equal</span>(
     }
     <span class="hljs-keyword" data-en="1875">return</span> <span class="hljs-variable language_" data-en="1876">this</span>.#access;
   }
-  <span class="hljs-comment" data-en="1877">// An instance property whose value is a function whose `this`</span>
-  <span class="hljs-comment" data-en="1878">// is fixed (bound to the instance).</span>
+  <span class="hljs-comment" data-en="1877">// 一个`this`已经被绑定好了的类属性（绑定到了这个实例上）</span>
   install = <span class="hljs-function" data-en="1879">(<span class="hljs-params" data-en="1880">_value, {kind, access}</span>) =&gt;</span> {
     <span class="hljs-keyword" data-en="1881">if</span> (kind === <span class="hljs-string" data-en="1882">'field'</span>) {
       <span class="hljs-keyword" data-en="1883">if</span> (<span class="hljs-variable language_" data-en="1884">this</span>.#access) {
@@ -1458,8 +1457,8 @@ assert.<span class="hljs-title function_" data-en="1856">equal</span>(
   }
 }
 </code></pre>
-      <h3 id="example%3A-enums-(static-public-fields)" tabindex="-1" data-en="1904">Example: enums (static public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-enums-(static-public-fields)" aria-hidden="true" data-en="1905">#</a></h3>
-      <p data-en="1906">There are many ways to implement enums. An OOP-style approach is to use a class and static properties (<a href="https://2ality.com/2016/01/enumify.html" data-en="1907">more information on this approach</a>):</p>
+      <h3 id="example%3A-enums-(static-public-fields)" tabindex="-1" data-en="1904">示例：枚举（静态公有字段）&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-enums-(static-public-fields)" aria-hidden="true" data-en="1905">#</a></h3>
+      <p data-en="1906">实现枚举的方式有很多种。一种面向对象风格的实现方式是使用类和静态属性（<a href="https://2ality.com/2016/01/enumify.html">关于此方法的更多信息</a>）：</p>
       <pre data-en="1908"><code class="language-js" data-en="1909"><span class="hljs-keyword" data-en="1910">class</span> <span class="hljs-title class_" data-en="1911">Color</span> {
   <span class="hljs-keyword" data-en="1912">static</span> red = <span class="hljs-keyword" data-en="1913">new</span> <span class="hljs-title class_" data-en="1914">Color</span>(<span class="hljs-string" data-en="1915">'red'</span>);
   <span class="hljs-keyword" data-en="1916">static</span> green = <span class="hljs-keyword" data-en="1917">new</span> <span class="hljs-title class_" data-en="1918">Color</span>(<span class="hljs-string" data-en="1919">'green'</span>);
@@ -1476,12 +1475,12 @@ assert.<span class="hljs-title function_" data-en="1934">equal</span>(
   <span class="hljs-string" data-en="1938">'Color(green)'</span>
 );
 </code></pre>
-      <p data-en="1939">We can use a decorator to automatically:</p>
+      <p data-en="1939">我们可以使用装饰器自动实现以下功能：</p>
       <ul data-en="1940">
-        <li data-en="1941">Create a Map from “enum keys” (the names of their fields) to enum values.</li>
-        <li data-en="1942">Add enum keys to enum values – without having to pass them to the constructor.</li>
+        <li>创建一个从"枚举键"（字段名称）到枚举值的映射(Map)</li>
+        <li>将枚举键添加到枚举值中 - 无需通过构造函数传递</li>
       </ul>
-      <p data-en="1943">That looks as follows:</p>
+      <p data-en="1943">实现方式如下所示：</p>
       <pre data-en="1944"><code class="language-js" data-en="1945"><span class="hljs-keyword" data-en="1946">function</span> <span class="hljs-title function_" data-en="1947">enumEntry</span>(<span class="hljs-params" data-en="1948">value, {kind, name}</span>) {
   <span class="hljs-keyword" data-en="1949">if</span> (kind === <span class="hljs-string" data-en="1950">'field'</span>) {
     <span class="hljs-keyword" data-en="1951">return</span> <span class="hljs-keyword" data-en="1952">function</span> (<span class="hljs-params" data-en="1953">initialValue</span>) {
@@ -1516,8 +1515,8 @@ assert.<span class="hljs-title function_" data-en="1990">deepEqual</span>(
   ])
 );
 </code></pre>
-      <h2 id="auto-accessors" tabindex="-1" data-en="2004">Auto-accessors: a new member of class definitions&nbsp;&nbsp;<a class="heading-anchor" href="#auto-accessors" aria-hidden="true" data-en="2005">#</a></h2>
-      <p data-en="2006">The decorators proposal introduces a new language feature: <em data-en="2007">auto-accessors</em>. An auto-accessor is created by putting the keyword <code data-en="2008">accessor</code> before a class field. It is used like a field but implemented differently at runtime. That helps decorators as we’ll see soon. This is what auto-accessors look like:</p>
+      <h2 id="auto-accessors" tabindex="-1" data-en="2004">自动访问器：类定义的新成员&nbsp;&nbsp;<a class="heading-anchor" href="#auto-accessors" aria-hidden="true">#</a></h2>
+      <p data-en="2006">装饰器提案引入了一项新的语言特性：<em>自动访问器(auto-accessors)</em>。通过在类字段前添加<code>accessor</code>关键字即可创建自动访问器。它使用起来像普通字段，但在运行时采用不同的实现方式。这将有助于装饰器的使用，我们稍后会看到。以下是自动访问器的示例：</p>
       <pre data-en="2009"><code class="language-js" data-en="2010"><span class="hljs-keyword" data-en="2011">class</span> <span class="hljs-title class_" data-en="2012">C</span> {
   <span class="hljs-keyword" data-en="2013">static</span> accessor myField1;
   <span class="hljs-keyword" data-en="2014">static</span> accessor #myField2;
@@ -1525,26 +1524,26 @@ assert.<span class="hljs-title function_" data-en="1990">deepEqual</span>(
   accessor #myField4;
 }
 </code></pre>
-      <p data-en="2015">How do fields and auto-accessors differ?</p>
+      <p data-en="2015">字段和自动访问器有何区别？</p>
       <ul data-en="2016">
-        <li data-en="2017">A field creates either:
-          <ul data-en="2018">
-            <li data-en="2019">Properties (static or instance)</li>
-            <li data-en="2020">Private slots (static or instance)</li>
+        <li>字段会创建以下两种结构之一：
+          <ul>
+            <li>属性（静态或实例）</li>
+            <li>私有槽位（静态或实例）</li>
           </ul>
         </li>
-        <li data-en="2021">An auto-accessor creates a private slot (static or instance) for the data and:
-          <ul data-en="2022">
-            <li data-en="2023">A public getter-setter pair (static or prototype)</li>
-            <li data-en="2024">A private getter-setter pair (static or instance)
-              <ul data-en="2025">
-                <li data-en="2026">Private slots are not inherited and therefore never located in prototypes.</li>
+        <li>自动访问器会为数据创建一个私有槽位（静态或实例），并同时创建：
+          <ul>
+            <li>公共的getter-setter对（静态或原型）</li>
+            <li>私有的getter-setter对（静态或实例）
+              <ul>
+                <li>私有槽位不可继承，因此永远不会存在于原型中</li>
               </ul>
             </li>
           </ul>
         </li>
       </ul>
-      <p data-en="2027">Consider the following class:</p>
+      <p data-en="2027">请看以下类示例：</p>
       <pre data-en="2028"><code class="language-js" data-en="2029"><span class="hljs-keyword" data-en="2030">class</span> <span class="hljs-title class_" data-en="2031">C</span> {
   accessor str = <span class="hljs-string" data-en="2032">'abc'</span>;
 }
@@ -1557,7 +1556,7 @@ assert.<span class="hljs-title function_" data-en="2041">equal</span>(
   inst.<span class="hljs-property" data-en="2042">str</span>, <span class="hljs-string" data-en="2043">'def'</span>
 );
 </code></pre>
-      <p data-en="2044">Internally, it looks like this:</p>
+      <p data-en="2044">其内部实现如下所示：</p>
       <pre data-en="2045"><code class="language-js" data-en="2046"><span class="hljs-keyword" data-en="2047">class</span> <span class="hljs-title class_" data-en="2048">C</span> {
   #str = <span class="hljs-string" data-en="2049">'abc'</span>;
   <span class="hljs-keyword" data-en="2050">get</span> <span class="hljs-title function_" data-en="2051">str</span>() {
@@ -1568,7 +1567,7 @@ assert.<span class="hljs-title function_" data-en="2041">equal</span>(
   }
 }
 </code></pre>
-      <p data-en="2058">The following code shows where the getters and setters of auto-accessors are located:</p>
+      <p data-en="2058">以下代码展示了自动访问器的getter和setter所在的位置：</p>
       <pre data-en="2059"><code class="language-js" data-en="2060"><span class="hljs-keyword" data-en="2061">class</span> <span class="hljs-title class_" data-en="2062">C</span> {
   <span class="hljs-keyword" data-en="2063">static</span> accessor myField1;
   <span class="hljs-keyword" data-en="2064">static</span> accessor #myField2;
@@ -1576,37 +1575,37 @@ assert.<span class="hljs-title function_" data-en="2041">equal</span>(
   accessor #myField4;
 
   <span class="hljs-keyword" data-en="2065">static</span> {
-    <span class="hljs-comment" data-en="2066">// Static getter and setter</span>
+    <span class="hljs-comment" data-en="2066">// 静态 getter 和 setter</span>
     assert.<span class="hljs-title function_" data-en="2067">ok</span>(
       <span class="hljs-title class_" data-en="2068">Object</span>.<span class="hljs-title function_" data-en="2069">hasOwn</span>(C, <span class="hljs-string" data-en="2070">'myField1'</span>), <span class="hljs-string" data-en="2071">'myField1'</span>
     );
-    <span class="hljs-comment" data-en="2072">// Static getter and setter</span>
+    <span class="hljs-comment" data-en="2072">// 静态 getter 和 setter</span>
     assert.<span class="hljs-title function_" data-en="2073">ok</span>(
       #myField2 <span class="hljs-keyword" data-en="2074">in</span> C, <span class="hljs-string" data-en="2075">'#myField2'</span>
     );
 
-    <span class="hljs-comment" data-en="2076">// Prototype getter and setter</span>
+    <span class="hljs-comment" data-en="2076">// Prototype getter 和 setter</span>
     assert.<span class="hljs-title function_" data-en="2077">ok</span>(
       <span class="hljs-title class_" data-en="2078">Object</span>.<span class="hljs-title function_" data-en="2079">hasOwn</span>(C.<span class="hljs-property" data-en="2080"><span class="hljs-keyword" data-en="2081">prototype</span></span>, <span class="hljs-string" data-en="2082">'myField3'</span>), <span class="hljs-string" data-en="2083">'myField3'</span>
     );
-    <span class="hljs-comment" data-en="2084">// Private getter and setter</span>
-    <span class="hljs-comment" data-en="2085">// (stored in instances, but shared between instances)</span>
+    <span class="hljs-comment" data-en="2084">// Private getter 和 setter</span>
+    <span class="hljs-comment" data-en="2085">// （保存在实例上，但在各个实例之间共享）</span>
     assert.<span class="hljs-title function_" data-en="2086">ok</span>(
       #myField4 <span class="hljs-keyword" data-en="2087">in</span> <span class="hljs-keyword" data-en="2088">new</span> <span class="hljs-title function_" data-en="2089">C</span>(), <span class="hljs-string" data-en="2090">'#myField4'</span>
     );
   }
 }
 </code></pre>
-      <p data-en="2091">For more information on why the slots of private getters, private setters and private methods are stored in instances, see <a href="https://exploringjs.com/js/book/ch_classes.html#private-methods-accessors" data-en="2092">section “Private methods and accessors”</a> in “Exploring JavaScript”.</p>
-      <h3 id="why-are-auto-accessors-needed%3F" tabindex="-1" data-en="2093">Why are auto-accessors needed?&nbsp;&nbsp;<a class="heading-anchor" href="#why-are-auto-accessors-needed%3F" aria-hidden="true" data-en="2094">#</a></h3>
-      <p data-en="2095">Auto-accessors are needed by decorators:</p>
+      <p data-en="2091">有关私有getter、私有setter和私有方法的槽位为何存储在实例中的更多信息，请参阅<a href="https://exploringjs.com/js/book/ch_classes.html#private-methods-accessors">《探索JavaScript》中的"私有方法和访问器"章节</a>。</p>
+      <h3 id="why-are-auto-accessors-needed%3F" tabindex="-1" data-en="2093">为什么需要自动访问器？&nbsp;&nbsp;<a class="heading-anchor" href="#why-are-auto-accessors-needed%3F" aria-hidden="true">#</a></h3>
+      <p data-en="2095">自动访问器是装饰器所必需的：</p>
       <ul data-en="2096">
-        <li data-en="2097">They can only influence the values fields are initialized with.</li>
-        <li data-en="2098">But they can completely replace auto-accessors.</li>
+        <li>装饰器只能影响字段的初始值</li>
+        <li>但可以完全替换自动访问器</li>
       </ul>
-      <p data-en="2099">Therefore, we have to use auto-accessors instead of fields whenever a decorator needs more control than it has with fields.</p>
-      <h2 id="class-auto-accessor-decorators" tabindex="-1" data-en="2100">Class auto-accessor decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-auto-accessor-decorators" aria-hidden="true" data-en="2101">#</a></h2>
-      <p data-en="2102">Class auto-accessor decorators have the following type signature:</p>
+      <p data-en="2099">因此，当装饰器需要比字段更多的控制权时，我们必须使用自动访问器而非字段。</p>
+      <h2 id="class-auto-accessor-decorators" tabindex="-1" data-en="2100">类自动访问器装饰器（Class auto-accessor）&nbsp;&nbsp;<a class="heading-anchor" href="#class-auto-accessor-decorators" aria-hidden="true" data-en="2101">#</a></h2>
+      <p data-en="2102">类自动访问器装饰器具有以下类型签名：</p>
       <pre data-en="2103"><code class="language-ts" data-en="2104"><span class="hljs-keyword" data-en="2105">type</span> <span class="hljs-title class_" data-en="2106">ClassAutoAccessorDecorator</span> = <span class="hljs-function" data-en="2107">(<span class="hljs-params" data-en="2108">
   <span class="hljs-attr" data-en="2109">value</span>: {
     get: () =&gt; <span class="hljs-built_in" data-en="2110">unknown</span>;
@@ -1626,19 +1625,19 @@ assert.<span class="hljs-title function_" data-en="2041">equal</span>(
   <span class="hljs-attr" data-en="2135">init</span>?: <span class="hljs-function" data-en="2136">(<span class="hljs-params" data-en="2137"><span class="hljs-attr" data-en="2138">initialValue</span>: <span class="hljs-built_in" data-en="2139">unknown</span></span>) =&gt;</span> <span class="hljs-built_in" data-en="2140">unknown</span>;
 } | <span class="hljs-built_in" data-en="2141">void</span>;
 </code></pre>
-      <p data-en="2142">Abilities of an auto-accessor decorator:</p>
+      <p data-en="2142">自动访问器装饰器的能力：</p>
       <ul data-en="2143">
-        <li data-en="2144">It receives the getter and the setter of the auto-accessor via its parameter <code data-en="2145">value</code>.
-          <ul data-en="2146">
-            <li data-en="2147"><code data-en="2148">context.access</code> provides the same functionality.</li>
+        <li>通过参数<code>value</code>接收自动访问器的getter和setter
+          <ul>
+            <li><code>context.access</code>提供相同的功能</li>
           </ul>
         </li>
-        <li data-en="2149">It can replace the decorated auto-accessor by returning an object with the methods <code data-en="2150">.get()</code> and/or <code data-en="2151">.set()</code>.</li>
-        <li data-en="2152">It can influence the initial value of the auto-accessor by returning an object with the method <code data-en="2153">.init()</code>.</li>
-        <li data-en="2154">It can register initializers.</li>
+        <li>可以通过返回包含<code>.get()</code>和/或<code>.set()</code>方法的对象来替换被装饰的自动访问器</li>
+        <li>可以通过返回包含<code>.init()</code>方法的对象来影响自动访问器的初始值</li>
+        <li>可以注册初始化器</li>
       </ul>
-      <h3 id="read-only-auto-accessors" tabindex="-1" data-en="2155">Example: read-only auto-accessors&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-auto-accessors" aria-hidden="true" data-en="2156">#</a></h3>
-      <p data-en="2157">We have already implemented <a href="#read-only-fields" data-en="2158">a decorator <code data-en="2159">@readOnly</code> for fields</a>. Let’s do the same for auto-accessors:</p>
+      <h3 id="read-only-auto-accessors" tabindex="-1" data-en="2155">示例：只读自动访问器&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-auto-accessors" aria-hidden="true">#</a></h3>
+      <p data-en="2157">我们已经实现了<a href="#read-only-fields">字段的装饰器<code>@readOnly</code></a>。现在为自动访问器实现同样的功能：</p>
       <pre data-en="2160"><code class="language-js" data-en="2161"><span class="hljs-keyword" data-en="2162">const</span> <span class="hljs-variable constant_" data-en="2163">UNINITIALIZED</span> = <span class="hljs-title class_" data-en="2164">Symbol</span>(<span class="hljs-string" data-en="2165">'UNINITIALIZED'</span>);
 <span class="hljs-keyword" data-en="2166">function</span> <span class="hljs-title function_" data-en="2167">readOnly</span>(<span class="hljs-params" data-en="2168">{get,set}, {name, kind}</span>) {
   <span class="hljs-keyword" data-en="2169">if</span> (kind === <span class="hljs-string" data-en="2170">'accessor'</span>) {
@@ -1686,18 +1685,18 @@ assert.<span class="hljs-title function_" data-en="2216">throws</span>(
 <span class="hljs-keyword" data-en="2221">const</span> orange = <span class="hljs-keyword" data-en="2222">new</span> <span class="hljs-title class_" data-en="2223">Color</span>(<span class="hljs-string" data-en="2224">'orange'</span>);
 assert.<span class="hljs-title function_" data-en="2225">equal</span>(orange.<span class="hljs-property" data-en="2226">name</span>, <span class="hljs-string" data-en="2227">'orange'</span>);
 </code></pre>
-      <p data-en="2228">Compared to the field version, this decorator has one considerable advantage: It does not need to wrap the class to ensure that the decorated constructs become read-only.</p>
-      <h2 id="faq" tabindex="-1" data-en="2229">Frequently asked questions&nbsp;&nbsp;<a class="heading-anchor" href="#faq" aria-hidden="true" data-en="2230">#</a></h2>
-      <h3 id="function-decorators" tabindex="-1" data-en="2231">Why can’t functions be decorated?&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true" data-en="2232">#</a></h3>
-      <p data-en="2233">The current proposal focuses on classes as a starting point. <a href="#more-decorator-related-proposals" data-en="2234">Decorators for function expressions were proposed.</a> However, there hasn’t been much progress since then and there is no proposal for function <em data-en="2235">declarations</em>.</p>
-      <p data-en="2236">On the other hand, functions are relatively easy to decorate “manually”:</p>
+      <p data-en="2228">与字段版本相比，此装饰器有一个显著的优点：它不需要包装类即可确保被装饰的结构变为只读。</p>
+      <h2 id="faq" tabindex="-1" data-en="2229">常见问题&nbsp;&nbsp;<a class="heading-anchor" href="#faq" aria-hidden="true" data-en="2230">#</a></h2>
+      <h3 id="function-decorators" tabindex="-1" data-en="2231">为什么函数不能被装饰？&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true" data-en="2232">#</a></h3>
+      <p data-en="2233">当前提案是以“类”为出发点的。<a href="#more-decorator-related-proposals" data-en="2234">函数表达式的装饰器提案已经提出。</a> 然而，自那以后进展不大，并且尚未有函数 <em>声明</em> 的提案。</p>
+      <p data-en="2236">另一方面，装饰函数相对简单：</p>
       <pre data-en="2237"><code class="language-js" data-en="2238"><span class="hljs-keyword" data-en="2239">const</span> decoratedFunc = <span class="hljs-title function_" data-en="2240">decorator</span>(<span class="hljs-function" data-en="2241">(<span class="hljs-params" data-en="2242">x, y</span>) =&gt;</span> {});
 </code></pre>
-      <p data-en="2243">This looks even better with <a href="https://2ality.com/2022/01/pipe-operator.html" data-en="2244">the proposed pipeline operator</a>:</p>
+      <p data-en="2243">甚至 <a href="https://2ality.com/2022/01/pipe-operator.html" data-en="2244">管道运算符提案</a>看起来更好：</p>
       <pre data-en="2245"><code class="language-js" data-en="2246"><span class="hljs-keyword" data-en="2247">const</span> <span class="hljs-title function_" data-en="2248">decoratedFunc</span> = (<span class="hljs-params" data-en="2249">x, y</span>) =&gt; {} |&gt; <span class="hljs-title function_" data-en="2250">decorator</span>(%);
 </code></pre>
       <h2 id="more-decorator-related-proposals" tabindex="-1" data-en="2251">More decorator-related proposals&nbsp;&nbsp;<a class="heading-anchor" href="#more-decorator-related-proposals" aria-hidden="true" data-en="2252">#</a></h2>
-      <p data-en="2253">The following ECMAScript proposals provide more decorator-related features:</p>
+      <p data-en="2253">以下这些ECMAScript提案，提供了更多装饰器相关的特性：</p>
       <ul data-en="2254">
         <li data-en="2255">Stage 2: <a href="https://github.com/tc39/proposal-decorator-metadata" data-en="2256">“Decorator Metadata”</a> by Chris Garrett (last update: 2022-04-11)
           <ul data-en="2257">
@@ -1707,38 +1706,38 @@ assert.<span class="hljs-title function_" data-en="2225">equal</span>(orange.<sp
         <li data-en="2259">Stage 0: <a href="https://docs.google.com/document/d/1ikxIP5-RVYq6d_f8lAvf3pKC00W78ueyp-xIZ6q67uU" data-en="2260">“Function Expression Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
         <li data-en="2261">Stage 0: <a href="https://docs.google.com/document/d/1Qpkqf_8NzAwfD8LdnqPjXAQ2wwh8BBUGynhn-ZlCWT0" data-en="2262">“Method Parameter Decorators”</a> by Igor Minar (last update: 2016-01-25)</li>
       </ul>
-      <h2 id="resources" tabindex="-1" data-en="2263">Resources&nbsp;&nbsp;<a class="heading-anchor" href="#resources" aria-hidden="true" data-en="2264">#</a></h2>
-      <h3 id="decorator-implementations" tabindex="-1" data-en="2265">Implementations&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-implementations" aria-hidden="true" data-en="2266">#</a></h3>
+      <h2 id="resources" tabindex="-1" data-en="2263">资源&nbsp;&nbsp;<a class="heading-anchor" href="#resources" aria-hidden="true" data-en="2264">#</a></h2>
+      <h3 id="decorator-implementations" tabindex="-1" data-en="2265">实现&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-implementations" aria-hidden="true" data-en="2266">#</a></h3>
       <ul data-en="2267">
-        <li data-en="2268">Babel currently has the best support for stage 3 decorators, via <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators" data-en="2269"><code data-en="2270">@babel/plugin-proposal-decorators</code></a>.
-          <ul data-en="2271">
-            <li data-en="2272">Be sure to pick <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version" data-en="2273">the latest decorator version</a>.</li>
-            <li data-en="2274">All the code in this blog post was developed via Babel.</li>
+        <li>Babel 目前通过 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators"><code>@babel/plugin-proposal-decorators</code></a> 对第 3 阶段装饰器提供了最佳支持。
+          <ul>
+            <li>确保选择 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version">最新的装饰器版本</a>。</li>
+            <li>本文中所有代码均通过 Babel 开发。</li>
           </ul>
         </li>
-        <li data-en="2275">TypeScript currently supports stage 1 decorators behind a flag.
-          <ul data-en="2276">
-            <li data-en="2277">There is <a href="https://github.com/microsoft/TypeScript/pull/50820" data-en="2278">a pull request by Ron Buckton</a> that supports stage 3 decorators and will likely ship in the release after TypeScript 4.9.</li>
+        <li>TypeScript 目前在一个标志后面支持第 1 阶段装饰器。
+          <ul>
+            <li>有 <a href="https://github.com/microsoft/TypeScript/pull/50820">Ron Buckton 的一个 PR</a> 支持第 3 阶段装饰器，并可能在 TypeScript 4.9 之后的版本中发布。</li>
           </ul>
         </li>
       </ul>
-      <h3 id="libraries-with-decorators" tabindex="-1" data-en="2279">Libraries with decorators&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true" data-en="2280">#</a></h3>
-      <p data-en="2281">These are libraries with decorators. They currently only support stage 1 decorators but can serve as inspirations for what’s possible:</p>
+      <h3 id="libraries-with-decorators" tabindex="-1" data-en="2279">带装饰器的库&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true" data-en="2280">#</a></h3>
+      <p data-en="2281">这些是带装饰器的库。目前它们仅支持第 1 阶段装饰器，但可以作为可能性的灵感：</p>
       <ul data-en="2282">
         <li data-en="2283"><a href="https://github.com/jayphelps/core-decorators.js" data-en="2284">core-decorators.js</a> by Jay Phelps (targets Babel)</li>
         <li data-en="2285"><a href="https://github.com/NetanelBasal/helpful-decorators" data-en="2286">“Helpful Decorators For TypeScript Projects”</a> by Netanel Basal</li>
       </ul>
-      <h2 id="acknowledgements" tabindex="-1" data-en="2287">Acknowledgements&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true" data-en="2288">#</a></h2>
+      <h2 id="acknowledgements" tabindex="-1" data-en="2287">致谢&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true" data-en="2288">#</a></h2>
       <ul data-en="2289">
-        <li data-en="2290">Thanks to Chris Garrett for answering my questions about decorators.</li>
+        <li data-en="2290">感谢 Chris Garrett 解答我关于装饰器的问题。</li>
       </ul>
-      <h2 id="further-reading" tabindex="-1" data-en="2291">Further reading&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true" data-en="2292">#</a></h2>
+      <h2 id="further-reading" tabindex="-1" data-en="2291">延伸阅读&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true" data-en="2292">#</a></h2>
       <ul data-en="2293">
-        <li data-en="2294">
-          <p data-en="2295"><a href="https://exploringjs.com/js/book/ch_callables.html" data-en="2296">Chapter “Callable values”</a> [ordinary functions, arrow functions, classes, methods] in “Exploring JavaScript”</p>
+        <li>
+          <p><a href="https://exploringjs.com/js/book/ch_callables.html">第 “可调用值” 章</a> [普通函数、箭头函数、类、方法] 在《探索 JavaScript》中</p>
         </li>
-        <li data-en="2297">
-          <p data-en="2298"><a href="https://exploringjs.com/js/book/ch_classes.html" data-en="2299">Chapter “Classes”</a> in “Exploring JavaScript”</p>
+        <li>
+          <p><a href="https://exploringjs.com/js/book/ch_classes.html">第 “类” 章</a> 在《探索 JavaScript》中</p>
         </li>
       </ul>
     </div>
