@@ -902,21 +902,21 @@ assert.<span class="hljs-title function_" data-en="1073">equal</span>(inst2.<spa
       <pre data-en="1077"><code class="language-js" data-en="1078">inst <span class="hljs-keyword" data-en="1079">instanceof</span> C
 C.<span class="hljs-property" data-en="1080"><span class="hljs-keyword" data-en="1081">prototype</span></span>.<span class="hljs-title function_" data-en="1082">isPrototypeOf</span>(inst)
 </code></pre>
-      <p data-en="1083">For more information on <code data-en="1084">instanceof</code>, see <a href="https://exploringjs.com/js/book/ch_classes.html#instanceof-operator" data-en="1085">“Exploring JavaScript”</a>.</p>
-      <h4 id="enabling-instanceof-via-symbol.hasinstance" tabindex="-1" data-en="1086">Enabling <code data-en="1087">instanceof</code> via <code data-en="1088">Symbol.hasInstance</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-symbol.hasinstance" aria-hidden="true" data-en="1089">#</a></h4>
-      <p data-en="1090">Another option for enabling <code data-en="1091">instanceof</code> is to give the wrapper function a method whose key is <code data-en="1092">Symbol.hasInstance</code> (line A):</p>
+      <p data-en="1083">有关 <code>instanceof</code> 的更多信息，请参见 <a href="https://exploringjs.com/js/book/ch_classes.html#instanceof-operator">“Exploring JavaScript”</a>。</p>
+      <h4 id="enabling-instanceof-via-symbol.hasinstance" tabindex="-1" data-en="1086">通过 <code>Symbol.hasInstance</code> 启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-symbol.hasinstance" aria-hidden="true">#</a></h4>
+      <p data-en="1090">启用 <code>instanceof</code> 的另一种选择是给包装函数一个键为 <code>Symbol.hasInstance</code> 的方法（A 行）：</p>
       <pre data-en="1093"><code class="language-js" data-en="1094"><span class="hljs-keyword" data-en="1095">function</span> <span class="hljs-title function_" data-en="1096">countInstances</span>(<span class="hljs-params" data-en="1097">value</span>) {
   <span class="hljs-keyword" data-en="1098">const</span> _this = <span class="hljs-variable language_" data-en="1099">this</span>;
   <span class="hljs-keyword" data-en="1100">let</span> instanceCount = <span class="hljs-number" data-en="1101">0</span>;
-  <span class="hljs-comment" data-en="1102">// The wrapper must be new-callable</span>
+  <span class="hljs-comment" data-en="1102">// 包装器必须是可通过 new 调用的</span>
   <span class="hljs-keyword" data-en="1103">const</span> wrapper = <span class="hljs-keyword" data-en="1104">function</span> (<span class="hljs-params" data-en="1105">...args</span>) {
     instanceCount++;
     <span class="hljs-keyword" data-en="1106">const</span> instance = <span class="hljs-keyword" data-en="1107">new</span> <span class="hljs-title function_" data-en="1108">value</span>(...args);
-    <span class="hljs-comment" data-en="1109">// Change the instance</span>
+    <span class="hljs-comment" data-en="1109">// 修改实例</span>
     instance.<span class="hljs-property" data-en="1110">count</span> = instanceCount;
     <span class="hljs-keyword" data-en="1111">return</span> instance;
   };
-  <span class="hljs-comment" data-en="1112">// Property is read-only, so we can’t use assignment</span>
+  <span class="hljs-comment" data-en="1112">// 属性是只读的，因此我们不能使用赋值</span>
   <span class="hljs-title class_" data-en="1113">Object</span>.<span class="hljs-title function_" data-en="1114">defineProperty</span>( <span class="hljs-comment" data-en="1115">// (A)</span>
     wrapper, <span class="hljs-title class_" data-en="1116">Symbol</span>.<span class="hljs-property" data-en="1117">hasInstance</span>,
     {
@@ -939,18 +939,18 @@ assert.<span class="hljs-title function_" data-en="1132">equal</span>(inst1.<spa
 assert.<span class="hljs-title function_" data-en="1138">ok</span>(inst2 <span class="hljs-keyword" data-en="1139">instanceof</span> <span class="hljs-title class_" data-en="1140">MyClass</span>);
 assert.<span class="hljs-title function_" data-en="1141">equal</span>(inst2.<span class="hljs-property" data-en="1142">count</span>, <span class="hljs-number" data-en="1143">2</span>);
 </code></pre>
-      <p data-en="1144">“Exploring JavaScript” has <a href="https://exploringjs.com/js/book/ch_symbols.html#publicly-known-symbols" data-en="1145">more information on <code data-en="1146">Symbol.hasInstance</code></a>.</p>
-      <h4 id="enabling-instanceof-via-subclassing" tabindex="-1" data-en="1147">Enabling <code data-en="1148">instanceof</code> via subclassing&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-subclassing" aria-hidden="true" data-en="1149">#</a></h4>
-      <p data-en="1150">We can also enable <code data-en="1151">instanceof</code> by returning a subclass of <code data-en="1152">value</code> (line A):</p>
+      <p data-en="1144">“Exploring JavaScript” 中有<a href="https://exploringjs.com/js/book/ch_symbols.html#publicly-known-symbols">关于 <code>Symbol.hasInstance</code> 的更多信息</a>。</p>
+      <h4 id="enabling-instanceof-via-subclassing" tabindex="-1" data-en="1147">通过子类化启用 <code>instanceof</code>&nbsp;&nbsp;<a class="heading-anchor" href="#enabling-instanceof-via-subclassing" aria-hidden="true">#</a></h4>
+      <p data-en="1150">我们还可以通过返回 <code>value</code> 的子类来启用 <code>instanceof</code>（A 行）：</p>
       <pre data-en="1153"><code class="language-js" data-en="1154"><span class="hljs-keyword" data-en="1155">function</span> <span class="hljs-title function_" data-en="1156">countInstances</span>(<span class="hljs-params" data-en="1157">value</span>) {
   <span class="hljs-keyword" data-en="1158">const</span> _this = <span class="hljs-variable language_" data-en="1159">this</span>;
   <span class="hljs-keyword" data-en="1160">let</span> instanceCount = <span class="hljs-number" data-en="1161">0</span>;
-  <span class="hljs-comment" data-en="1162">// The wrapper must be new-callable</span>
+  <span class="hljs-comment" data-en="1162">// 包装器必须是可通过 new 调用的</span>
   <span class="hljs-keyword" data-en="1163">return</span> <span class="hljs-keyword" data-en="1164">class</span> <span class="hljs-title class_" data-en="1165">extends</span> value { <span class="hljs-comment" data-en="1166">// (A)</span>
     <span class="hljs-title function_" data-en="1167">constructor</span>(<span class="hljs-params" data-en="1168">...args</span>) {
       <span class="hljs-variable language_" data-en="1169">super</span>(...args);
       instanceCount++;
-      <span class="hljs-comment" data-en="1170">// Change the instance</span>
+      <span class="hljs-comment" data-en="1170">// 修改实例</span>
       <span class="hljs-variable language_" data-en="1171">this</span>.<span class="hljs-property" data-en="1172">count</span> = instanceCount;
     }
   };
@@ -967,8 +967,8 @@ assert.<span class="hljs-title function_" data-en="1181">equal</span>(inst1.<spa
 assert.<span class="hljs-title function_" data-en="1187">ok</span>(inst2 <span class="hljs-keyword" data-en="1188">instanceof</span> <span class="hljs-title class_" data-en="1189">MyClass</span>);
 assert.<span class="hljs-title function_" data-en="1190">equal</span>(inst2.<span class="hljs-property" data-en="1191">count</span>, <span class="hljs-number" data-en="1192">2</span>);
 </code></pre>
-      <h3 id="example-freezing-instances" tabindex="-1" data-en="1193">Example: freezing instances&nbsp;&nbsp;<a class="heading-anchor" href="#example-freezing-instances" aria-hidden="true" data-en="1194">#</a></h3>
-      <p data-en="1195">The decorator class <code data-en="1196">@freeze</code> freezes all instances produced by the classes it decorates:</p>
+      <h3 id="example-freezing-instances" tabindex="-1" data-en="1193">示例：冻结实例&nbsp;&nbsp;<a class="heading-anchor" href="#example-freezing-instances" aria-hidden="true">#</a></h3>
+      <p data-en="1195">装饰器类 <code>@freeze</code> 通过冻结它所装饰的类生成的所有实例来实现：</p>
       <pre data-en="1197"><code class="language-js" data-en="1198"><span class="hljs-keyword" data-en="1199">function</span> <span class="hljs-title function_" data-en="1200">freeze</span> (<span class="hljs-params" data-en="1201">value, {kind}</span>) {
   <span class="hljs-keyword" data-en="1202">if</span> (kind === <span class="hljs-string" data-en="1203">'class'</span>) {
     <span class="hljs-keyword" data-en="1204">return</span> <span class="hljs-keyword" data-en="1205">function</span> (<span class="hljs-params" data-en="1206">...args</span>) {
@@ -991,20 +991,20 @@ assert.<span class="hljs-title function_" data-en="1223">throws</span>(
   <span class="hljs-regexp" data-en="1227">/^TypeError: Cannot assign to read only property 'name'/</span>
 );
 </code></pre>
-      <p data-en="1228">This decorator has downsides:</p>
+      <p data-en="1228">此装饰器有以下缺点：</p>
       <ul data-en="1229">
-        <li data-en="1230">It breaks <code data-en="1231">instanceof</code>. We have already seen how to fix this.</li>
-        <li data-en="1232">Subclassing a decorated class doesn’t work well:
-          <ul data-en="1233">
-            <li data-en="1234">The way in which constructors are connected isn’t ideal – with a wrapped constructor in the mix. This can be partially fixed by returning a subclass of the decorated <code data-en="1235">value</code>.</li>
-            <li data-en="1236">Subclasses can’t set up properties, because their <code data-en="1237">this</code> is immutable. There is no way to avoid this downside.</li>
+        <li>它破坏了 <code>instanceof</code>。我们已经看到如何修复这个问题。</li>
+        <li>对装饰类的子类化效果不佳：
+          <ul>
+            <li>构造函数的连接方式并不理想，因为混合了包装构造函数。这可以通过返回被装饰的 <code>value</code> 的子类来部分修复。</li>
+            <li>子类无法设置属性，因为它们的 <code>this</code> 是不可变的。无法避免此缺点。</li>
           </ul>
         </li>
       </ul>
-      <p data-en="1238">The last downside could be avoided by giving class decorators access to the instances of the decorated classes after all constructors were executed.</p>
-      <p data-en="1239">This would change how inheritance works because a superclass could now change properties that were added by subclasses. Therefore, it’s not sure if such a mechanism is in the cards.</p>
-      <h3 id="example%3A-making-classes-function-callable" tabindex="-1" data-en="1240">Example: making classes function-callable&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-making-classes-function-callable" aria-hidden="true" data-en="1241">#</a></h3>
-      <p data-en="1242">Classes decorated by <code data-en="1243">@functionCallable</code> can be invoked by function calls instead of the <code data-en="1244">new</code> operator:</p>
+      <p data-en="1238">最后一个缺点可以通过在所有构造函数执行后让类装饰器访问装饰类的实例来避免。</p>
+      <p data-en="1239">这将改变继承的工作方式，因为超类现在可以更改由子类添加的属性。因此，未来是否会有这样的机制尚不确定。</p>
+      <h3 id="example%3A-making-classes-function-callable" tabindex="-1" data-en="1240">示例：让类可函数调用&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-making-classes-function-callable" aria-hidden="true" data-en="1241">#</a></h3>
+      <p data-en="1242">被 <code>@functionCallable</code> 装饰的类可以通过函数调用而不是 <code>new</code> 操作符来调用：</p>
       <pre data-en="1245"><code class="language-js" data-en="1246"><span class="hljs-keyword" data-en="1247">function</span> <span class="hljs-title function_" data-en="1248">functionCallable</span>(<span class="hljs-params" data-en="1249">value, {kind}</span>) {
   <span class="hljs-keyword" data-en="1250">if</span> (kind === <span class="hljs-string" data-en="1251">'class'</span>) {
     <span class="hljs-keyword" data-en="1252">return</span> <span class="hljs-keyword" data-en="1253">function</span> (<span class="hljs-params" data-en="1254">...args</span>) {
@@ -1027,8 +1027,8 @@ assert.<span class="hljs-title function_" data-en="1275">equal</span>(
   robin.<span class="hljs-property" data-en="1276">name</span>, <span class="hljs-string" data-en="1277">'Robin'</span>
 );
 </code></pre>
-      <h2 id="class-method-decorators" tabindex="-1" data-en="1278">Class method decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-method-decorators" aria-hidden="true" data-en="1279">#</a></h2>
-      <p data-en="1280">Class method decorators have the following type signature:</p>
+      <h2 id="class-method-decorators" tabindex="-1" data-en="1278">类方法装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-method-decorators" aria-hidden="true" data-en="1279">#</a></h2>
+      <p data-en="1280">类方法装饰器具有以下类型签名：</p>
       <pre data-en="1281"><code class="language-ts" data-en="1282"><span class="hljs-keyword" data-en="1283">type</span> <span class="hljs-title class_" data-en="1284">ClassMethodDecorator</span> = <span class="hljs-function" data-en="1285">(<span class="hljs-params" data-en="1286">
   <span class="hljs-attr" data-en="1287">value</span>: <span class="hljs-title class_" data-en="1288">Function</span>,
   <span class="hljs-attr" data-en="1289">context</span>: {
@@ -1041,16 +1041,16 @@ assert.<span class="hljs-title function_" data-en="1275">equal</span>(
   }
 </span>) =&gt;</span> <span class="hljs-title class_" data-en="1300">Function</span> | <span class="hljs-built_in" data-en="1301">void</span>;
 </code></pre>
-      <p data-en="1302">Abilities of a method decorator:</p>
+      <p data-en="1302">方法装饰器的能力：</p>
       <ul data-en="1303">
-        <li data-en="1304">It can change the decorated method by changing <code data-en="1305">value</code>.</li>
-        <li data-en="1306">It can replace the decorated method by returning a function.</li>
-        <li data-en="1307">It can register initializers.</li>
-        <li data-en="1308"><code data-en="1309">context.access</code> only supports getting the value of its property, not setting it.</li>
+        <li>它可以通过改变 <code>value</code> 来改变被装饰的方法。</li>
+        <li>它可以通过返回一个函数来替换被装饰的方法。</li>
+        <li>它可以注册初始化器。</li>
+        <li><code>context.access</code> 仅支持获取其属性的值，而不支持设置。</li>
       </ul>
-      <p data-en="1310">Constructors can’t be decorated: They look like methods, but they aren’t really methods.</p>
-      <h3 id="example-tracing-method-invocations" tabindex="-1" data-en="1311">Example: tracing method invocations&nbsp;&nbsp;<a class="heading-anchor" href="#example-tracing-method-invocations" aria-hidden="true" data-en="1312">#</a></h3>
-      <p data-en="1313">The decorator <code data-en="1314">@trace</code> wraps methods so that their invocations and results are logged to the console:</p>
+      <p data-en="1310">构造函数不能被装饰：它们看起来像方法，但实际上并不是真正的方法。</p>
+      <h3 id="example-tracing-method-invocations" tabindex="-1" data-en="1311">示例：追踪方法调用&nbsp;&nbsp;<a class="heading-anchor" href="#example-tracing-method-invocations" aria-hidden="true" data-en="1312">#</a></h3>
+      <p data-en="1313">装饰器 <code>@trace</code> 包装方法，以便将它们的调用及结果记录到控制台：</p>
       <pre data-en="1315"><code class="language-js" data-en="1316"><span class="hljs-keyword" data-en="1317">function</span> <span class="hljs-title function_" data-en="1318">trace</span>(<span class="hljs-params" data-en="1319">value, {kind, name}</span>) {
   <span class="hljs-keyword" data-en="1320">if</span> (kind === <span class="hljs-string" data-en="1321">'method'</span>) {
     <span class="hljs-keyword" data-en="1322">return</span> <span class="hljs-keyword" data-en="1323">function</span> (<span class="hljs-params" data-en="1324">...args</span>) {
@@ -1081,7 +1081,7 @@ assert.<span class="hljs-title function_" data-en="1357">equal</span>(
   sb.<span class="hljs-title function_" data-en="1358">toString</span>(), <span class="hljs-string" data-en="1359">'Homepage'</span>
 );
 
-<span class="hljs-comment" data-en="1360">// Output:</span>
+<span class="hljs-comment" data-en="1360">// 输出：</span>
 <span class="hljs-comment" data-en="1361">// CALL add: ["Home"]</span>
 <span class="hljs-comment" data-en="1362">// =&gt; undefined</span>
 <span class="hljs-comment" data-en="1363">// CALL add: ["page"]</span>
@@ -1089,8 +1089,8 @@ assert.<span class="hljs-title function_" data-en="1357">equal</span>(
 <span class="hljs-comment" data-en="1365">// CALL toString: []</span>
 <span class="hljs-comment" data-en="1366">// =&gt; "Homepage"</span>
 </code></pre>
-      <h3 id="example%3A-binding-methods-to-instances" tabindex="-1" data-en="1367">Example: binding methods to instances&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-binding-methods-to-instances" aria-hidden="true" data-en="1368">#</a></h3>
-      <p data-en="1369">Normally, extracting methods (line A) means that we can’t function-call them because that sets <code data-en="1370">this</code> to <code data-en="1371">undefined</code>:</p>
+      <h3 id="example%3A-binding-methods-to-instances" tabindex="-1" data-en="1367">示例：将方法绑定到实例&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-binding-methods-to-instances" aria-hidden="true" data-en="1368">#</a></h3>
+      <p data-en="1369">通常，提取方法（A 行）意味着我们无法函数调用它们，因为这会将 <code>this</code> 设置为 <code>undefined</code>：</p>
       <pre data-en="1372"><code class="language-js" data-en="1373"><span class="hljs-keyword" data-en="1374">class</span> <span class="hljs-title class_" data-en="1375">Color1</span> {
   #name;
   <span class="hljs-title function_" data-en="1376">constructor</span>(<span class="hljs-params" data-en="1377">name</span>) {
@@ -1108,7 +1108,7 @@ assert.<span class="hljs-title function_" data-en="1392">throws</span>(
   <span class="hljs-regexp" data-en="1395">/^TypeError: Cannot read properties of undefined/</span>
 );
 </code></pre>
-      <p data-en="1396">We can fix that via the decorator <code data-en="1397">@bind</code>:</p>
+      <p data-en="1396">我们可以通过装饰器 <code>@bind</code> 修复这个问题：</p>
       <pre data-en="1398"><code class="language-js" data-en="1399"><span class="hljs-keyword" data-en="1400">function</span> <span class="hljs-title function_" data-en="1401">bind</span>(<span class="hljs-params" data-en="1402">value, {kind, name, addInitializer}</span>) {
   <span class="hljs-keyword" data-en="1403">if</span> (kind === <span class="hljs-string" data-en="1404">'method'</span>) {
     <span class="hljs-title function_" data-en="1405">addInitializer</span>(<span class="hljs-keyword" data-en="1406">function</span> (<span class="hljs-params" data-en="1407"></span>) { <span class="hljs-comment" data-en="1408">// (B)</span>
@@ -1134,21 +1134,21 @@ assert.<span class="hljs-title function_" data-en="1430">equal</span>(
   <span class="hljs-title function_" data-en="1431">toString2</span>(), <span class="hljs-string" data-en="1432">'Color(green)'</span>
 );
 
-<span class="hljs-comment" data-en="1433">// The own property green2.toString is different</span>
-<span class="hljs-comment" data-en="1434">// from Color2.prototype.toString</span>
+<span class="hljs-comment" data-en="1433">// 自有属性 green2.toString 与</span>
+<span class="hljs-comment" data-en="1434">// Color2.prototype.toString 不同</span>
 assert.<span class="hljs-title function_" data-en="1435">ok</span>(<span class="hljs-title class_" data-en="1436">Object</span>.<span class="hljs-title function_" data-en="1437">hasOwn</span>(green2, <span class="hljs-string" data-en="1438">'toString'</span>));
 assert.<span class="hljs-title function_" data-en="1439">notEqual</span>(
   green2.<span class="hljs-property" data-en="1440">toString</span>,
   <span class="hljs-title class_" data-en="1441">Color2</span>.<span class="hljs-property" data-en="1442"><span class="hljs-keyword" data-en="1443">prototype</span></span>.<span class="hljs-property" data-en="1444">toString</span>
 );
 </code></pre>
-      <p data-en="1445">Per decorated method, the initializer registered in line B is invoked whenever an instance is created and adds an own property whose value is a function with a fixed <code data-en="1446">this</code> (line C).</p>
-      <h3 id="example%3A-applying-functions-to-methods" tabindex="-1" data-en="1447">Example: applying functions to methods&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-applying-functions-to-methods" aria-hidden="true" data-en="1448">#</a></h3>
-      <p data-en="1449">The library <code data-en="1450">core-decorators</code> has <a href="https://github.com/jayphelps/core-decorators#decorate" data-en="1451">a decorator</a> that lets us apply functions to methods. That enables us to use helper functions such as Lodash’s <code data-en="1452">memoize()</code>. The following code shows an implementation <code data-en="1453">@applyFunction</code> of such a decorator:</p>
+      <p data-en="1445">通过将 A 行的初始化器注册为普通函数，我们可以在实例化时访问 <code>this</code>。这也解释了为什么 B 行的 <code>this</code> 具有该值。(line C)</p>
+      <h3 id="example%3A-applying-functions-to-methods" tabindex="-1" data-en="1447">示例：对方法应用函数&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-applying-functions-to-methods" aria-hidden="true" data-en="1448">#</a></h3>
+      <p data-en="1449">库 <code>core-decorators</code> 提供了一个装饰器，允许我们对方法应用函数。这使我们能够使用像 Lodash 的 <code>memoize()</code> 这样的辅助函数。以下代码展示了装饰器 <code>@applyFunction</code> 的实现：</p>
       <pre data-en="1454"><code class="language-js" data-en="1455"><span class="hljs-keyword" data-en="1456">import</span> { memoize } <span class="hljs-keyword" data-en="1457">from</span> <span class="hljs-string" data-en="1458">'lodash-es'</span>;
 
 <span class="hljs-keyword" data-en="1459">function</span> <span class="hljs-title function_" data-en="1460">applyFunction</span>(<span class="hljs-params" data-en="1461">functionFactory</span>) {
-  <span class="hljs-keyword" data-en="1462">return</span> <span class="hljs-function" data-en="1463">(<span class="hljs-params" data-en="1464">value, {kind}</span>) =&gt;</span> { <span class="hljs-comment" data-en="1465">// decorator function</span>
+  <span class="hljs-keyword" data-en="1462">return</span> <span class="hljs-function" data-en="1463">(<span class="hljs-params" data-en="1464">value, {kind}</span>) =&gt;</span> { <span class="hljs-comment" data-en="1465">// 装饰器函数</span>
     <span class="hljs-keyword" data-en="1466">if</span> (kind === <span class="hljs-string" data-en="1467">'method'</span>) {
       <span class="hljs-keyword" data-en="1468">return</span> <span class="hljs-title function_" data-en="1469">functionFactory</span>(value);
     }
@@ -1161,7 +1161,7 @@ assert.<span class="hljs-title function_" data-en="1439">notEqual</span>(
   @<span class="hljs-title function_" data-en="1474">applyFunction</span>(memoize)
   <span class="hljs-title function_" data-en="1475">expensiveOperation</span>(<span class="hljs-params" data-en="1476">str</span>) {
     invocationCount++;
-    <span class="hljs-comment" data-en="1477">// Expensive processing of `str` 😀</span>
+    <span class="hljs-comment" data-en="1477">// str` 的昂贵开销 😀</span>
     <span class="hljs-keyword" data-en="1478">return</span> str + str;
   }
 }
@@ -1179,8 +1179,8 @@ assert.<span class="hljs-title function_" data-en="1490">equal</span>(
   invocationCount, <span class="hljs-number" data-en="1491">1</span>
 );
 </code></pre>
-      <h2 id="class-getter-decorators%2C-class-setter-decorators" tabindex="-1" data-en="1492">Class getter decorators, class setter decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-getter-decorators%2C-class-setter-decorators" aria-hidden="true" data-en="1493">#</a></h2>
-      <p data-en="1494">These are the type signatures of getter decorators and setter decorators:</p>
+      <h2 id="class-getter-decorators%2C-class-setter-decorators" tabindex="-1" data-en="1492">类 getter 装饰器、setter 装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-getter-decorators%2C-class-setter-decorators" aria-hidden="true" data-en="1493">#</a></h2>
+      <p data-en="1494">这些是 getter 装饰器和 setter 装饰器的类型签名：</p>
       <pre data-en="1495"><code class="language-ts" data-en="1496"><span class="hljs-keyword" data-en="1497">type</span> <span class="hljs-title class_" data-en="1498">ClassGetterDecorator</span> = <span class="hljs-function" data-en="1499">(<span class="hljs-params" data-en="1500">
   <span class="hljs-attr" data-en="1501">value</span>: <span class="hljs-title class_" data-en="1502">Function</span>,
   <span class="hljs-attr" data-en="1503">context</span>: {
@@ -1205,15 +1205,15 @@ assert.<span class="hljs-title function_" data-en="1490">equal</span>(
   }
 </span>) =&gt;</span> <span class="hljs-title class_" data-en="1534">Function</span> | <span class="hljs-built_in" data-en="1535">void</span>;
 </code></pre>
-      <p data-en="1536">Getter decorators and setter decorators have similar abilities to method decorators.</p>
-      <h3 id="example%3A-computing-values-lazily" tabindex="-1" data-en="1537">Example: computing values lazily&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-computing-values-lazily" aria-hidden="true" data-en="1538">#</a></h3>
-      <p data-en="1539">To implement a property whose value is computed <em data-en="1540">lazily</em> (on demand), we use two techniques:</p>
+      <p data-en="1536">getter 装饰器和 setter 装饰器的能力类似于方法装饰器。</p>
+      <h3 id="example%3A-computing-values-lazily" tabindex="-1" data-en="1537">示例：惰性计算值&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-computing-values-lazily" aria-hidden="true" data-en="1538">#</a></h3>
+      <p data-en="1539">惰性计算属性值的实现需要两种技术：</p>
       <ul data-en="1541">
-        <li data-en="1542">
-          <p data-en="1543">We implement the property via a getter. That way, the code that computes its value, is only executed if the property is read.</p>
+        <li>
+          <p>我们通过 getter 实现该属性。这样，计算其值的代码仅在读取属性时执行。</p>
         </li>
-        <li data-en="1544">
-          <p data-en="1545">The decorator <code data-en="1546">@lazy</code> wraps the original getter: When the wrapper is invoked for the first time, it invokes the getter and creates an own data property whose value is the result. From now on, the own property overrides the inherited getter whenever someone reads the property.</p>
+        <li>
+          <p>装饰器 <code>@lazy</code> 包装原始 getter：当包装器第一次被调用时，它调用 getter 并创建一个自身数据属性，其值为计算结果。从此以后，无论何时有人读取该属性，自身属性都会覆盖继承的 getter。</p>
         </li>
       </ul>
       <pre data-en="1547"><code class="language-js" data-en="1548"><span class="hljs-keyword" data-en="1549">class</span> <span class="hljs-title class_" data-en="1550">C</span> {
@@ -1248,16 +1248,16 @@ assert.<span class="hljs-title function_" data-en="1586">equal</span>(inst.<span
 assert.<span class="hljs-title function_" data-en="1592">equal</span>(inst.<span class="hljs-property" data-en="1593">value</span>, <span class="hljs-string" data-en="1594">'Result of computation'</span>);
 <span class="hljs-variable language_" data-en="1595">console</span>.<span class="hljs-title function_" data-en="1596">log</span>(<span class="hljs-string" data-en="1597">'4 end'</span>);
 
-<span class="hljs-comment" data-en="1598">// Output:</span>
+<span class="hljs-comment" data-en="1598">// 输出：</span>
 <span class="hljs-comment" data-en="1599">// 1 new C()</span>
 <span class="hljs-comment" data-en="1600">// 2 inst.value</span>
 <span class="hljs-comment" data-en="1601">// COMPUTING</span>
 <span class="hljs-comment" data-en="1602">// 3 inst.value</span>
 <span class="hljs-comment" data-en="1603">// 4 end</span>
 </code></pre>
-      <p data-en="1604">Note that property <code data-en="1605">.[name]</code> is immutable (because there is only a getter), which is why we have to define the property (line A) and can’t use assignment.</p>
-      <h2 id="class-field-decorators" tabindex="-1" data-en="1606">Class field decorators&nbsp;&nbsp;<a class="heading-anchor" href="#class-field-decorators" aria-hidden="true" data-en="1607">#</a></h2>
-      <p data-en="1608">Class field decorators have the following type signature:</p>
+      <p data-en="1604">请注意，属性 <code>.[name]</code> 是不可变的（因为只有一个 getter），这就是为什么我们必须在 A 行定义该属性，而不能使用赋值的原因。</p>
+      <h2 id="class-field-decorators" tabindex="-1" data-en="1606">类字段装饰器&nbsp;&nbsp;<a class="heading-anchor" href="#class-field-decorators" aria-hidden="true" data-en="1607">#</a></h2>
+      <p data-en="1608">类字段装饰器具有以下类型签名：</p>
       <pre data-en="1609"><code class="language-ts" data-en="1610"><span class="hljs-keyword" data-en="1611">type</span> <span class="hljs-title class_" data-en="1612">ClassFieldDecorator</span> = <span class="hljs-function" data-en="1613">(<span class="hljs-params" data-en="1614">
   <span class="hljs-attr" data-en="1615">value</span>: <span class="hljs-literal" data-en="1616">undefined</span>,
   <span class="hljs-attr" data-en="1617">context</span>: {
@@ -1270,26 +1270,26 @@ assert.<span class="hljs-title function_" data-en="1592">equal</span>(inst.<span
   }
 </span>) =&gt;</span> <span class="hljs-function" data-en="1630">(<span class="hljs-params" data-en="1631"><span class="hljs-attr" data-en="1632">initialValue</span>: <span class="hljs-built_in" data-en="1633">unknown</span></span>) =&gt;</span> <span class="hljs-built_in" data-en="1634">unknown</span> | <span class="hljs-built_in" data-en="1635">void</span>;
 </code></pre>
-      <p data-en="1636">Abilities of a field decorator:</p>
+      <p data-en="1636">字段装饰器的能力：</p>
       <ul data-en="1637">
-        <li data-en="1638">
-          <p data-en="1639">It cannot change or replace its field. If we need that functionality, we have to use an <em data-en="1640">auto-accessor</em> (what that is, is described <a href="#auto-accessors" data-en="1641">later</a>).</p>
+        <li>
+          <p>它不能改变或替换它的字段。如果我们需要该功能，我们必须使用 <em>自动访问器</em>（稍后将解释的内容）。</p>
         </li>
-        <li data-en="1642">
-          <p data-en="1643">It can change the value with which “its” field is initialized, by returning a function that receives the original initialization value and returns a new initialization value.</p>
-          <ul data-en="1644">
-            <li data-en="1645">Inside that function, <code data-en="1646">this</code> refers to the current instance.</li>
+        <li>
+          <p>通过返回一个接收原始初始化值并返回新初始化值的函数来改变字段的初始化值。</p>
+          <ul>
+            <li>在该函数内部，<code>this</code> 指向当前实例。</li>
           </ul>
         </li>
-        <li data-en="1647">
-          <p data-en="1648">It can register initializers. That is a recent change (post-2022-03) of the decorators API and wasn’t possible before.</p>
+        <li>
+          <p>注册初始化器。这是装饰器 API 的一个最近更改（2022-03 之后），之前是不可行的。</p>
         </li>
       </ul>
       <ul data-en="1649">
-        <li data-en="1650">It can expose access to its field (even if it’s private) via <code data-en="1651">context.access</code>.</li>
+        <li>它可以通过 <code>context.access</code> 暴露对其字段的访问（即使是私有字段）。</li>
       </ul>
-      <h3 id="example%3A-changing-initialization-values-of-fields" tabindex="-1" data-en="1652">Example: changing initialization values of fields&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-changing-initialization-values-of-fields" aria-hidden="true" data-en="1653">#</a></h3>
-      <p data-en="1654">The decorator <code data-en="1655">@twice</code> doubles the original initialization value of a field by returning a function that performs this change:</p>
+      <h3 id="example%3A-changing-initialization-values-of-fields" tabindex="-1" data-en="1652">示例：改变字段初始化值&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-changing-initialization-values-of-fields" aria-hidden="true" data-en="1653">#</a></h3>
+      <p data-en="1654">装饰器 <code>@twice</code> 通过返回一个函数来改变字段的原始初始化值，该函数接收原始值并返回新值：</p>
       <pre data-en="1656"><code class="language-js" data-en="1657"><span class="hljs-keyword" data-en="1658">function</span> <span class="hljs-title function_" data-en="1659">twice</span>(<span class="hljs-params" data-en="1660"></span>) {
   <span class="hljs-keyword" data-en="1661">return</span> <span class="hljs-function" data-en="1662"><span class="hljs-params" data-en="1663">initialValue</span> =&gt;</span> initialValue * <span class="hljs-number" data-en="1664">2</span>;
 }
@@ -1304,8 +1304,8 @@ assert.<span class="hljs-title function_" data-en="1671">equal</span>(
   inst.<span class="hljs-property" data-en="1672">field</span>, <span class="hljs-number" data-en="1673">6</span>
 );
 </code></pre>
-      <h3 id="read-only-fields" tabindex="-1" data-en="1674">Example: read-only fields (instance public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-fields" aria-hidden="true" data-en="1675">#</a></h3>
-      <p data-en="1676">The decorator <code data-en="1677">@readOnly</code> makes a field immutable. It waits until the field was completely set up (either via an assignment or via the constructor) before it does so.</p>
+      <h3 id="read-only-fields" tabindex="-1" data-en="1674">示例：只读字段（实例公有字段）&nbsp;&nbsp;<a class="heading-anchor" href="#read-only-fields" aria-hidden="true" data-en="1675">#</a></h3>
+      <p data-en="1676">装饰器 <code>@readOnly</code> 通过在字段完全设置后（通过赋值或构造函数）使其不可变来实现。</p>
       <pre data-en="1678"><code class="language-js" data-en="1679"><span class="hljs-keyword" data-en="1680">const</span> readOnlyFieldKeys = <span class="hljs-title class_" data-en="1681">Symbol</span>(<span class="hljs-string" data-en="1682">'readOnlyFieldKeys'</span>);
 
 @readOnly
@@ -1344,12 +1344,12 @@ assert.<span class="hljs-title function_" data-en="1696">throws</span>(
   }
 }
 </code></pre>
-      <p data-en="1732">We need two steps to implement the functionality of <code data-en="1733">@readOnly</code> (which is why the class is also decorated):</p>
+      <p data-en="1732">我们需要两步来让 <code data-en="1733">@readOnly</code> 生效(这也是类也被装饰了的原因):</p>
       <ul data-en="1734">
-        <li data-en="1735">We first collect all keys of read-only fields (line A).</li>
-        <li data-en="1736">Then we wait until the instance was completely set up and make the fields, whose keys we collected, non-writable (line B). We need to wrap the class because decorator initializers are executed too early.</li>
+        <li data-en="1735">我们首先收集所有要变成只读的字段 (line A).</li>
+        <li data-en="1736">等实例已经创建完成，我们再把收集的字段设为不可写(line B)。我们需要把类包起来因为装饰器初始化器执行得太早了。</li>
       </ul>
-      <p data-en="1737">Similarly to making instances immutable, this decorator breaks <code data-en="1738">instanceof</code>. The same workaround can be used here, too.</p>
+      <p data-en="1737">和不可变类似，这个装饰器也会破坏<code data-en="1738">instanceof</code>的行为。 变通方法也是一样的。</p>
       <p data-en="1739">We’ll later see <a href="#read-only-auto-accessors" data-en="1740">a version <code data-en="1741">@readOnly</code> that works with auto-accessors</a> instead of fields. That implementation does not require the class to be decorated.</p>
       <h3 id="example%3A-dependency-injection-(instance-public-fields)" tabindex="-1" data-en="1742">Example: dependency injection (instance public fields)&nbsp;&nbsp;<a class="heading-anchor" href="#example%3A-dependency-injection-(instance-public-fields)" aria-hidden="true" data-en="1743">#</a></h3>
       <p data-en="1744"><em data-en="1745">Dependency injection</em> is motivated by the following observation: If we provide the constructor of a class with its dependencies (vs. the constructor setting them up itself), then it’s easier to adapt the dependencies to different environments, including testing.</p>
