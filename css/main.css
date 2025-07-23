@@ -440,6 +440,15 @@ h6:hover .heading-anchor {
   counter-reset: toc-subsection;
 }
 
+.table-of-contents > ul > li > kskb > a:before {
+  counter-increment: toc-section;
+  content: counter(toc-section) '\2002';
+}
+
+.table-of-contents > ul > li > kskb > a {
+  counter-reset: toc-subsection;
+}
+
 .table-of-contents > ul > li > ul {
   list-style: none;
 }
