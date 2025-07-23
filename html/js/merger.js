@@ -12,11 +12,11 @@ document.querySelectorAll('[data-zh]').forEach((zh) => {
   en.style.display = 'none';
   zh.parentElement.insertBefore(en, zh);
   zh.addEventListener('click', () => {
-    en.style.display = 'block';
+    en.style.display = '';
     zh.style.display = 'none';
   });
   en.addEventListener('click', () => {
-    zh.style.display = 'block';
+    zh.style.display = '';
     en.style.display = 'none';
   });
 });

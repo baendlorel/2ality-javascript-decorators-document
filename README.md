@@ -4,10 +4,7 @@
 
 ## 项目结构
 
-- `JavaScript2022-03decoratorsAPI.cn.html`：装饰器 API 中文版文档
-- `JavaScript2022-03decoratorsAPI.html`：原版英文文档
-- `JavaScript2022-03decoratorsAPI.merged.html`：中英文合并文档
-- `main.css`、`highlight.css`：样式文件
+- `JavaScript2022-03decoratorsAPI.html`：极为中英双语文章，鼠标指在文本上点击可以切换，也可以右上角按钮切换语言
 
 ## 使用方法
 
