@@ -1,0 +1,23 @@
+[data-zh]:hover,
+[data-en]:hover {
+  border-radius: 5px;
+  background-color: #b0cbeb55;
+}
+
+[data-zh]:hover::before,
+[data-en]:hover::before {
+  position: absolute;
+  margin-top: -20px;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  color: #22863a;
+  background-color: #e5fbea;
+}
+
+[data-zh]:hover::before {
+  content: '> 点击切换中英文/Click to switch between Chinese and English';
+}
+
+[data-en]:hover::before {
+  content: '> 点击切换中英文/Click to switch between Chinese and English';
+}
