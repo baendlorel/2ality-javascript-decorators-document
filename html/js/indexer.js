@@ -19,6 +19,10 @@ document.querySelectorAll(`#page-core-content ${list.join(',')}`).forEach((el) =
     );
     const kskbWrapper = document.createElement(kskb);
     kskbWrapper.append(...otherEls);
+    if (kskbWrapper.textContent.trim() === '') {
+      return;
+    }
+
     kskbWrapper.setAttribute('data-en', index);
     kskbWrapper.style.display = 'block';
     el.insertBefore(kskbWrapper, ls[0]);
@@ -30,6 +34,10 @@ document.querySelectorAll(`#page-core-content ${list.join(',')}`).forEach((el) =
     const otherEls = Array.from(el.childNodes).filter((child) => child.tagName !== 'P');
     const kskbWrapper = document.createElement(kskb);
     kskbWrapper.append(...otherEls);
+    if (kskbWrapper.textContent.trim() === '') {
+      return;
+    }
+
     kskbWrapper.setAttribute('data-en', index);
     kskbWrapper.style.display = 'block';
     el.insertBefore(kskbWrapper, ps[0]);
