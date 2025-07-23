@@ -1746,21 +1746,19 @@ assert.<span class="hljs-title function_">equal</span>(orange.<span class="hljs-
 </code></pre>
       <p data-en="344">与字段版本相比，此装饰器有一个显著的优点：它不需要包装类即可确保被装饰的结构变为只读。</p>
       <h2 id="faq" tabindex="-1" data-en="345">常见问题&nbsp;&nbsp;<a class="heading-anchor" href="#faq" aria-hidden="true">#</a></h2>
-      <h3 id="function-decorators" tabindex="-1" data-en="346">Why can’t functions be decorated?&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true">#</a></h3>
-      <p data-en="347">The current proposal focuses on classes as a starting point. <a href="#more-decorator-related-proposals">Decorators for function expressions were proposed.</a> However, there hasn’t been much progress since then and there is no proposal for function <em>declarations</em>.</p>
-      <p data-en="348">On the other hand, functions are relatively easy to decorate “manually”:</p>
+      <h3 id="function-decorators" tabindex="-1" data-en="346">为什么函数不能被装饰？&nbsp;&nbsp;<a class="heading-anchor" href="#function-decorators" aria-hidden="true">#</a></h3>
+      <p data-en="347">当前提案是以“类”为出发点的。<a href="#more-decorator-related-proposals">函数表达式的装饰器提案已经提出。</a> 然而，自那以后进展不大，并且尚未有函数 <em>声明</em> 的提案。</p>
+      <p data-en="348">另一方面，装饰函数相对简单：</p>
       <pre><code class="language-js"><span class="hljs-keyword">const</span> decoratedFunc = <span class="hljs-title function_">decorator</span>(<span class="hljs-function">(<span class="hljs-params">x, y</span>) =&gt;</span> {});
 </code></pre>
-      <p data-en="349">This looks even better with <a href="https://2ality.com/2022/01/pipe-operator.html">the proposed pipeline operator</a>:</p>
+      <p data-en="349">甚至 <a href="https://2ality.com/2022/01/pipe-operator.html">管道运算符提案</a>看起来更好：</p>
       <pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">decoratedFunc</span> = (<span class="hljs-params">x, y</span>) =&gt; {} |&gt; <span class="hljs-title function_">decorator</span>(%);
 </code></pre>
       <h2 id="more-decorator-related-proposals" tabindex="-1" data-en="350">More decorator-related proposals&nbsp;&nbsp;<a class="heading-anchor" href="#more-decorator-related-proposals" aria-hidden="true">#</a></h2>
-      <p data-en="351">The following ECMAScript proposals provide more decorator-related features:</p>
+      <p data-en="351">以下这些ECMAScript提案，提供了更多装饰器相关的特性：</p>
       <ul>
         <li>
-          <kskb data-en="352" style="display: block;">Stage 2: <a href="https://github.com/tc39/proposal-decorator-metadata">“Decorator Metadata”</a> by Chris Garrett (last update: 2022-04-11)
-
-          </kskb>
+          <kskb data-en="352" style="display: block;">Stage 2: <a href="https://github.com/tc39/proposal-decorator-metadata">“Decorator Metadata”</a> by Chris Garrett (last update: 2022-04-11)</kskb>
           <ul>
             <li data-en="353">Quote: “This proposal seeks to extend the Decorators proposal by adding the ability for decorators to associate metadata with the value being decorated.”</li>
           </ul>
@@ -1772,40 +1770,38 @@ assert.<span class="hljs-title function_">equal</span>(orange.<span class="hljs-
       <h3 id="decorator-implementations" tabindex="-1" data-en="357">Implementations&nbsp;&nbsp;<a class="heading-anchor" href="#decorator-implementations" aria-hidden="true">#</a></h3>
       <ul>
         <li>
-          <kskb data-en="358" style="display: block;">Babel currently has the best support for stage 3 decorators, via <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators"><code>@babel/plugin-proposal-decorators</code></a>.
-
+          <kskb data-en="358" style="display: block;">Babel 目前通过 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators"><code>@babel/plugin-proposal-decorators</code></a> 对第 3 阶段装饰器提供了最佳支持。
           </kskb>
           <ul>
-            <li data-en="359">Be sure to pick <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version">the latest decorator version</a>.</li>
-            <li data-en="360">All the code in this blog post was developed via Babel.</li>
+            <li data-en="359">确保选择 <a href="https://babeljs.io/docs/en/babel-plugin-proposal-decorators#version">最新的装饰器版本</a>。</li>
+            <li data-en="360">本文中所有代码均通过 Babel 开发。</li>
           </ul>
         </li>
         <li>
-          <kskb data-en="361" style="display: block;">TypeScript currently supports stage 1 decorators behind a flag.
-
+          <kskb data-en="361" style="display: block;">TypeScript 目前在一个标志后面支持第 1 阶段装饰器。
           </kskb>
           <ul>
-            <li data-en="362">There is <a href="https://github.com/microsoft/TypeScript/pull/50820">a pull request by Ron Buckton</a> that supports stage 3 decorators and will likely ship in the release after TypeScript 4.9.</li>
+            <li data-en="362">有 <a href="https://github.com/microsoft/TypeScript/pull/50820">Ron Buckton 的一个 PR</a> 支持第 3 阶段装饰器，并可能在 TypeScript 4.9 之后的版本中发布。</li>
           </ul>
         </li>
       </ul>
-      <h3 id="libraries-with-decorators" tabindex="-1" data-en="363">Libraries with decorators&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true">#</a></h3>
-      <p data-en="364">These are libraries with decorators. They currently only support stage 1 decorators but can serve as inspirations for what’s possible:</p>
+      <h3 id="libraries-with-decorators" tabindex="-1" data-en="363">带装饰器的库&nbsp;&nbsp;<a class="heading-anchor" href="#libraries-with-decorators" aria-hidden="true">#</a></h3>
+      <p data-en="364">这些是带装饰器的库。目前它们仅支持第 1 阶段装饰器，但可以作为可能性的灵感：</p>
       <ul>
         <li data-en="365"><a href="https://github.com/jayphelps/core-decorators.js">core-decorators.js</a> by Jay Phelps (targets Babel)</li>
         <li data-en="366"><a href="https://github.com/NetanelBasal/helpful-decorators">“Helpful Decorators For TypeScript Projects”</a> by Netanel Basal</li>
       </ul>
-      <h2 id="acknowledgements" tabindex="-1" data-en="367">Acknowledgements&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true">#</a></h2>
+      <h2 id="acknowledgements" tabindex="-1" data-en="367">致谢&nbsp;&nbsp;<a class="heading-anchor" href="#acknowledgements" aria-hidden="true">#</a></h2>
       <ul>
-        <li data-en="368">Thanks to Chris Garrett for answering my questions about decorators.</li>
+        <li data-en="368">感谢 Chris Garrett 解答我关于装饰器的问题。</li>
       </ul>
-      <h2 id="further-reading" tabindex="-1" data-en="369">Further reading&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true">#</a></h2>
+      <h2 id="further-reading" tabindex="-1" data-en="369">延伸阅读&nbsp;&nbsp;<a class="heading-anchor" href="#further-reading" aria-hidden="true">#</a></h2>
       <ul>
         <li>
-          <p data-en="371"><a href="https://exploringjs.com/js/book/ch_callables.html">Chapter “Callable values”</a> [ordinary functions, arrow functions, classes, methods] in “Exploring JavaScript”</p>
+          <p data-en="371"><a href="https://exploringjs.com/js/book/ch_callables.html">章节：Callables</a> [普通函数、箭头函数、类、方法] 在《探索 JavaScript》中</p>
         </li>
         <li>
-          <p data-en="373"><a href="https://exploringjs.com/js/book/ch_classes.html">Chapter “Classes”</a> in “Exploring JavaScript”</p>
+          <p data-en="373"><a href="https://exploringjs.com/js/book/ch_classes.html">章节：Classes</a> 在《探索 JavaScript》中</p>
         </li>
       </ul>
     </div>
