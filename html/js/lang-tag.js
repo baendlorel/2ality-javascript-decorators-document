@@ -18,12 +18,21 @@ document.querySelectorAll('[data-zh],[data-en]').forEach((el) => {
 // Add a fixed button at the top-right corner for language switching
 const wrapper = document.createElement('div');
 wrapper.classList.add('tools');
+
 const bzh = document.createElement('button');
 bzh.textContent = '中文';
 const ben = document.createElement('button');
 ben.textContent = 'English';
-wrapper.append(bzh, ben);
+const toTop = document.createElement('button');
+toTop.textContent = '↑';
+toTop.title = '回到顶部';
+wrapper.append(bzh, ben, toTop);
 document.body.append(wrapper);
+
+// Scroll to top when clicking the arrow button
+toTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
 bzh.addEventListener('click', () => {
   document.querySelectorAll('[data-zh]').forEach((el) => (el.style.display = ''));

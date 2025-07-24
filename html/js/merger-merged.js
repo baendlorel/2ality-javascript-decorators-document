@@ -1,7 +1,3 @@
-document.querySelectorAll('#page-core-content2 *').forEach((el) => {
-  el.removeAttribute('id');
-});
-
 document.querySelectorAll('[data-zh]').forEach((zh) => {
   const index = zh.getAttribute('data-zh');
   const en = document.querySelector(`[data-en="${index}"]`);
@@ -9,9 +5,6 @@ document.querySelectorAll('[data-zh]').forEach((zh) => {
     console.log('zh=' + index, zh);
     return;
   }
-
-  en.title = '点击切换到中文/Click to switch to Chinese';
-  zh.title = '点击切换到英文/Click to switch to English';
 
   const originZhDisplay = zh.style.display;
   const originEnDisplay = en.style.display;
@@ -26,14 +19,6 @@ document.querySelectorAll('[data-zh]').forEach((zh) => {
     en.style.display = 'none';
     zh.style.display = originZhDisplay;
   });
-});
-
-document.querySelectorAll('[data-zh]').forEach((zh) => {
-  const id = zh.id;
-  zh.removeAttribute('id');
-  const span = document.createElement('span');
-  span.setAttribute('id', id);
-  zh.parentElement.insertBefore(span, zh);
 });
 
 document.querySelectorAll('a').forEach((a) => {
