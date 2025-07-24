@@ -1,3 +1,7 @@
+document.querySelectorAll('#page-core-content2 *').forEach((el) => {
+  el.removeAttribute('id');
+});
+
 document.querySelectorAll('[data-zh]').forEach((zh) => {
   const index = zh.getAttribute('data-zh');
   const en = document.querySelector(`[data-en="${index}"]`);
@@ -18,5 +22,19 @@ document.querySelectorAll('[data-zh]').forEach((zh) => {
   en.addEventListener('click', () => {
     zh.style.display = '';
     en.style.display = 'none';
+  });
+});
+
+document.querySelectorAll('[data-zh]').forEach((zh) => {
+  const id = zh.id;
+  zh.removeAttribute('id');
+  const span = document.createElement('span');
+  span.setAttribute('id', id);
+  zh.parentElement.insertBefore(span, zh);
+});
+
+document.querySelectorAll('a').forEach((a) => {
+  a.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 });

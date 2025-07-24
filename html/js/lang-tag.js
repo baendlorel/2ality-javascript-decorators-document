@@ -16,19 +16,14 @@ document.querySelectorAll('[data-zh],[data-en]').forEach((el) => {
 });
 
 // Add a fixed button at the top-right corner for language switching
+const wrapper = document.createElement('div');
+wrapper.classList.add('tools');
 const bzh = document.createElement('button');
 bzh.textContent = '中文';
-bzh.style.position = 'fixed';
-bzh.style.top = '20px';
-bzh.style.right = '90px';
-bzh.style.height = '30px';
 const ben = document.createElement('button');
 ben.textContent = 'English';
-ben.style.position = 'fixed';
-ben.style.top = '20px';
-ben.style.right = '20px';
-ben.style.height = '30px';
-document.body.append(bzh, ben);
+wrapper.append(bzh, ben);
+document.body.append(wrapper);
 
 bzh.addEventListener('click', () => {
   document.querySelectorAll('[data-zh]').forEach((el) => (el.style.display = ''));
